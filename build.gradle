@@ -111,8 +111,8 @@ allprojects {
 
     repositories {
         maven { url "https://dl.bintray.com/hmcts/hmcts-maven" }
-        maven { url 'https://repo.spring.io/libs-milestone' }
         mavenCentral()
+        maven { url 'https://repo.spring.io/libs-milestone' }
         jcenter()
     }
 
@@ -186,7 +186,7 @@ bootJar {
                 'Implementation-Version': project.version
     }
 
-    archiveFileName = 'div-case-orchestration-service.jar'
+    archiveFileName = 'nfdiv-case-orchestration-service.jar'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.divorce.orchestration.OrchestrationServiceApplication'
@@ -513,8 +513,8 @@ def sonarExclusions = [
 
 sonarqube {
     properties {
-        property "sonar.projectName", "Divorce :: div-case-orchestration-service"
-        property "sonar.projectKey", "div-case-orchestration-service"
+        property "sonar.projectName", "Divorce :: nfdiv-case-orchestration-service"
+        property "sonar.projectKey", "nfdiv-case-orchestration-service"
         property "sonar.exclusions", sonarExclusions.join(", ")
         property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
         property "sonar.pitest.mode", "reuseReport"
