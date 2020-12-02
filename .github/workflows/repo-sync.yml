@@ -1,4 +1,7 @@
-on: push
+on:
+  schedule:
+    # Run everyday at 6.00AM
+    - cron:  '0 6 * * *' 
 jobs:
   repo-sync:
     runs-on: ubuntu-latest
