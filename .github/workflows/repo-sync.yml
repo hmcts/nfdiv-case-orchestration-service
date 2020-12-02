@@ -6,7 +6,7 @@ jobs:
       - name: Git Sync Action
         uses: wei/git-sync@v2.1.0
         with:
-          source_repo: "https://github.com/hmcts/nfdiv-case-orchestration-service.git"
+          source_repo: "https://github.com/hmcts/div-case-orchestration-service.git"
           source_branch: "master"
           destination_repo: "https://github.com/hmcts/nfdiv-case-orchestration-service.git"
           destination_branch: "upstream"
