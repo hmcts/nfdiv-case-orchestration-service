@@ -405,6 +405,6 @@ public class OrchestrationConstants {
     public static final String TEMPLATE_MONTHS = "months";
 
     // Bulk Scan
-    public static final String CASE_TYPE_ID = "DIVORCE";
+    public static final String CASE_TYPE_ID = "NO_FAULT_DIVORCE";
 
 }
