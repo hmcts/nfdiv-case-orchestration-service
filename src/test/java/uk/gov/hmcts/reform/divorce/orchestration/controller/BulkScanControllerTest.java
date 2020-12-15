@@ -106,7 +106,7 @@ public class BulkScanControllerTest {
         SuccessfulTransformationResponse transformationResponse = response.getBody();
         assertThat(transformationResponse.getWarnings(), is(emptyList()));
         CaseCreationDetails caseCreationDetails = transformationResponse.getCaseCreationDetails();
-        assertThat(caseCreationDetails.getCaseTypeId(), is("DIVORCE"));
+        assertThat(caseCreationDetails.getCaseTypeId(), is("NO-FAULT-DIVORCE"));
         assertThat(caseCreationDetails.getCaseData(), hasEntry("testKey", "testValue"));
 
         verify(authService).assertIsServiceAllowedToUpdate(TEST_SERVICE_TOKEN);
@@ -143,7 +143,7 @@ public class BulkScanControllerTest {
         CaseDetails returnedCaseDetails = updateResponse.getCaseDetails();
 
         assertThat(updateResponse.getWarnings(), is(emptyList()));
-        assertThat(returnedCaseDetails.getCaseTypeId(), is("DIVORCE"));
+        assertThat(returnedCaseDetails.getCaseTypeId(), is("NO-FAULT-DIVORCE"));
         assertThat(returnedCaseDetails.getCaseData(), hasEntry("testKey", "testValue"));
 
         verify(authService).assertIsServiceAllowedToUpdate(TEST_SERVICE_TOKEN);
