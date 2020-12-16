@@ -206,4 +206,7 @@
         ]]></notes>
         <cve>CVE-2015-4035</cve>
     </suppress>
+    <suppress>
+        <cve>CVE-2020-8908</cve>
+    </suppress>
 </suppressions>
