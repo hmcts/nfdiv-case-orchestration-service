@@ -19,11 +19,11 @@ java:
         SCHEDULER_RE_CREATE: true
         FEATURE_DN_REFUSAL: "true"
         FEATURE_RESP_SOLICITOR_DETAILS: true
-        DIV_SCHEDULER_DB_HOST : "div-cos-{{ .Values.global.environment }}.postgres.database.azure.com"
+        DIV_SCHEDULER_DB_HOST : "nfdiv-cos-{{ .Values.global.environment }}.postgres.database.azure.com"
         DIV_SCHEDULER_DB_PORT : "5432"
         DIV_SCHEDULER_DB_NAME : "div_scheduler"
-        DIV_SCHEDULER_DB_USER_NAME : "div_scheduler@div-cos-{{ .Values.global.environment }}"
-        FLYWAY_URL : "jdbc:postgresql://div-cos-{{ .Values.global.environment }}.postgres.database.azure.com:5432/div_scheduler"
+        DIV_SCHEDULER_DB_USER_NAME : "div_scheduler@nfdiv-cos-{{ .Values.global.environment }}"
+        FLYWAY_URL : "jdbc:postgresql://nfdiv-cos-{{ .Values.global.environment }}.postgres.database.azure.com:5432/div_scheduler"
         SPRING_MAIL_HOST: mta.reform.hmcts.net
         SPRING_MAIL_PORT: 25
         SPRING_MAIL_TEST_CONNECTION: false
