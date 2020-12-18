@@ -6,7 +6,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,7 +29,6 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.CcdStates.A
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.YES_VALUE;
 
 @Slf4j
-@Ignore("TODO: Test ignored until Elastic Search starts to index NO_FAULT_DIVORCE case types")
 public class AosOverdueTest extends RetrieveCaseSupport {
 
     @Value("${case.orchestration.jobScheduler.make-case-overdue-for-aos.context-path}")
