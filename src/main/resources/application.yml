@@ -455,7 +455,7 @@ idam:
     password: ${IDAM_CASEWORKER_PASSWORD:dummypassword}
   s2s-auth:
     url: ${SERVICE_AUTH_PROVIDER_URL:http://localhost:4504}
-    microservice: ${SERVICE_AUTH_MICROSERVICE:divorce_frontend}
+    microservice: ${SERVICE_AUTH_MICROSERVICE:nfdiv_cos}
     secret: ${SERVICE_AUTH_SECRET:dummysecret}
     services-allowed-to-update: ${BSP_SERVICES_ALLOWED_TO_UPDATE:bulk_scan_orchestrator}
     services-allowed-to-validate: ${BSP_SERVICES_ALLOWED_TO_VALIDATE:bulk_scan_processor}

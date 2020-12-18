@@ -458,7 +458,7 @@ idam:
     password: ${IDAM_CASEWORKER_PASSWORD:replace_me}
   s2s-auth:
     url: ${SERVICE_AUTH_PROVIDER_URL:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
-    microservice: ${SERVICE_AUTH_MICROSERVICE:divorce_frontend}
+    microservice: ${SERVICE_AUTH_MICROSERVICE:nfdiv_cos}
     secret: ${SERVICE_AUTH_SECRET:replace_me}
     services-allowed-to-update: bulk_scan_orchestrator
     services-allowed-to-validate: bulk_scan_processor
