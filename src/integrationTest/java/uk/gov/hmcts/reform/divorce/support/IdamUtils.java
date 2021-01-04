@@ -140,7 +140,7 @@ public class IdamUtils {
             .username(username)
             .emailAddress(username)
             .password(password)
-            .authToken(accessToken)
+            .authToken("Bearer " + accessToken)
             .idToken(idToken)
             .id(getUserId(idToken))
             .build();
