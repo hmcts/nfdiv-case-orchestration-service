@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.OK;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ID_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.CcdFields.PBA_NUMBERS;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.FEE_PAY_BY_ACCOUNT;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SOLICITOR_HOW_TO_PAY_JSON_KEY;
@@ -122,7 +123,7 @@ public class SolicitorCallbackControllerTest {
 
         final CcdCallbackRequest ccdCallbackRequest = ccdRequestWithData(caseDataReturnedFromService);
 
-        ResponseEntity<CcdCallbackResponse> response = classUnderTest.retrievePbaNumbers(AUTH_TOKEN, ccdCallbackRequest);
+        ResponseEntity<CcdCallbackResponse> response = classUnderTest.retrievePbaNumbers(AUTH_TOKEN, TEST_ID_TOKEN, ccdCallbackRequest);
 
         assertEquals(OK, response.getStatusCode());
         assertEquals(expectedResponse, response.getBody());
@@ -150,12 +151,12 @@ public class SolicitorCallbackControllerTest {
         final CcdCallbackRequest ccdCallbackRequest = new CcdCallbackRequest();
         ccdCallbackRequest.setCaseDetails(caseDetails);
 
-        when(solicitorService.retrievePbaNumbers(ccdCallbackRequest, AUTH_TOKEN)).thenReturn(caseData);
+        when(solicitorService.retrievePbaNumbers(ccdCallbackRequest, AUTH_TOKEN, TEST_ID_TOKEN)).thenReturn(caseData);
 
-        ResponseEntity<CcdCallbackResponse> response = classUnderTest.retrievePbaNumbers(AUTH_TOKEN, ccdCallbackRequest);
+        ResponseEntity<CcdCallbackResponse> response = classUnderTest.retrievePbaNumbers(AUTH_TOKEN, TEST_ID_TOKEN, ccdCallbackRequest);
 
         assertEquals(OK, response.getStatusCode());
         assertEquals(expectedResponse, response.getBody());
-        verify(solicitorService).retrievePbaNumbers(ccdCallbackRequest, AUTH_TOKEN);
+        verify(solicitorService).retrievePbaNumbers(ccdCallbackRequest, AUTH_TOKEN, TEST_ID_TOKEN);
     }
 }

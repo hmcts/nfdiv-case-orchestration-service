@@ -18,6 +18,7 @@ import java.util.Map;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_ID;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ID_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_TOKEN;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -67,10 +68,10 @@ public class SolicitorServiceImplTest {
             .caseDetails(CaseDetails.builder().caseId(TEST_CASE_ID).caseData(caseData).build())
             .build();
 
-        when(retrievePbaNumbersWorkflow.run(request, TEST_TOKEN)).thenReturn(caseData);
+        when(retrievePbaNumbersWorkflow.run(request, TEST_TOKEN, TEST_ID_TOKEN)).thenReturn(caseData);
 
-        solicitorService.retrievePbaNumbers(request, TEST_TOKEN);
+        solicitorService.retrievePbaNumbers(request, TEST_TOKEN, TEST_ID_TOKEN);
 
-        verify(retrievePbaNumbersWorkflow).run(request, TEST_TOKEN);
+        verify(retrievePbaNumbersWorkflow).run(request, TEST_TOKEN, TEST_ID_TOKEN);
     }
 }

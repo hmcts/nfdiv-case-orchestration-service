@@ -27,6 +27,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.CcdFields.PBA_NUMBERS;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTHORIZATION_HEADER;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID_TOKEN_HEADER;
 import static uk.gov.hmcts.reform.divorce.orchestration.util.CaseDataUtils.isSolicitorPaymentMethodPba;
 import static uk.gov.hmcts.reform.divorce.orchestration.util.ControllerUtils.responseWithData;
 import static uk.gov.hmcts.reform.divorce.orchestration.util.ControllerUtils.responseWithErrors;
@@ -85,6 +86,7 @@ public class SolicitorCallbackController {
         @ApiResponse(code = 200, message = "Callback processed")})
     public ResponseEntity<CcdCallbackResponse> retrievePbaNumbers(
         @RequestHeader(value = AUTHORIZATION_HEADER) String authorizationToken,
+        @RequestHeader(value = ID_TOKEN_HEADER) String idToken,
         @RequestBody @ApiParam("CaseData") CcdCallbackRequest ccdCallbackRequest) throws WorkflowException {
 
         CaseDetails caseDetails = ccdCallbackRequest.getCaseDetails();
@@ -96,7 +98,7 @@ public class SolicitorCallbackController {
             return responseWithData(caseData);
         }
 
-        Map<String, Object> response = solicitorService.retrievePbaNumbers(ccdCallbackRequest, authorizationToken);
+        Map<String, Object> response = solicitorService.retrievePbaNumbers(ccdCallbackRequest, authorizationToken, idToken);
 
         if (null == response.get(PBA_NUMBERS)) {
             return responseWithErrors(asList("No PBA number found for this account, please contact your organisation."));

@@ -19,6 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_EVENT_ID;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ID_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_STATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.testutil.Verificators.mockTasksExecution;
@@ -62,7 +63,7 @@ public class RetrievePbaNumbersWorkflowTest {
     public void runShouldExecuteTasksAndReturnPayload() throws Exception {
         mockTasksExecution(testData, getPbaNumbersTask);
 
-        assertEquals(testData, retrievePbaNumbersWorkflow.run(ccdCallbackRequestRequest, AUTH_TOKEN));
+        assertEquals(testData, retrievePbaNumbersWorkflow.run(ccdCallbackRequestRequest, AUTH_TOKEN, TEST_ID_TOKEN));
 
         verifyTasksCalledInOrder(testData, getPbaNumbersTask);
     }

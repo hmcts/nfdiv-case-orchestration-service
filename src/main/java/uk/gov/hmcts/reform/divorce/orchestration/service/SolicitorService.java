@@ -10,5 +10,5 @@ public interface SolicitorService {
 
     Map<String, Object> sendSolicitorPersonalServiceEmail(CcdCallbackRequest callbackRequest) throws WorkflowException;
 
-    Map<String, Object> retrievePbaNumbers(CcdCallbackRequest callbackRequest, String authToken) throws WorkflowException;
+    Map<String, Object> retrievePbaNumbers(CcdCallbackRequest callbackRequest, String authToken, String idToken) throws WorkflowException;
 }

@@ -32,7 +32,7 @@ public class SolicitorServiceImpl implements SolicitorService {
     }
 
     @Override
-    public Map<String, Object> retrievePbaNumbers(CcdCallbackRequest callbackRequest, String authToken) throws WorkflowException {
-        return retrievePbaNumbersWorkflow.run(callbackRequest, authToken);
+    public Map<String, Object> retrievePbaNumbers(CcdCallbackRequest callbackRequest, String authToken, String idToken) throws WorkflowException {
+        return retrievePbaNumbersWorkflow.run(callbackRequest, authToken, idToken);
     }
 }

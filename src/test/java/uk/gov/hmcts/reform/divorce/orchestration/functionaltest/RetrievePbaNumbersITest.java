@@ -14,18 +14,18 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackRequest;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.idam.UserDetails;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.idam.UserDetailsProvider;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.pay.validation.OrganisationEntityResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.pay.validation.PBAOrganisationResponse;
-import uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil;
 import uk.gov.hmcts.reform.divorce.orchestration.util.AuthUtil;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.when;
@@ -38,11 +38,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.BEARER_AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_ID;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ID_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_RESP_SOLICITOR_EMAIL;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_SERVICE_AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_STATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.CcdFields.PBA_NUMBERS;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.FEE_PAY_BY_ACCOUNT;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID_TOKEN_HEADER;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SERVICE_AUTHORIZATION_HEADER;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SOLICITOR_HOW_TO_PAY_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.DynamicList.asDynamicList;
@@ -52,13 +54,15 @@ public class RetrievePbaNumbersITest extends MockedFunctionalTest {
 
     private static final String API_URL = "/retrieve-pba-numbers";
     private static final String RETRIEVE_PBA_NUMBERS_URL = "/refdata/external/v1/organisations/pbas?email=testRespondentSolicitor%40email.com";
-    private static final String IDAM_USER_DETAILS_URL = "/details";
 
     @Autowired
     private MockMvc webClient;
 
     @MockBean
     protected AuthUtil authUtil;
+
+    @MockBean
+    protected UserDetailsProvider detailsProvider;
 
     private Map<String, Object> caseData;
     private CaseDetails caseDetails;
@@ -70,6 +74,9 @@ public class RetrievePbaNumbersITest extends MockedFunctionalTest {
         caseData.put(SOLICITOR_HOW_TO_PAY_JSON_KEY, FEE_PAY_BY_ACCOUNT);
 
         when(authUtil.getBearerToken(AUTH_TOKEN)).thenReturn(BEARER_AUTH_TOKEN);
+        UserDetails details = UserDetails.builder().email(TEST_RESP_SOLICITOR_EMAIL).build();
+        when(detailsProvider.getUserDetails(TEST_ID_TOKEN))
+            .thenReturn(Optional.of(details));
     }
 
     @Test
@@ -120,11 +127,11 @@ public class RetrievePbaNumbersITest extends MockedFunctionalTest {
 
         stubRetrievePbaNumbersEndpoint(HttpStatus.OK, buildPbaResponse(pbaNumbersOfSolicitor));
         stubServiceAuthProvider(HttpStatus.OK, TEST_SERVICE_AUTH_TOKEN);
-        stubIdamUserDetailsEndpoint(HttpStatus.OK, BEARER_AUTH_TOKEN, getUserDetailsResponse());
 
         webClient.perform(post(API_URL)
             .content(convertObjectToJsonString(ccdCallbackRequest))
             .header(AUTHORIZATION, AUTH_TOKEN)
+            .header(ID_TOKEN_HEADER, TEST_ID_TOKEN)
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -142,15 +149,6 @@ public class RetrievePbaNumbersITest extends MockedFunctionalTest {
                 .withBody(convertObjectToJsonString(response))));
     }
 
-    private void stubIdamUserDetailsEndpoint(HttpStatus status, String authHeader, String message) {
-        idamServer.stubFor(get(IDAM_USER_DETAILS_URL)
-            .withHeader(AUTHORIZATION, new EqualToPattern(authHeader))
-            .willReturn(aResponse()
-                .withStatus(status.value())
-                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .withBody(message)));
-    }
-
     private PBAOrganisationResponse buildPbaResponse(List<String> pbaNumbers) {
         return PBAOrganisationResponse.builder()
             .organisationEntityResponse(
@@ -160,10 +158,4 @@ public class RetrievePbaNumbersITest extends MockedFunctionalTest {
             .build();
     }
 
-    private String getUserDetailsResponse() {
-        return ObjectMapperTestUtil.convertObjectToJsonString(
-            UserDetails.builder()
-                .email(TEST_RESP_SOLICITOR_EMAIL)
-                .build());
-    }
 }

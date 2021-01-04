@@ -13,6 +13,7 @@ import java.util.Map;
 
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_ID_JSON_KEY;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID_TOKEN_JSON_KEY;
 
 @RequiredArgsConstructor
 @Component
@@ -20,13 +21,14 @@ public class RetrievePbaNumbersWorkflow extends DefaultWorkflow<Map<String, Obje
 
     private final GetPbaNumbersTask getPbaNumbersTask;
 
-    public Map<String, Object> run(CcdCallbackRequest ccdCallbackRequest, String authToken) throws WorkflowException {
+    public Map<String, Object> run(CcdCallbackRequest ccdCallbackRequest, String authToken, String idToken) throws WorkflowException {
 
         return this.execute(new Task[]{
             getPbaNumbersTask
         },
             ccdCallbackRequest.getCaseDetails().getCaseData(),
             ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken),
+            ImmutablePair.of(ID_TOKEN_JSON_KEY, idToken),
             ImmutablePair.of(CASE_ID_JSON_KEY, ccdCallbackRequest.getCaseDetails().getCaseId())
         );
     }

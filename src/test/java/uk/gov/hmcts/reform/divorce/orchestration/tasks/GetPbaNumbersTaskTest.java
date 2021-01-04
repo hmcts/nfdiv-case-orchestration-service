@@ -10,6 +10,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.divorce.orchestration.client.PbaValidationClient;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.idam.UserDetails;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.idam.UserDetailsProvider;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.pay.validation.OrganisationEntityResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.pay.validation.PBAOrganisationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
@@ -17,13 +19,12 @@ import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskCon
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 import uk.gov.hmcts.reform.divorce.orchestration.testutil.TaskContextHelper;
 import uk.gov.hmcts.reform.divorce.orchestration.util.AuthUtil;
-import uk.gov.hmcts.reform.idam.client.IdamClient;
-import uk.gov.hmcts.reform.idam.client.models.UserDetails;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
@@ -31,6 +32,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.BEARER_AUTH_TOKEN;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ID_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_RESP_SOLICITOR_EMAIL;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_SERVICE_AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.CcdFields.PBA_NUMBERS;
@@ -51,7 +53,7 @@ public class GetPbaNumbersTaskTest {
     private ResponseEntity responseEntity;
 
     @Mock
-    private IdamClient idamClient;
+    private UserDetailsProvider detailsProvider;
 
     @Mock
     private AuthUtil authUtil;
@@ -78,8 +80,10 @@ public class GetPbaNumbersTaskTest {
 
         when(serviceAuthGenerator.generate()).thenReturn(TEST_SERVICE_AUTH_TOKEN);
         when(authUtil.getBearerToken(AUTH_TOKEN)).thenReturn(BEARER_AUTH_TOKEN);
-        when(idamClient.getUserDetails(BEARER_AUTH_TOKEN))
-            .thenReturn(UserDetails.builder().email(TEST_RESP_SOLICITOR_EMAIL).build());
+
+        UserDetails details = UserDetails.builder().email(TEST_RESP_SOLICITOR_EMAIL).build();
+        when(detailsProvider.getUserDetails(TEST_ID_TOKEN))
+            .thenReturn(Optional.of(details));
     }
 
     @Test
@@ -89,7 +93,7 @@ public class GetPbaNumbersTaskTest {
         assertEquals(caseData, getPbaNumbersTask.execute(context, caseData));
 
         verifyNoInteractions(authUtil);
-        verifyNoInteractions(idamClient);
+        verifyNoInteractions(detailsProvider);
         verifyNoInteractions(serviceAuthGenerator);
         verifyNoInteractions(pbaValidationClient);
     }
@@ -99,7 +103,7 @@ public class GetPbaNumbersTaskTest {
         assertEquals(caseData, getPbaNumbersTask.execute(new DefaultTaskContext(), caseData));
 
         verifyNoInteractions(authUtil);
-        verifyNoInteractions(idamClient);
+        verifyNoInteractions(detailsProvider);
         verifyNoInteractions(serviceAuthGenerator);
         verifyNoInteractions(pbaValidationClient);
     }
@@ -115,7 +119,7 @@ public class GetPbaNumbersTaskTest {
         assertEquals(expectedCaseData, getPbaNumbersTask.execute(context, caseData));
 
         verify(authUtil).getBearerToken(AUTH_TOKEN);
-        verify(idamClient).getUserDetails(BEARER_AUTH_TOKEN);
+        verify(detailsProvider).getUserDetails(TEST_ID_TOKEN);
         verify(serviceAuthGenerator).generate();
         verifyRetrievePbaNumbersCalledOnce();
     }
@@ -131,7 +135,7 @@ public class GetPbaNumbersTaskTest {
         assertEquals(expectedCaseData, getPbaNumbersTask.execute(context, caseData));
 
         verify(authUtil).getBearerToken(AUTH_TOKEN);
-        verify(idamClient).getUserDetails(BEARER_AUTH_TOKEN);
+        verify(detailsProvider).getUserDetails(TEST_ID_TOKEN);
         verify(serviceAuthGenerator).generate();
         verifyRetrievePbaNumbersCalledOnce();
     }
@@ -146,7 +150,7 @@ public class GetPbaNumbersTaskTest {
         assertEquals(expectedCaseData, getPbaNumbersTask.execute(context, caseData));
 
         verify(authUtil).getBearerToken(AUTH_TOKEN);
-        verify(idamClient).getUserDetails(BEARER_AUTH_TOKEN);
+        verify(detailsProvider).getUserDetails(TEST_ID_TOKEN);
         verify(serviceAuthGenerator).generate();
         verifyRetrievePbaNumbersCalledOnce();
     }
