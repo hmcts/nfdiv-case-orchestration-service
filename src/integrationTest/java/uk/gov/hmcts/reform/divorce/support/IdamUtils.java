@@ -77,7 +77,7 @@ public class IdamUtils {
             .post(idamCreateUrl());
     }
 
-    public String getUserId(String token) {
+    private String getUserId(String token) {
         try {
             return JWTParser.parse(token).getJWTClaimsSet().getStringClaim("uid");
         } catch (ParseException e) {
@@ -105,7 +105,7 @@ public class IdamUtils {
         userDeletionThread.start();
     }
 
-    public String generateUserTokenWithNoRoles(String username, String password) {
+    public UserDetails getUserDetails(String username, String password) {
         String userLoginDetails = String.join(":", username, password);
         final String authHeader = "Basic " + new String(Base64.getEncoder().encode(userLoginDetails.getBytes()));
 
@@ -133,8 +133,17 @@ public class IdamUtils {
 
         assert response.getStatusCode() == 200 : "Error generating code from IDAM: " + response.getStatusCode();
 
-        String token = response.getBody().path("id_token");
-        return "Bearer " + token;
+        String accessToken = response.getBody().path("access_token");
+        String idToken = response.getBody().path("id_token");
+
+        return UserDetails.builder()
+            .username(username)
+            .emailAddress(username)
+            .password(password)
+            .authToken(accessToken)
+            .idToken(idToken)
+            .id(getUserId(idToken))
+            .build();
     }
 
     public String generateUserTokenWithValidMicroService(String microServiceName) {

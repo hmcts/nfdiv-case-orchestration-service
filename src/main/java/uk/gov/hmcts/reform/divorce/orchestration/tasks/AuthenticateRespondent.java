@@ -9,7 +9,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.idam.UserDetailsPr
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
 
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID_TOKEN_JSON_KEY;
 
 
 @Component
@@ -21,7 +21,7 @@ public class AuthenticateRespondent implements Task<Boolean> {
     @Override
     public Boolean execute(TaskContext context, Boolean payload) {
         return userDetailsProvider
-            .getUserDetails(context.getTransientObject(AUTH_TOKEN_JSON_KEY).toString())
+            .getUserDetails(context.getTransientObject(ID_TOKEN_JSON_KEY).toString())
             .map(details -> isRespondentUser(details))
             .orElse(false);
     }

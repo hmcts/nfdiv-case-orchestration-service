@@ -19,6 +19,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ID_TOKEN;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID_TOKEN_HEADER;
 
 public class AuthenticateRespondentITest extends MockedFunctionalTest {
     private static final String API_URL = "/authenticate-respondent";
@@ -42,7 +44,8 @@ public class AuthenticateRespondentITest extends MockedFunctionalTest {
 
         webClient.perform(post(API_URL)
             .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-            .header(AUTHORIZATION, AUTH_TOKEN))
+            .header(AUTHORIZATION, AUTH_TOKEN)
+            .header(ID_TOKEN_HEADER, TEST_ID_TOKEN))
             .andExpect(status().isUnauthorized())
             .andExpect(content().string(containsString(errorMessage)));
     }
@@ -52,7 +55,8 @@ public class AuthenticateRespondentITest extends MockedFunctionalTest {
 
         webClient.perform(post(API_URL)
             .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-            .header(AUTHORIZATION, AUTH_TOKEN))
+            .header(AUTHORIZATION, AUTH_TOKEN)
+            .header(ID_TOKEN_HEADER, TEST_ID_TOKEN))
             .andExpect(status().isUnauthorized());
     }
 
@@ -62,7 +66,8 @@ public class AuthenticateRespondentITest extends MockedFunctionalTest {
 
         webClient.perform(post(API_URL)
             .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-            .header(AUTHORIZATION, AUTH_TOKEN))
+            .header(AUTHORIZATION, AUTH_TOKEN)
+            .header(ID_TOKEN_HEADER, TEST_ID_TOKEN))
             .andExpect(status().isUnauthorized());
     }
 
@@ -74,12 +79,13 @@ public class AuthenticateRespondentITest extends MockedFunctionalTest {
             .build();
 
         Mockito
-            .when(detailsProvider.getUserDetails(AUTH_TOKEN))
+            .when(detailsProvider.getUserDetails(TEST_ID_TOKEN))
             .thenReturn(Optional.of(details));
 
         webClient.perform(post(API_URL)
             .header(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-            .header(AUTHORIZATION, AUTH_TOKEN))
+            .header(AUTHORIZATION, AUTH_TOKEN)
+            .header(ID_TOKEN_HEADER, TEST_ID_TOKEN))
             .andExpect(status().isOk());
     }
 }

@@ -18,11 +18,11 @@ import java.util.Optional;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID_TOKEN_JSON_KEY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticateRespondentUTest {
-    private static final String BEARER_AUTH_TOKEN = "Bearer some token";
+    private static final String ID_TOKEN = "some token";
     private static final Boolean PAYLOAD = false;
 
     private final TaskContext context = new DefaultTaskContext();
@@ -35,12 +35,12 @@ public class AuthenticateRespondentUTest {
 
     @Before
     public void setup() {
-        context.setTransientObject(AUTH_TOKEN_JSON_KEY, BEARER_AUTH_TOKEN);
+        context.setTransientObject(ID_TOKEN_JSON_KEY, ID_TOKEN);
     }
 
     @Test
     public void givenUserDetailsIsNull_whenExecute_thenReturnFalse() {
-        Mockito.when(detailsProvider.getUserDetails(BEARER_AUTH_TOKEN)).thenReturn(Optional.empty());
+        Mockito.when(detailsProvider.getUserDetails(ID_TOKEN)).thenReturn(Optional.empty());
 
         assertFalse(classUnderTest.execute(context, PAYLOAD));
     }
@@ -48,7 +48,7 @@ public class AuthenticateRespondentUTest {
     @Test
     public void givenRolesIsNull_whenExecute_thenReturnFalse() {
         UserDetails details = UserDetails.builder().build();
-        Mockito.when(detailsProvider.getUserDetails(BEARER_AUTH_TOKEN)).thenReturn(Optional.of(details));
+        Mockito.when(detailsProvider.getUserDetails(ID_TOKEN)).thenReturn(Optional.of(details));
 
         assertFalse(classUnderTest.execute(context, PAYLOAD));
     }
@@ -61,7 +61,7 @@ public class AuthenticateRespondentUTest {
             .build();
 
         Mockito
-            .when(detailsProvider.getUserDetails(BEARER_AUTH_TOKEN))
+            .when(detailsProvider.getUserDetails(ID_TOKEN))
             .thenReturn(Optional.of(details));
 
         assertFalse(classUnderTest.execute(context, PAYLOAD));
@@ -75,7 +75,7 @@ public class AuthenticateRespondentUTest {
             .build();
 
         Mockito
-            .when(detailsProvider.getUserDetails(BEARER_AUTH_TOKEN))
+            .when(detailsProvider.getUserDetails(ID_TOKEN))
             .thenReturn(Optional.of(details));
 
         assertFalse(classUnderTest.execute(context, PAYLOAD));
@@ -89,7 +89,7 @@ public class AuthenticateRespondentUTest {
             .build();
 
         Mockito
-            .when(detailsProvider.getUserDetails(BEARER_AUTH_TOKEN))
+            .when(detailsProvider.getUserDetails(ID_TOKEN))
             .thenReturn(Optional.of(details));
 
         assertFalse(classUnderTest.execute(context, PAYLOAD));
@@ -103,7 +103,7 @@ public class AuthenticateRespondentUTest {
             .build();
 
         Mockito
-            .when(detailsProvider.getUserDetails(BEARER_AUTH_TOKEN))
+            .when(detailsProvider.getUserDetails(ID_TOKEN))
             .thenReturn(Optional.of(details));
 
         assertTrue(classUnderTest.execute(context, PAYLOAD));
