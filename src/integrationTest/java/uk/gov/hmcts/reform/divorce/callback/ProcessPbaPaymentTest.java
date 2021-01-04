@@ -29,6 +29,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DOCUMENT_TYPE_PETITION;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID_TOKEN_HEADER;
 import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil.getJsonFromResourceFile;
 
 public class ProcessPbaPaymentTest extends IntegrationTest {
@@ -136,6 +137,7 @@ public class ProcessPbaPaymentTest extends IntegrationTest {
         return RestAssured.given()
             .contentType(ContentType.JSON)
             .header(HttpHeaders.AUTHORIZATION, createCaseWorkerUser().getAuthToken())
+            .header(ID_TOKEN_HEADER, createCaseWorkerUser().getIdToken())
             .body(requestBody)
             .when()
             .post(serverUrl + contextPath)
