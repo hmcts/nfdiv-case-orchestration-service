@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.divorce.support;
 
+import com.nimbusds.jwt.JWTParser;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.rest.SerenityRest;
@@ -13,6 +14,7 @@ import uk.gov.hmcts.reform.divorce.model.idam.RegisterUserRequest;
 import uk.gov.hmcts.reform.divorce.model.idam.UserDetails;
 import uk.gov.hmcts.reform.divorce.model.idam.UserGroup;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -75,14 +77,12 @@ public class IdamUtils {
             .post(idamCreateUrl());
     }
 
-    // todo: get from ID token
-    public String getUserId(String jwt) {
-        Response response = SerenityRest.given()
-            .header("Authorization", jwt)
-            .relaxedHTTPSValidation()
-            .get(idamUserBaseUrl + "/details");
-
-        return response.getBody().path("id").toString();
+    public String getUserId(String token) {
+        try {
+            return JWTParser.parse(token).getJWTClaimsSet().getStringClaim("uid");
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     public String getPin(final String letterHolderId) {
