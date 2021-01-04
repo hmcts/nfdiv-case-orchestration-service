@@ -29,7 +29,7 @@ public class AuthenticateRespondentITest extends MockedFunctionalTest {
     private MockMvc webClient;
 
     @MockBean
-    UserDetailsProvider detailsProvider;
+    private UserDetailsProvider detailsProvider;
 
     @Test
     public void givenAuthTokenIsNull_whenAuthenticateRespondent_thenReturnBadRequest() throws Exception {
