@@ -24,6 +24,7 @@ public class UserDivorcePartyLookup {
     private final IdamClient idamClient;
 
     public Optional<DivorceParty> lookupDivorcePartForGivenUser(String authToken, Map<String, Object> caseDataInCcdFormat) {
+        // todo: remove
         UserDetails userDetails = idamClient.getUserDetails(authToken);
 
         return findDivorcePartyForUser(caseDataInCcdFormat, userDetails);

@@ -256,6 +256,7 @@ dependencies {
     implementation group: 'com.puppycrawl.tools', name: 'checkstyle', version: versions.puppyCrawl
     implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: versions.hibernateTypes
     implementation group: 'com.sun.mail', name: 'javax.mail', version: versions.javaMail
+    implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt'
     implementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
     implementation group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: versions.gradlePitest
     implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.feignHttpClient

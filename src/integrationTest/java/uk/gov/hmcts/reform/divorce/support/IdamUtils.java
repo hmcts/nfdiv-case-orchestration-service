@@ -75,6 +75,7 @@ public class IdamUtils {
             .post(idamCreateUrl());
     }
 
+    // todo: get from ID token
     public String getUserId(String jwt) {
         Response response = SerenityRest.given()
             .header("Authorization", jwt)
@@ -132,7 +133,7 @@ public class IdamUtils {
 
         assert response.getStatusCode() == 200 : "Error generating code from IDAM: " + response.getStatusCode();
 
-        String token = response.getBody().path("access_token");
+        String token = response.getBody().path("id_token");
         return "Bearer " + token;
     }
 
