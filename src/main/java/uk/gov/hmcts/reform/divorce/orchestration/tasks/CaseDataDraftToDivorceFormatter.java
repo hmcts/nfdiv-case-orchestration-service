@@ -2,16 +2,15 @@ package uk.gov.hmcts.reform.divorce.orchestration.tasks;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.divorce.orchestration.client.CaseFormatterClient;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
+import uk.gov.hmcts.reform.divorce.orchestration.service.caseformatter.CaseFormatterService;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.generalorders.GeneralOrdersFilterTask;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.IS_DRAFT_KEY;
 
 @Component
@@ -20,7 +19,7 @@ public class CaseDataDraftToDivorceFormatter implements Task<Map<String, Object>
 
     private final GeneralOrdersFilterTask generalOrdersFilterTask;
 
-    private final CaseFormatterClient caseFormatterClient;
+    private final CaseFormatterService caseFormatterService;
 
     @Override
     public Map<String, Object> execute(TaskContext context, Map<String, Object> caseData) {
@@ -30,8 +29,7 @@ public class CaseDataDraftToDivorceFormatter implements Task<Map<String, Object>
             //This is not a draft - this means the case data is in CCD format
             caseDataToReturn = generalOrdersFilterTask.execute(context, caseDataToReturn);
 
-            caseDataToReturn = caseFormatterClient.transformToDivorceFormat(
-                context.getTransientObject(AUTH_TOKEN_JSON_KEY),
+            caseDataToReturn = caseFormatterService.transformToDivorceSession(
                 caseDataToReturn
             );
             caseDataToReturn.remove("expires");

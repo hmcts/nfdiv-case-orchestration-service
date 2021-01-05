@@ -5,8 +5,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.divorce.orchestration.client.CaseFormatterClient;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
+import uk.gov.hmcts.reform.divorce.orchestration.service.caseformatter.CaseFormatterService;
 
 import java.util.Map;
 
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 public class FormatDivorceSessionToAosCaseDataUTest {
 
     @Mock
-    private CaseFormatterClient caseFormatterClient;
+    private CaseFormatterService caseFormatterService;
 
     @InjectMocks
     private FormatDivorceSessionToAosCaseData classUnderTest;
@@ -31,10 +31,10 @@ public class FormatDivorceSessionToAosCaseDataUTest {
         final Map<String, Object> expectedOutput = mock(Map.class);
         final DefaultTaskContext context = new DefaultTaskContext();
 
-        when(caseFormatterClient.transformToAosCaseFormat(sessionData)).thenReturn(expectedOutput);
+        when(caseFormatterService.getAosCaseData(sessionData)).thenReturn(expectedOutput);
 
         assertEquals(expectedOutput, classUnderTest.execute(context, sessionData));
 
-        verify(caseFormatterClient).transformToAosCaseFormat(sessionData);
+        verify(caseFormatterService).getAosCaseData(sessionData);
     }
 }

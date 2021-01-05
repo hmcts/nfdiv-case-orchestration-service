@@ -5,8 +5,8 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.divorce.orchestration.client.CaseFormatterClient;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
+import uk.gov.hmcts.reform.divorce.orchestration.service.caseformatter.CaseFormatterService;
 
 import java.util.Map;
 
@@ -23,7 +23,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 public class CaseDataToDivorceFormatterUTest {
 
     @Mock
-    private CaseFormatterClient caseFormatterClient;
+    private CaseFormatterService caseFormatterService;
 
     @InjectMocks
     private CaseDataToDivorceFormatter classUnderTest;
@@ -34,11 +34,11 @@ public class CaseDataToDivorceFormatterUTest {
         context.setTransientObject(AUTH_TOKEN_JSON_KEY, AUTH_TOKEN);
 
         final Map<String, Object> expectedResults = TEST_PAYLOAD_TO_RETURN;
-        when(caseFormatterClient.transformToDivorceFormat(AUTH_TOKEN, TEST_INCOMING_PAYLOAD)).thenReturn(expectedResults);
+        when(caseFormatterService.transformToDivorceSession(TEST_INCOMING_PAYLOAD)).thenReturn(expectedResults);
 
         Map<String, Object> returnedCaseData = classUnderTest.execute(context, TEST_INCOMING_PAYLOAD);
 
         assertThat(returnedCaseData, is(expectedResults));
-        verify(caseFormatterClient).transformToDivorceFormat(AUTH_TOKEN, TEST_INCOMING_PAYLOAD);
+        verify(caseFormatterService).transformToDivorceSession(TEST_INCOMING_PAYLOAD);
     }
 }

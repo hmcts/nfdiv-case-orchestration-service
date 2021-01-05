@@ -5,7 +5,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.divorce.orchestration.client.CaseFormatterClient;
+import uk.gov.hmcts.reform.divorce.orchestration.service.caseformatter.CaseFormatterService;
 
 import java.util.Map;
 
@@ -18,7 +18,7 @@ import static org.mockito.Mockito.when;
 public class FormatDivorceSessionToDaCaseDataTest {
 
     @Mock
-    private CaseFormatterClient caseFormatterClient;
+    private CaseFormatterService caseFormatterService;
 
     @InjectMocks
     private FormatDivorceSessionToDaCaseData classUnderTest;
@@ -29,10 +29,10 @@ public class FormatDivorceSessionToDaCaseDataTest {
         final Map<String, Object> sessionData = mock(Map.class);
         final Map<String, Object> expectedOutput = mock(Map.class);
 
-        when(caseFormatterClient.transformToDaCaseFormat(sessionData)).thenReturn(expectedOutput);
+        when(caseFormatterService.transformToCCDFormat(sessionData)).thenReturn(expectedOutput);
 
         assertEquals(expectedOutput, classUnderTest.execute(null, sessionData));
 
-        verify(caseFormatterClient).transformToDaCaseFormat(sessionData);
+        verify(caseFormatterService).transformToCCDFormat(sessionData);
     }
 }
