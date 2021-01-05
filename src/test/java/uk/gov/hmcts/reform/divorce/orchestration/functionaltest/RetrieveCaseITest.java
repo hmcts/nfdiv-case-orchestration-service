@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.divorce.orchestration.functionaltest;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -87,19 +88,6 @@ public class RetrieveCaseITest extends IdamTestSupport {
     }
 
     @Test
-    public void givenCFSThrowsException_whenGetCase_thenPropagateException() throws Exception {
-        stubGetCaseFromCMS(CASE_DETAILS);
-
-        stubFormatterServerEndpoint(HttpStatus.INTERNAL_SERVER_ERROR, TEST_ERROR);
-
-        webClient.perform(get(API_URL)
-            .header(AUTHORIZATION, AUTH_TOKEN)
-            .accept(APPLICATION_JSON))
-            .andExpect(status().isInternalServerError())
-            .andExpect(content().string(containsString(TEST_ERROR)));
-    }
-
-    @Test
     public void givenMultipleCases_whenGetCase_thenPropagateException() throws Exception {
         stubGetMultipleCaseFromCMS();
 
@@ -110,6 +98,7 @@ public class RetrieveCaseITest extends IdamTestSupport {
             .andExpect(content().string(""));
     }
 
+    @Ignore("Possibly remove")
     @Test
     public void givenAllGoesWellProceedAsExpected_RetrieveCaseInformation() throws Exception {
         stubGetCaseFromCMS(CASE_DETAILS);

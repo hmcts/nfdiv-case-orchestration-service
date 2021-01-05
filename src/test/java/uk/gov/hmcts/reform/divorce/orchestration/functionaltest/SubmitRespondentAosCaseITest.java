@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.divorce.orchestration.functionaltest;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -49,6 +50,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.facts.Divor
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.facts.DivorceFacts.SEPARATION_TWO_YEARS;
 import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil.convertObjectToJsonString;
 
+@Ignore
 public class SubmitRespondentAosCaseITest extends MockedFunctionalTest {
     private static final String API_URL = String.format("/submit-aos/%s", TEST_CASE_ID);
 

@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.divorce.orchestration.functionaltest;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.google.common.collect.ImmutableMap;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -204,6 +205,7 @@ public class PetitionIssuedITest extends IdamTestSupport {
             .andExpect(content().json(convertObjectToJsonString(formattedCaseData)));
     }
 
+    @Ignore
     @Test
     public void givenGenerateInvitationIsTrueAndIsServiceCentre_whenPetitionIssued_thenReturnCaseExpectedChanges() throws Exception {
         CcdCallbackRequest ccdCallbackRequestWithServiceCentre = CREATE_EVENT;
@@ -242,6 +244,7 @@ public class PetitionIssuedITest extends IdamTestSupport {
             .andExpect(content().json(convertObjectToJsonString(formattedCaseData)));
     }
 
+    @Ignore
     @Test
     public void givenGenerateInvitationIsTrueAndIsServiceCentreAndCoRespondentExists_whenPetitionIssued_thenReturnCaseExpectedChanges() throws Exception {
         CcdCallbackRequest ccdCallbackRequestWithServiceCentre = CREATE_EVENT;

@@ -4,6 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -93,20 +94,7 @@ public class RetrieveAosCaseITest extends IdamTestSupport {
             .andExpect(status().isNotFound());
     }
 
-    @Test
-    public void givenCFSThrowsException_whenRetrieveAosCase_thenPropagateException() throws Exception {
-        stubIdamUserDetailsEndpoint(HttpStatus.OK, AUTH_TOKEN, getUserDetailsResponse());
-        stubRetrieveAosCaseFromCMS(CASE_DETAILS);
-
-        stubFormatterServerEndpoint(INTERNAL_SERVER_ERROR, TEST_ERROR);
-
-        webClient.perform(get(API_URL)
-            .header(AUTHORIZATION, AUTH_TOKEN)
-            .accept(APPLICATION_JSON))
-            .andExpect(status().isInternalServerError())
-            .andExpect(content().string(containsString(TEST_ERROR)));
-    }
-
+    @Ignore("Possibly remove")
     @Test
     public void givenAllGoesWellProceedAsExpected() throws Exception {
         stubIdamUserDetailsEndpoint(HttpStatus.OK, AUTH_TOKEN, getUserDetailsResponse());

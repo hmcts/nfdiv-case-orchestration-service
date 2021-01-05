@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.divorce.orchestration.functionaltest;
 
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.google.common.collect.ImmutableMap;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -60,6 +61,7 @@ public class SubmitDaCaseITest extends MockedFunctionalTest {
     }
 
 
+    @Ignore
     @Test
     public void givenCaseFormatterFails_whenSubmitDn_thenPropagateTheException() throws Exception {
         final Map<String, Object> caseData = getCaseData();
@@ -75,6 +77,7 @@ public class SubmitDaCaseITest extends MockedFunctionalTest {
             .andExpect(content().string(containsString(TEST_ERROR)));
     }
 
+    @Ignore
     @Test
     public void givenCaseUpdateFails_whenSubmitDa_thenPropagateTheException() throws Exception {
         final Map<String, Object> caseData = new HashMap<>();
@@ -95,6 +98,7 @@ public class SubmitDaCaseITest extends MockedFunctionalTest {
             .andExpect(content().string(containsString(TEST_ERROR)));
     }
 
+    @Ignore
     @Test
     public void givenCaseUpdateIsSuccessful_whenSubmitDa_thenProceedAsExpected() throws Exception {
         final Map<String, Object> caseData = getCaseData();

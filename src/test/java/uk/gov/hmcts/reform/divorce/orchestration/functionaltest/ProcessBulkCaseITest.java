@@ -6,6 +6,7 @@ import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,6 +120,7 @@ public class ProcessBulkCaseITest extends IdamTestSupport {
         verifyCmsServerEndpoint(0, CMS_UPDATE_CASE, RequestMethod.POST);
     }
 
+    @Ignore
     @Test
     public void give4XError_whenUpdateDivorceCase_thenProcessOtherCases() throws Exception {
         stubCaseMaintenanceSearchEndpoint(asList(prepareBulkCase(), prepareBulkCase(), prepareBulkCase()));

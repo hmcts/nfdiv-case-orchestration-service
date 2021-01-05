@@ -23,7 +23,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN_1;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CODE;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_EMAIL;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_LETTER_HOLDER_ID_CODE;
@@ -61,7 +61,7 @@ public abstract class IdamTestSupport extends MockedFunctionalTest {
 
     private static final TokenExchangeResponse TOKEN_EXCHANGE_RESPONSE =
         TokenExchangeResponse.builder()
-            .accessToken(AUTH_TOKEN_1)
+            .accessToken(AUTH_TOKEN)
             .build();
 
     static final String TOKEN_EXCHANGE_RESPONSE_1_JSON = convertObjectToJsonString(TOKEN_EXCHANGE_RESPONSE);

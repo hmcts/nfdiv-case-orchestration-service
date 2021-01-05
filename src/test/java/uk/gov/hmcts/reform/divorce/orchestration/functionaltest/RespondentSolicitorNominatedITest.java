@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.divorce.orchestration.functionaltest;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -60,6 +61,7 @@ public class RespondentSolicitorNominatedITest extends IdamTestSupport {
         stubPinDetailsEndpoint(BEARER_AUTH_TOKEN_1, pinRequest, pin);
     }
 
+    @Ignore
     @Test
     public void givenRespondentSolicitorNominated_whenCallbackCalled_linkingFieldsAreReset() throws Exception {
         CcdCallbackRequest ccdCallbackRequest = getJsonFromResourceFile(AOS_SOL_NOMINATED_JSON, CcdCallbackRequest.class);
