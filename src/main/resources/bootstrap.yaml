@@ -5,7 +5,7 @@ spring:
       prefixed: true
       paths: /mnt/secrets/nfdiv
       aliases:
-        nfdiv.ccd-submission-s2s-auth-secret: AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY
+        nfdiv.cms-service-key: AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY
         nfdiv.div-doc-s2s-auth-secret: AUTH_PROVIDER_DOCUMENTGENERATOR_CLIENT_KEY
         nfdiv.cos-service-key: SERVICE_AUTH_SECRET
         nfdiv.idam-secret: IDAM_CLIENT_SECRET
