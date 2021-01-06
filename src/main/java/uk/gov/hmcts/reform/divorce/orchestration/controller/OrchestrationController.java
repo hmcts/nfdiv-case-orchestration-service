@@ -35,6 +35,7 @@ import javax.validation.constraints.NotNull;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTHORIZATION_HEADER;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID_TOKEN_HEADER;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SUCCESS_STATUS;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.VALIDATION_ERROR_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.courts.CourtConstants.ALLOCATED_COURT_KEY;
@@ -187,11 +188,12 @@ public class OrchestrationController {
         @ApiResponse(code = 401, message = "User Not Authenticated"),
         @ApiResponse(code = 400, message = "Bad Request")})
     public ResponseEntity<Void> authenticateRespondent(
-        @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authorizationToken) {
+        @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authorizationToken,
+        @RequestHeader(value = ID_TOKEN_HEADER) String idToken) {
         Boolean authenticateRespondent = null;
 
         try {
-            authenticateRespondent = orchestrationService.authenticateRespondent(authorizationToken);
+            authenticateRespondent = orchestrationService.authenticateRespondent(authorizationToken, idToken);
         } catch (WorkflowException e) {
             log.error(e.getMessage(), e);
         }

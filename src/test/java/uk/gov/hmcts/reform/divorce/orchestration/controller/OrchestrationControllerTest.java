@@ -30,6 +30,7 @@ import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_EVENT_ID;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ID_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_EVENT_DATA_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_EVENT_ID_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
@@ -49,46 +50,46 @@ public class OrchestrationControllerTest {
 
     @Test
     public void givenWorkflowExceptionThrown_whenAuthenticateRespondent_thenReturnUnauthorized() throws WorkflowException {
-        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN)).thenThrow(new WorkflowException(""));
+        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN)).thenThrow(new WorkflowException(""));
 
-        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN);
+        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN);
 
         assertEquals(HttpStatus.UNAUTHORIZED, actual.getStatusCode());
 
-        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN);
+        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN);
     }
 
     @Test
     public void givenResponseIsNull_whenAuthenticateRespondent_thenReturnUnauthorized() throws WorkflowException {
-        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN)).thenReturn(null);
+        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN)).thenReturn(null);
 
-        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN);
+        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN);
 
         assertEquals(HttpStatus.UNAUTHORIZED, actual.getStatusCode());
 
-        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN);
+        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN);
     }
 
     @Test
     public void givenResponseIsFalse_whenAuthenticateRespondent_thenReturnUnauthorized() throws WorkflowException {
-        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN)).thenReturn(false);
+        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN)).thenReturn(false);
 
-        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN);
+        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN);
 
         assertEquals(HttpStatus.UNAUTHORIZED, actual.getStatusCode());
 
-        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN);
+        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN);
     }
 
     @Test
     public void givenResponseIsTrue_whenAuthenticateRespondent_thenReturnOK() throws WorkflowException {
-        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN)).thenReturn(true);
+        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN)).thenReturn(true);
 
-        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN);
+        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN);
 
         assertEquals(HttpStatus.OK, actual.getStatusCode());
 
-        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN);
+        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN);
     }
 
     @Test

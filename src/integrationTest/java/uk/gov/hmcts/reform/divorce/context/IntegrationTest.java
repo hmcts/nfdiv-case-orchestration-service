@@ -144,20 +144,11 @@ public abstract class IntegrationTest {
         return getCreatedUserDetails(username);
     }
 
-    private UserDetails getUserDetails(String username, String userGroup,boolean keepUser, String... role) {
+    private UserDetails getUserDetails(String username, String userGroup, boolean keepUser, String... role) {
         synchronized (this) {
             idamTestSupportUtil.createUser(username, PASSWORD, userGroup, role);
 
-            final String authToken = idamTestSupportUtil.generateUserTokenWithNoRoles(username, PASSWORD);
-
-            final String userId = idamTestSupportUtil.getUserId(authToken);
-            UserDetails userDetails = UserDetails.builder()
-                .username(username)
-                .emailAddress(username)
-                .password(PASSWORD)
-                .authToken(authToken)
-                .id(userId)
-                .build();
+            final UserDetails userDetails = idamTestSupportUtil.getUserDetails(username, PASSWORD);
 
             if (!keepUser) {
                 createdUsers.add(userDetails);
@@ -173,17 +164,7 @@ public abstract class IntegrationTest {
 
     private UserDetails getCreatedUserDetails(String username) {
         synchronized (this) {
-            final String authToken = idamTestSupportUtil.generateUserTokenWithNoRoles(username, PASSWORD);
-
-            final String userId = idamTestSupportUtil.getUserId(authToken);
-
-            return UserDetails.builder()
-                .username(username)
-                .emailAddress(username)
-                .password(PASSWORD)
-                .authToken(authToken)
-                .id(userId)
-                .build();
+            return idamTestSupportUtil.getUserDetails(username, PASSWORD);
         }
     }
 
