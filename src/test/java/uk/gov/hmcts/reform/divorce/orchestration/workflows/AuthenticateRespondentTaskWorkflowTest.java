@@ -11,7 +11,9 @@ import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Default
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.AuthenticateRespondentTask;
 
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ID_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID_TOKEN_JSON_KEY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthenticateRespondentTaskWorkflowTest {
@@ -28,6 +30,7 @@ public class AuthenticateRespondentTaskWorkflowTest {
     public void setup() {
         defaultTaskContext = new DefaultTaskContext();
         defaultTaskContext.setTransientObject(AUTH_TOKEN_JSON_KEY, AUTH_TOKEN);
+        defaultTaskContext.setTransientObject(ID_TOKEN_JSON_KEY, TEST_ID_TOKEN);
     }
 
     @Test
@@ -36,7 +39,7 @@ public class AuthenticateRespondentTaskWorkflowTest {
 
         Mockito.when(authenticateRespondentTask.execute(defaultTaskContext, null)).thenReturn(expected);
 
-        classUnderTest.run(AUTH_TOKEN);
+        classUnderTest.run(AUTH_TOKEN, TEST_ID_TOKEN);
 
         Mockito.verify(authenticateRespondentTask).execute(defaultTaskContext, null);
     }

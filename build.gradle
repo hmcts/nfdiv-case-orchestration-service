@@ -111,8 +111,8 @@ allprojects {
 
     repositories {
         maven { url "https://dl.bintray.com/hmcts/hmcts-maven" }
-        maven { url 'https://repo.spring.io/libs-milestone' }
         mavenCentral()
+        maven { url 'https://repo.spring.io/libs-milestone' }
         jcenter()
     }
 
@@ -160,6 +160,10 @@ allprojects {
                 entry 'tomcat-embed-websocket'
                 entry 'tomcat-embed-el'
             }
+            //CVE-2020-25638
+            dependencySet(group: 'org.hibernate', version: '5.4.25.Final') {
+                entry 'hibernate-core'
+            }
             //CVE-2017-18640
             dependency group: 'org.yaml',name: 'snakeyaml', version: '1.26'
         }
@@ -178,7 +182,7 @@ bootJar {
                 'Implementation-Version': project.version
     }
 
-    archiveFileName = 'div-case-orchestration-service.jar'
+    archiveFileName = 'nfdiv-case-orchestration-service.jar'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.divorce.orchestration.OrchestrationServiceApplication'
@@ -248,6 +252,7 @@ dependencies {
     implementation group: 'com.puppycrawl.tools', name: 'checkstyle', version: versions.puppyCrawl
     implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: versions.hibernateTypes
     implementation group: 'com.sun.mail', name: 'javax.mail', version: versions.javaMail
+    implementation group: 'com.nimbusds', name: 'nimbus-jose-jwt'
     implementation group: 'commons-io', name: 'commons-io', version: versions.commonsIo
     implementation group: 'info.solidsoft.gradle.pitest', name: 'gradle-pitest-plugin', version: versions.gradlePitest
     implementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.feignHttpClient
@@ -325,7 +330,10 @@ dependencies {
     runtimeOnly('org.springframework.boot:spring-boot-devtools')
 
     testImplementation group: 'org.awaitility', name: 'awaitility', version: versions.awaitility
-    testImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.4.RELEASE'
+    testImplementation(group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.5.RELEASE') {
+        exclude(module: 'wiremock-jre8-standalone')
+    }
+    testImplementation group: 'com.github.tomakehurst', name: 'wiremock-jre8-standalone', version: '2.27.2'
     testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
         exclude(module: 'commons-logging')
         exclude(module: 'android-json')
@@ -508,8 +516,8 @@ def sonarExclusions = [
 
 sonarqube {
     properties {
-        property "sonar.projectName", "Divorce :: div-case-orchestration-service"
-        property "sonar.projectKey", "div-case-orchestration-service"
+        property "sonar.projectName", "Divorce :: nfdiv-case-orchestration-service"
+        property "sonar.projectKey", "nfdiv-case-orchestration-service"
         property "sonar.exclusions", sonarExclusions.join(", ")
         property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
         property "sonar.pitest.mode", "reuseReport"

@@ -10,5 +10,6 @@ public class UserDetails {
     private String emailAddress;
     private String password;
     private String authToken;
+    private String idToken;
     private String id;
 }

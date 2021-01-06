@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.divorce.support;
 
+import com.nimbusds.jwt.JWTParser;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.rest.SerenityRest;
@@ -13,6 +14,7 @@ import uk.gov.hmcts.reform.divorce.model.idam.RegisterUserRequest;
 import uk.gov.hmcts.reform.divorce.model.idam.UserDetails;
 import uk.gov.hmcts.reform.divorce.model.idam.UserGroup;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -75,13 +77,12 @@ public class IdamUtils {
             .post(idamCreateUrl());
     }
 
-    public String getUserId(String jwt) {
-        Response response = SerenityRest.given()
-            .header("Authorization", jwt)
-            .relaxedHTTPSValidation()
-            .get(idamUserBaseUrl + "/details");
-
-        return response.getBody().path("id").toString();
+    private String getUserId(String token) {
+        try {
+            return JWTParser.parse(token).getJWTClaimsSet().getStringClaim("uid");
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
     public String getPin(final String letterHolderId) {
@@ -104,7 +105,7 @@ public class IdamUtils {
         userDeletionThread.start();
     }
 
-    public String generateUserTokenWithNoRoles(String username, String password) {
+    public UserDetails getUserDetails(String username, String password) {
         String userLoginDetails = String.join(":", username, password);
         final String authHeader = "Basic " + new String(Base64.getEncoder().encode(userLoginDetails.getBytes()));
 
@@ -132,8 +133,17 @@ public class IdamUtils {
 
         assert response.getStatusCode() == 200 : "Error generating code from IDAM: " + response.getStatusCode();
 
-        String token = response.getBody().path("access_token");
-        return "Bearer " + token;
+        String accessToken = response.getBody().path("access_token");
+        String idToken = response.getBody().path("id_token");
+
+        return UserDetails.builder()
+            .username(username)
+            .emailAddress(username)
+            .password(password)
+            .authToken("Bearer " + accessToken)
+            .idToken(idToken)
+            .id(getUserId(idToken))
+            .build();
     }
 
     public String generateUserTokenWithValidMicroService(String microServiceName) {
