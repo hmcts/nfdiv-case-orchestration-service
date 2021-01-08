@@ -16,13 +16,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @FeignClient(name = "formatter-service-client", url = "${case.formatter.service.api.baseurl}")
 public interface CaseFormatterClient {
 
-    @ApiOperation("Remove all Petition documents from case data")
-    @PostMapping(value = "/caseformatter/version/1/remove-all-petition-documents",
-        headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
-    Map<String, Object> removeAllPetitionDocuments(
-        @RequestBody Map<String, Object> caseData
-    );
-
     @ApiOperation("Remove all documents by document type")
     @PostMapping(value = "/caseformatter/version/1/remove/documents/{documentType}",
         headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
