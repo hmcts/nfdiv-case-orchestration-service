@@ -40,7 +40,6 @@ import uk.gov.hmcts.reform.divorce.util.ElasticSearchTestHelper;
 @Lazy
 @Configuration
 @PropertySource("classpath:application.properties")
-@PropertySource("classpath:application-${env}.properties")
 public class ServiceContextConfiguration {
 
     @Bean

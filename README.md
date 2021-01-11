@@ -7,6 +7,7 @@ This application orchestrates a workflow based on the requested business require
 **Prerequisites**
 
 - [JDK 11](https://openjdk.java.net/)
+- [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 
 **Building**
 
@@ -26,12 +27,11 @@ To get the project to build in IntelliJ IDEA, you have to:
 
 **Running**
 
-You can run the application by executing following command:
+Running the service locally requires several APIs in the AAT environment. You will need an active VPN, to have permission to read the nfdiv-aat vault and to be logged into azure CLI.
 
-```bash
-    ./gradlew bootRun
 ```
-
+./gradlew bootRun
+```
 The application will start locally on `http://localhost:4012`
 
 **API documentation**
@@ -70,11 +70,8 @@ To run all mutation tests execute the following command:
 
 To run all integration tests locally:
 
-* Make a copy of `src/main/resources/example-application-aat.yml` as `src/main/resources/application-aat.yml`
-* Make a copy of `src/integrationTest/resources/example-application-local.properties` as `src/integrationTest/resources/application-local.properties`
-* Replace the `replace_me` secrets in both of the _newly created_ files. You can get the values from SCM and Azure secrets key vault (the new files are in .gitignore and should ***not*** be committed to git)
-* Start the app with AAT config using `./gradlew clean bootRunAat`
-* Start the test with AAT config using `./gradlew clean functional`
+* Start the app with AAT config using `./gradlew bootRun`
+* Start the test with AAT config using `./gradlew functional`
 
 **Faster PR builds**
 
