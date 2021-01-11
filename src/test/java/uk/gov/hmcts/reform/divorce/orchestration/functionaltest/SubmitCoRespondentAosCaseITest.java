@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.divorce.orchestration.functionaltest;
 
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
+import uk.gov.hmcts.reform.divorce.service.CaseFormatterService;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -26,6 +26,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Collections.emptyMap;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -49,7 +50,6 @@ import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTes
 
 public class SubmitCoRespondentAosCaseITest extends MockedFunctionalTest {
     private static final String API_URL = "/submit-co-respondent-aos";
-    private static final String FORMAT_TO_AOS_CASE_CONTEXT_PATH = "/caseformatter/version/1/to-aos-submit-format";
     private static final String UPDATE_CONTEXT_PATH = "/casemaintenance/version/1/updateCase/" + TEST_CASE_ID + "/";
     private static final String RETRIEVE_CASE_CONTEXT_PATH = "/casemaintenance/version/1/retrieveAosCase";
 
@@ -60,6 +60,9 @@ public class SubmitCoRespondentAosCaseITest extends MockedFunctionalTest {
 
     @MockBean
     private Clock clock;
+
+    @MockBean
+    private CaseFormatterService caseFormatterService;
 
     @Before
     public void setup() {
@@ -86,21 +89,7 @@ public class SubmitCoRespondentAosCaseITest extends MockedFunctionalTest {
     }
 
     @Test
-    public void givenCaseFormatterFails_whenSubmitCoRespondentAos_thenPropagateTheException() throws Exception {
-        stubFormatterServerEndpoint(BAD_REQUEST, emptyMap(), TEST_ERROR);
-
-        webClient.perform(MockMvcRequestBuilders.post(API_URL)
-            .header(AUTHORIZATION, AUTH_TOKEN)
-            .content(convertObjectToJsonString(emptyMap()))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string(containsString(TEST_ERROR)));
-    }
-
-    @Test
     public void givenCaseRetrievalFails_whenSubmitCoRespondentAos_thenPropagateTheException() throws Exception {
-        stubFormatterServerEndpoint(OK, emptyMap(), convertObjectToJsonString(emptyMap()));
         stubMaintenanceServerEndpointForAosRetrieval(NOT_FOUND, convertObjectToJsonString(TEST_ERROR));
 
         webClient.perform(MockMvcRequestBuilders.post(API_URL)
@@ -113,8 +102,10 @@ public class SubmitCoRespondentAosCaseITest extends MockedFunctionalTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void givenCaseUpdateFails_whenSubmitCoRespondentAos_thenPropagateTheException() throws Exception {
-        stubFormatterServerEndpoint(OK, emptyMap(), convertObjectToJsonString(getCoRespondentSubmitData()));
+
+        when(caseFormatterService.getAosCaseData(any(Map.class))).thenReturn(getCoRespondentSubmitData());
 
         final CaseDetails caseDetails = CaseDetails.builder().caseId(TEST_CASE_ID).state(AOS_AWAITING).build();
         stubMaintenanceServerEndpointForAosRetrieval(OK, convertObjectToJsonString(caseDetails));
@@ -131,10 +122,11 @@ public class SubmitCoRespondentAosCaseITest extends MockedFunctionalTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void happyPath() throws Exception {
         final String caseDataString = convertObjectToJsonString(getCoRespondentSubmitData());
 
-        stubFormatterServerEndpoint(OK, emptyMap(), caseDataString);
+        when(caseFormatterService.getAosCaseData(any(Map.class))).thenReturn(getCoRespondentSubmitData());
 
         final CaseDetails caseDetails = CaseDetails.builder().caseId(TEST_CASE_ID).state(AOS_AWAITING).build();
         stubMaintenanceServerEndpointForAosRetrieval(OK, convertObjectToJsonString(caseDetails));
@@ -151,6 +143,7 @@ public class SubmitCoRespondentAosCaseITest extends MockedFunctionalTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void dueDateIsRecalculatedWhenCoRespondentIsDefending() throws Exception {
         final Map<String, Object> originalSubmissionData = new HashMap<>(getCoRespondentSubmitData());
         originalSubmissionData.put(CO_RESPONDENT_DEFENDS_DIVORCE, "YES");
@@ -158,7 +151,7 @@ public class SubmitCoRespondentAosCaseITest extends MockedFunctionalTest {
 
         final String caseDataString = convertObjectToJsonString(originalSubmissionData);
 
-        stubFormatterServerEndpoint(OK, originalSubmissionData, caseDataString);
+        when(caseFormatterService.getAosCaseData(any(Map.class))).thenReturn(originalSubmissionData);
 
         final CaseDetails caseDetails = CaseDetails.builder().caseId(TEST_CASE_ID).state(AOS_AWAITING).build();
         stubMaintenanceServerEndpointForAosRetrieval(OK, convertObjectToJsonString(caseDetails));
@@ -178,19 +171,10 @@ public class SubmitCoRespondentAosCaseITest extends MockedFunctionalTest {
     }
 
     private Map<String, Object> getCoRespondentSubmitData() {
-        return ImmutableMap.of(
+        return new HashMap<>(Map.of(
             RECEIVED_AOS_FROM_CO_RESP, YES_VALUE,
             RECEIVED_AOS_FROM_CO_RESP_DATE, today.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-        );
-    }
-
-    private void stubFormatterServerEndpoint(HttpStatus status, Map<String, Object> caseData, String response) {
-        formatterServiceServer.stubFor(post(FORMAT_TO_AOS_CASE_CONTEXT_PATH)
-            .withRequestBody(equalToJson(convertObjectToJsonString(caseData)))
-            .willReturn(aResponse()
-                .withStatus(status.value())
-                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .withBody(response)));
+        ));
     }
 
     private void stubMaintenanceServerEndpointForAosRetrieval(final HttpStatus status, final String response) {

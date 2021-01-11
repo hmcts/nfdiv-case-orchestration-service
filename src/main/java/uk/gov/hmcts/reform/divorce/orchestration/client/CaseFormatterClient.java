@@ -22,11 +22,4 @@ public interface CaseFormatterClient {
         @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken,
         @RequestBody Map<String, Object> transformToDivorceFormat
     );
-
-    @ApiOperation("Transform data to AOS Case Format")
-    @PostMapping(value = "/caseformatter/version/1/to-aos-submit-format",
-        headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
-    Map<String, Object> transformToAosCaseFormat(
-        @RequestBody Map<String, Object> divorceSession
-    );
 }
