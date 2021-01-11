@@ -37,13 +37,6 @@ public interface CaseFormatterClient {
         @RequestBody Map<String, Object> divorceSession
     );
 
-    @ApiOperation("Transform data to DA Submit Format")
-    @PostMapping(value = "/caseformatter/version/1/to-da-submit-format",
-        headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
-    Map<String, Object> transformToDaCaseFormat(
-        @RequestBody Map<String, Object> divorceSession
-    );
-
     @ApiOperation("Transform data to DN Clarification Format")
     @PostMapping(value = "/caseformatter/version/1/to-dn-clarification-format",
         headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
