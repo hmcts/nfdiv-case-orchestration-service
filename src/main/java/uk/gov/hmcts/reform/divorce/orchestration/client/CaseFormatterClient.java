@@ -29,18 +29,4 @@ public interface CaseFormatterClient {
     Map<String, Object> transformToAosCaseFormat(
         @RequestBody Map<String, Object> divorceSession
     );
-
-    @ApiOperation("Transform data to DN Submit Format")
-    @PostMapping(value = "/caseformatter/version/1/to-dn-submit-format",
-        headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
-    Map<String, Object> transformToDnCaseFormat(
-        @RequestBody Map<String, Object> divorceSession
-    );
-
-    @ApiOperation("Transform data to DN Clarification Format")
-    @PostMapping(value = "/caseformatter/version/1/to-dn-clarification-format",
-        headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
-    Map<String, Object> transformToDnClarificationCaseFormat(
-        @RequestBody Map<String, Object> divorceCaseWrapper
-    );
 }
