@@ -110,7 +110,6 @@ public abstract class ProcessPbaPaymentAbstractITest extends MockedFunctionalTes
 
     private static final String API_URL = "/process-pba-payment";
     private static final String PAYMENTS_CREDIT_ACCOUNT_CONTEXT_PATH = "/credit-account-payments";
-    private static final String FORMAT_REMOVE_PETITION_DOCUMENTS_CONTEXT_PATH = "/caseformatter/version/1/remove-all-petition-documents";
     private static final String EAST_MIDLANDS_RDC = "East Midlands Regional Divorce Centre";
 
     @MockBean
@@ -280,8 +279,6 @@ public abstract class ProcessPbaPaymentAbstractITest extends MockedFunctionalTes
             .data(caseData)
             .build();
 
-        stubFormatterServerEndpoint(caseData);
-
         webClient.perform(post(API_URL)
             .content(convertObjectToJsonString(ccdCallbackRequest))
             .header(AUTHORIZATION, AUTH_TOKEN)
@@ -308,7 +305,6 @@ public abstract class ProcessPbaPaymentAbstractITest extends MockedFunctionalTes
 
         Map<String, Object> workFlowCaseDataResponse = new HashMap<>(caseData);
         workFlowCaseDataResponse.put(ProcessPbaPaymentTask.PAYMENT_STATUS, PaymentStatus.PENDING.value());
-        stubFormatterServerEndpoint(workFlowCaseDataResponse);
 
         stubCreditAccountPayment(HttpStatus.OK, CreditAccountPaymentResponse.builder()
             .status(PaymentStatus.PENDING.value())
@@ -353,7 +349,6 @@ public abstract class ProcessPbaPaymentAbstractITest extends MockedFunctionalTes
             .build());
 
         stubServiceAuthProvider(HttpStatus.OK, TEST_SERVICE_AUTH_TOKEN);
-        stubFormatterServerEndpoint(workFlowCaseDataResponse);
 
         CcdCallbackResponse expected = CcdCallbackResponse.builder()
             .state(CcdStates.SUBMITTED)
@@ -494,7 +489,6 @@ public abstract class ProcessPbaPaymentAbstractITest extends MockedFunctionalTes
 
         Map<String, Object> workFlowCaseDataResponse = new HashMap<>(caseData);
         workFlowCaseDataResponse.put(ProcessPbaPaymentTask.PAYMENT_STATUS, PaymentStatus.SUCCESS.value());
-        stubFormatterServerEndpoint(workFlowCaseDataResponse);
 
         stubCreditAccountPayment(HttpStatus.OK, CreditAccountPaymentResponse.builder()
             .status(PaymentStatus.SUCCESS.value())
@@ -547,7 +541,6 @@ public abstract class ProcessPbaPaymentAbstractITest extends MockedFunctionalTes
                             CreditAccountPaymentResponse errorCreditAccountPaymentResponse) {
         stubCreditAccountPayment(httpStatus, errorCreditAccountPaymentResponse);
         stubServiceAuthProvider(HttpStatus.OK, TEST_SERVICE_AUTH_TOKEN);
-        stubFormatterServerEndpoint(caseData);
     }
 
     private void stubCreditAccountPayment(HttpStatus status, CreditAccountPaymentResponse response) {
@@ -559,14 +552,5 @@ public abstract class ProcessPbaPaymentAbstractITest extends MockedFunctionalTes
                 .withStatus(status.value())
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
                 .withBody(convertObjectToJsonString(response))));
-    }
-
-    private void stubFormatterServerEndpoint(Map<String, Object> data) {
-        formatterServiceServer.stubFor(WireMock.post(FORMAT_REMOVE_PETITION_DOCUMENTS_CONTEXT_PATH)
-            .withRequestBody(equalToJson(convertObjectToJsonString(data)))
-            .willReturn(aResponse()
-                .withStatus(HttpStatus.OK.value())
-                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .withBody(convertObjectToJsonString(data))));
     }
 }

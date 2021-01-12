@@ -4,10 +4,12 @@ import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import uk.gov.hmcts.reform.divorce.service.CaseFormatterService;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,6 +19,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -35,8 +39,10 @@ import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTes
 
 public class SubmitDaCaseITest extends MockedFunctionalTest {
     private static final String API_URL = String.format("/submit-da/%s", TEST_CASE_ID);
-    private static final String FORMAT_TO_DA_CASE_CONTEXT_PATH = "/caseformatter/version/1/to-da-submit-format";
     private static final String UPDATE_CONTEXT_PATH = "/casemaintenance/version/1/updateCase/" + TEST_CASE_ID + "/";
+
+    @MockBean
+    private CaseFormatterService caseFormatterService;
 
     @Autowired
     private MockMvc webClient;
@@ -61,10 +67,11 @@ public class SubmitDaCaseITest extends MockedFunctionalTest {
 
 
     @Test
+    @SuppressWarnings("unchecked")
     public void givenCaseFormatterFails_whenSubmitDn_thenPropagateTheException() throws Exception {
         final Map<String, Object> caseData = getCaseData();
 
-        stubFormatterServerEndpoint(BAD_REQUEST, caseData, TEST_ERROR);
+        when(caseFormatterService.getDaCaseData(any(Map.class))).thenReturn(caseData);
 
         webClient.perform(MockMvcRequestBuilders.post(API_URL)
             .header(AUTHORIZATION, AUTH_TOKEN)
@@ -76,6 +83,7 @@ public class SubmitDaCaseITest extends MockedFunctionalTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void givenCaseUpdateFails_whenSubmitDa_thenPropagateTheException() throws Exception {
         final Map<String, Object> caseData = new HashMap<>();
         final Map<String, Object> caseDetails = new HashMap<>();
@@ -83,7 +91,7 @@ public class SubmitDaCaseITest extends MockedFunctionalTest {
         caseDetails.put(CASE_STATE_JSON_KEY, DN_PRONOUNCED);
         caseDetails.put(CCD_CASE_DATA_FIELD, caseData);
 
-        stubFormatterServerEndpoint(OK, caseData, convertObjectToJsonString(caseData));
+        when(caseFormatterService.getDaCaseData(any(Map.class))).thenReturn(caseData);
         stubMaintenanceServerEndpointForUpdate(BAD_REQUEST, DECREE_ABSOLUTE_REQUESTED_EVENT_ID, caseData, TEST_ERROR);
 
         webClient.perform(MockMvcRequestBuilders.post(API_URL)
@@ -96,6 +104,7 @@ public class SubmitDaCaseITest extends MockedFunctionalTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void givenCaseUpdateIsSuccessful_whenSubmitDa_thenProceedAsExpected() throws Exception {
         final Map<String, Object> caseData = getCaseData();
         final String caseDataString = convertObjectToJsonString(caseData);
@@ -104,7 +113,7 @@ public class SubmitDaCaseITest extends MockedFunctionalTest {
         caseDetails.put(CASE_STATE_JSON_KEY, DN_PRONOUNCED);
         caseDetails.put(CCD_CASE_DATA_FIELD, caseData);
 
-        stubFormatterServerEndpoint(OK, caseData, convertObjectToJsonString(caseData));
+        when(caseFormatterService.getDaCaseData(any(Map.class))).thenReturn(caseData);
         stubMaintenanceServerEndpointForUpdate(OK, DECREE_ABSOLUTE_REQUESTED_EVENT_ID, Collections.emptyMap(), caseDataString);
 
         webClient.perform(MockMvcRequestBuilders.post(API_URL)
@@ -114,15 +123,6 @@ public class SubmitDaCaseITest extends MockedFunctionalTest {
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().json(caseDataString));
-    }
-
-    private void stubFormatterServerEndpoint(HttpStatus status, Map<String, Object> caseData, String response) {
-        formatterServiceServer.stubFor(post(FORMAT_TO_DA_CASE_CONTEXT_PATH)
-            .withRequestBody(equalToJson(convertObjectToJsonString(caseData)))
-            .willReturn(aResponse()
-                .withStatus(status.value())
-                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .withBody(response)));
     }
 
     private void stubMaintenanceServerEndpointForUpdate(HttpStatus status, String caseEventId,

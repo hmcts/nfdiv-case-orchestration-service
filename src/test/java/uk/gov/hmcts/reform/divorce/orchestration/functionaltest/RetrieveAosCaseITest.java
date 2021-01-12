@@ -8,9 +8,9 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
+import uk.gov.hmcts.reform.divorce.model.UserDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.idam.UserDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.testutil.CourtsMatcher;
 import uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil;
 

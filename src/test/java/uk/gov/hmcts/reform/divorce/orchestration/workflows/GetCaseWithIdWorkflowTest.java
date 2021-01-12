@@ -7,8 +7,8 @@ import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
+import uk.gov.hmcts.reform.divorce.model.UserDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.idam.UserDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
@@ -22,6 +22,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 
 @RunWith(MockitoJUnitRunner.class)
 public class GetCaseWithIdWorkflowTest {
+
     @Mock
     private GetCaseWithIdTask getCaseWithId;
 
