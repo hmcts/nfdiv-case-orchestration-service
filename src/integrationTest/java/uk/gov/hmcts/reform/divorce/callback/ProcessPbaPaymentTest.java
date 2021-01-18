@@ -50,7 +50,6 @@ public class ProcessPbaPaymentTest extends IntegrationTest {
     @Test
     public void givenValidRequestWithFeeAccountThenReturnStateAsSubmitted() throws Exception {
         Response cosResponse = getOkResponseWithRequestData(PAYLOAD_CONTEXT_PATH + "active-account-request.json");
-        System.out.println("Server url " + serverUrl);
 
         assertThat(getResponseBody(cosResponse),
             allOf(
@@ -70,7 +69,6 @@ public class ProcessPbaPaymentTest extends IntegrationTest {
     public void givenValidRequestWithInsufficientFundsThenHandle403AndReturnWithCAE0001ErrorMessage() throws Exception {
         Response cosResponse = getOkResponseWithRequestData(PAYLOAD_CONTEXT_PATH + "insufficient-funds-request.json");
         String expectedErrorMessage = getExpectedErrorMessage(ACTIVE_ACCOUNT, PbaErrorMessage.CAE0001);
-        System.out.println("Server url " + serverUrl);
 
         assertThat(getResponseBody(cosResponse), isResponseWithErrorMessage(expectedErrorMessage));
     }
@@ -79,7 +77,6 @@ public class ProcessPbaPaymentTest extends IntegrationTest {
     public void givenValidRequestWithInactiveAccountThenHandle403AndReturnWithCAE0004ErrorMessage() throws Exception {
         Response cosResponse = getOkResponseWithRequestData(PAYLOAD_CONTEXT_PATH + "inactive-account-request.json");
         String expectedErrorMessage = getExpectedErrorMessage(DELETED_ACCOUNT, PbaErrorMessage.CAE0004);
-        System.out.println("Server url " + serverUrl);
 
         assertThat(getResponseBody(cosResponse), isResponseWithErrorMessage(expectedErrorMessage));
     }
@@ -88,7 +85,6 @@ public class ProcessPbaPaymentTest extends IntegrationTest {
     public void givenValidRequestWithNonExistingAccountThenHandle404AndReturnWithErrorMessage() throws Exception {
         Response cosResponse = getOkResponseWithRequestData(PAYLOAD_CONTEXT_PATH + "nonexisting-account-request.json");
         String expectedErrorMessage = getExpectedErrorMessage(NON_EXISTING_ACCOUNT, PbaErrorMessage.NOTFOUND);
-        System.out.println("Server url " + serverUrl);
 
         assertThat(getResponseBody(cosResponse), isResponseWithErrorMessage(expectedErrorMessage));
     }
