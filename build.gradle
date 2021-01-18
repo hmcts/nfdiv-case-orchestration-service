@@ -431,9 +431,9 @@ bootRun {
             systemProperty 'FEES_AND_PAYMENTS_SERVICE_API_BASEURL', 'http://div-fps-aat.service.core-compute-aat.internal'
             systemProperty 'DOCUMENT_MANAGEMENT_STORE_URL', 'http://dm-store-aat.service.core-compute-aat.internal'
 
-            systemProperty 'AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY', getVaultSecret('ccd-submission-s2s-auth-secret')
+            systemProperty 'AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY', getVaultSecret('cms-service-key')
             systemProperty 'AUTH_PROVIDER_DOCUMENTGENERATOR_CLIENT_KEY', getVaultSecret('div-doc-s2s-auth-secret')
-            systemProperty 'SERVICE_AUTH_SECRET', getVaultSecret('frontend-secret')
+            systemProperty 'SERVICE_AUTH_SECRET', getVaultSecret('cos-service-key')
             systemProperty 'IDAM_CLIENT_SECRET', getVaultSecret('idam-secret')
             systemProperty 'IDAM_CITIZEN_USERNAME', getVaultSecret('idam-citizen-username')
             systemProperty 'IDAM_CITIZEN_PASSWORD', getVaultSecret('idam-citizen-password')
