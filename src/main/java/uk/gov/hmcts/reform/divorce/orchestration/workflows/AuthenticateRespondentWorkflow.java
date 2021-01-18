@@ -9,6 +9,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.AuthenticateRespondentTask;
 
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID_TOKEN_JSON_KEY;
 
 @Component
 public class AuthenticateRespondentWorkflow extends DefaultWorkflow<Boolean> {
@@ -19,13 +20,14 @@ public class AuthenticateRespondentWorkflow extends DefaultWorkflow<Boolean> {
         this.authenticateRespondentTask = authenticateRespondentTask;
     }
 
-    public Boolean run(String authToken) throws WorkflowException {
+    public Boolean run(String authToken, String idToken) throws WorkflowException {
         return this.execute(
             new Task[] {
                 authenticateRespondentTask,
             },
             null,
-            ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken)
+            ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken),
+            ImmutablePair.of(ID_TOKEN_JSON_KEY, idToken)
         );
     }
 }

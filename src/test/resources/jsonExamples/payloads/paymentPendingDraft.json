@@ -1,7 +1,7 @@
 {
   "id": 1547073120300616,
   "jurisdiction": "DIVORCE",
-  "case_type_id": "DIVORCE",
+  "case_type_id": "NO_FAULT_DIVORCE",
   "created_date": "2019-01-09T22:32:00.361",
   "last_modified": "2019-01-09T22:35:21.717",
   "state": "AwaitingPayment",

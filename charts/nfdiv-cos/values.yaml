@@ -1,12 +1,13 @@
 java:
     applicationPort: 4012
-    aadIdentityName: divorce
-    ingressHost: "div-cos-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
+    aadIdentityName: nfdiv
+    ingressHost: "nfdiv-cos-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
     environment:
-        CASE_MAINTENANCE_SERVICE_API_BASEURL: "http://div-cms-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
+        CASE_MAINTENANCE_SERVICE_API_BASEURL: "http://nfdiv-cms-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
         PAYMENT_API_BASEURL: "http://payment-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
         PRD_API_BASEURL : "http://rd-professional-api-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
-        SEND_LETTER_SERIVCE_BASEURL: "http://rpe-send-letter-service-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
+        SEND_LETTER_SERVICE_BASEURL: "http://rpe-send-letter-service-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
+        IDAM_API_URL: "https://idam-api.{{ .Values.global.environment }}.platform.hmcts.net"
         IDAM_API_REDIRECT_URL: "https://div-pfe-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal/authenticated"
         CASE_FORMATTER_SERVICE_API_BASEURL: "http://div-cfs-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
         SERVICE_AUTH_PROVIDER_URL: "http://rpe-service-auth-provider-{{ .Values.global.environment }}.service.core-compute-{{ .Values.global.environment }}.internal"
@@ -19,19 +20,19 @@ java:
         SCHEDULER_RE_CREATE: true
         FEATURE_DN_REFUSAL: "true"
         FEATURE_RESP_SOLICITOR_DETAILS: true
-        DIV_SCHEDULER_DB_HOST : "div-cos-{{ .Values.global.environment }}.postgres.database.azure.com"
+        DIV_SCHEDULER_DB_HOST : "nfdiv-cos-{{ .Values.global.environment }}.postgres.database.azure.com"
         DIV_SCHEDULER_DB_PORT : "5432"
         DIV_SCHEDULER_DB_NAME : "div_scheduler"
-        DIV_SCHEDULER_DB_USER_NAME : "div_scheduler@div-cos-{{ .Values.global.environment }}"
-        FLYWAY_URL : "jdbc:postgresql://div-cos-{{ .Values.global.environment }}.postgres.database.azure.com:5432/div_scheduler"
+        DIV_SCHEDULER_DB_USER_NAME : "div_scheduler@nfdiv-cos-{{ .Values.global.environment }}"
+        FLYWAY_URL : "jdbc:postgresql://nfdiv-cos-{{ .Values.global.environment }}.postgres.database.azure.com:5432/div_scheduler"
         SPRING_MAIL_HOST: mta.reform.hmcts.net
         SPRING_MAIL_PORT: 25
         SPRING_MAIL_TEST_CONNECTION: false
         SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: true
         SPRING_MAIL_PROPERTIES_MAIL_SMTP_SSL_TRUST: mta.reform.hmcts.net
     keyVaults:
-        "div":
-            resourceGroup: div
+        "nfdiv":
+            resourceGroup: nfdiv
             secrets:
                 - ccd-submission-s2s-auth-secret
                 - div-doc-s2s-auth-secret

@@ -20,7 +20,7 @@ spring:
     maxLifetime: 7200000
     connectionTimeout: 30000
   application:
-    name: div-cos
+    name: nfdiv-cos
   resources:
     static-locations:
   mail:
@@ -151,7 +151,7 @@ feature-toggle:
     pay_by_account: ${PAY_BY_ACCOUNT:false}
 
 send-letter:
-  url: ${SEND_LETTER_SERIVCE_BASEURL:http://localhost:4021}
+  url: ${SEND_LETTER_SERVICE_BASEURL:http://localhost:4021}
 
 bulk-print:
   dueDate: 30

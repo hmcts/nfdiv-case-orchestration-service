@@ -2,13 +2,14 @@ package uk.gov.hmcts.reform.divorce.orchestration.functionaltest;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import uk.gov.hmcts.reform.divorce.service.CaseFormatterService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -36,20 +39,19 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DN_RECEIVED;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DN_RECEIVED_AOS_COMPLETE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DN_RECEIVED_CLARIFICATION;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.FORMATTER_CASE_DATA_KEY;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.FORMATTER_DIVORCE_SESSION_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.LANGUAGE_PREFERENCE_WELSH;
 import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil.convertObjectToJsonString;
 
 public class SubmitDnCaseITest extends IdamTestSupport {
     private static final String API_URL = String.format("/submit-dn/%s", TEST_CASE_ID);
-    private static final String FORMAT_TO_DN_CASE_CONTEXT_PATH = "/caseformatter/version/1/to-dn-submit-format";
-    private static final String FORMAT_TO_DN_CLARIFICATION_CONTEXT_PATH = "/caseformatter/version/1/to-dn-clarification-format";
     private static final String UPDATE_CONTEXT_PATH = "/casemaintenance/version/1/updateCase/" + TEST_CASE_ID + "/";
     private static final String RETRIEVE_CASE_CONTEXT_PATH = String.format(
-            "/casemaintenance/version/1/case/%s",
-            TEST_CASE_ID
+        "/casemaintenance/version/1/case/%s",
+        TEST_CASE_ID
     );
+
+    @MockBean
+    private CaseFormatterService caseFormatterService;
 
     @Autowired
     private MockMvc webClient;
@@ -73,25 +75,10 @@ public class SubmitDnCaseITest extends IdamTestSupport {
     }
 
     @Test
-    public void givenCaseFormatterFails_whenSubmitDn_thenPropagateTheException() throws Exception {
-        final Map<String, Object> caseData = getCaseData();
-
-        stubSignInForCaseworker();
-        stubFormatterServerEndpoint(BAD_REQUEST, caseData, TEST_ERROR);
-
-        webClient.perform(MockMvcRequestBuilders.post(API_URL)
-            .header(AUTHORIZATION, AUTH_TOKEN)
-            .content(convertObjectToJsonString(caseData))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isBadRequest())
-            .andExpect(content().string(containsString(TEST_ERROR)));
-    }
-
-    @Test
+    @SuppressWarnings("unchecked")
     public void givenCaseUpdateFails_whenSubmitDn_thenPropagateTheException() throws Exception {
         final Map<String, Object> caseData = new HashMap<>();
-        caseData.put(LANGUAGE_PREFERENCE_WELSH,"No");
+        caseData.put(LANGUAGE_PREFERENCE_WELSH, "No");
         final String caseDataString = convertObjectToJsonString(caseData);
         final Map<String, Object> caseDetails = new HashMap<>();
 
@@ -101,7 +88,7 @@ public class SubmitDnCaseITest extends IdamTestSupport {
         stubSignInForCaseworker();
         stubMaintenanceServerEndpointForRetrieveCaseById(OK, caseDetails);
         stubMaintenanceServerEndpointForUpdate(OK, DN_RECEIVED, caseData, caseDataString);
-        stubFormatterServerEndpoint(OK, caseData, convertObjectToJsonString(caseData));
+        when(caseFormatterService.getDnCaseData(any(Map.class))).thenReturn(caseData);
         stubMaintenanceServerEndpointForUpdate(BAD_REQUEST, DN_RECEIVED, caseData, TEST_ERROR);
 
         webClient.perform(MockMvcRequestBuilders.post(API_URL)
@@ -114,9 +101,10 @@ public class SubmitDnCaseITest extends IdamTestSupport {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void givenDnReceivedAndAosNotCompleted_whenSubmitDn_thenProceedAsExpected() throws Exception {
         final Map<String, Object> caseData = getCaseData();
-        caseData.put(LANGUAGE_PREFERENCE_WELSH,"No");
+        caseData.put(LANGUAGE_PREFERENCE_WELSH, "No");
         final String caseDataString = convertObjectToJsonString(caseData);
         final Map<String, Object> caseDetails = new HashMap<>();
 
@@ -125,7 +113,7 @@ public class SubmitDnCaseITest extends IdamTestSupport {
 
         stubSignInForCaseworker();
         stubMaintenanceServerEndpointForRetrieveCaseById(OK, caseDetails);
-        stubFormatterServerEndpoint(OK, caseData, caseDataString);
+        when(caseFormatterService.getDnCaseData(any(Map.class))).thenReturn(caseData);
         stubMaintenanceServerEndpointForUpdate(OK, DN_RECEIVED, caseData, caseDataString);
 
         webClient.perform(MockMvcRequestBuilders.post(API_URL)
@@ -138,9 +126,10 @@ public class SubmitDnCaseITest extends IdamTestSupport {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void givenDnReceivedAndAosCompleted_whenSubmitDn_thenProceedAsExpected() throws Exception {
         final Map<String, Object> caseData = getCaseData();
-        caseData.put(LANGUAGE_PREFERENCE_WELSH,"No");
+        caseData.put(LANGUAGE_PREFERENCE_WELSH, "No");
         final String caseDataString = convertObjectToJsonString(caseData);
         final Map<String, Object> caseDetails = new HashMap<>();
 
@@ -149,7 +138,7 @@ public class SubmitDnCaseITest extends IdamTestSupport {
 
         stubSignInForCaseworker();
         stubMaintenanceServerEndpointForRetrieveCaseById(OK, caseDetails);
-        stubFormatterServerEndpoint(OK, caseData, caseDataString);
+        when(caseFormatterService.getDnCaseData(any(Map.class))).thenReturn(caseData);
         stubMaintenanceServerEndpointForUpdate(OK, DN_RECEIVED_AOS_COMPLETE, caseData, caseDataString);
 
         webClient.perform(MockMvcRequestBuilders.post(API_URL)
@@ -162,9 +151,10 @@ public class SubmitDnCaseITest extends IdamTestSupport {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void givenDnReceivedAndAwaitingClarification_whenSubmitDn_thenProceedAsExpected() throws Exception {
         final Map<String, Object> caseData = getCaseData();
-        caseData.put(LANGUAGE_PREFERENCE_WELSH,"No");
+        caseData.put(LANGUAGE_PREFERENCE_WELSH, "No");
         final String caseDataString = convertObjectToJsonString(caseData);
         final Map<String, Object> caseDetails = new HashMap<>();
 
@@ -173,11 +163,8 @@ public class SubmitDnCaseITest extends IdamTestSupport {
 
         stubSignInForCaseworker();
         stubMaintenanceServerEndpointForRetrieveCaseById(OK, caseDetails);
-        stubFormatterClarificationEndpoint(OK,
-            ImmutableMap.of(
-                FORMATTER_CASE_DATA_KEY, caseData,
-                FORMATTER_DIVORCE_SESSION_KEY, caseData
-            ), caseDataString);
+
+        when(caseFormatterService.getDnClarificationCaseData(any(Map.class))).thenReturn(caseData);
         stubMaintenanceServerEndpointForUpdate(OK, DN_RECEIVED_CLARIFICATION, caseData, caseDataString);
 
         webClient.perform(MockMvcRequestBuilders.post(API_URL)
@@ -187,24 +174,6 @@ public class SubmitDnCaseITest extends IdamTestSupport {
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andExpect(content().json(caseDataString));
-    }
-
-    private void stubFormatterServerEndpoint(HttpStatus status, Map<String, Object> caseData, String response) {
-        formatterServiceServer.stubFor(post(FORMAT_TO_DN_CASE_CONTEXT_PATH)
-            .withRequestBody(equalToJson(convertObjectToJsonString(caseData)))
-            .willReturn(aResponse()
-                .withStatus(status.value())
-                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .withBody(response)));
-    }
-
-    private void stubFormatterClarificationEndpoint(HttpStatus status, Map<String, Object> caseData, String response) {
-        formatterServiceServer.stubFor(post(FORMAT_TO_DN_CLARIFICATION_CONTEXT_PATH)
-            .withRequestBody(equalToJson(convertObjectToJsonString(caseData)))
-            .willReturn(aResponse()
-                .withStatus(status.value())
-                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .withBody(response)));
     }
 
     private void stubMaintenanceServerEndpointForUpdate(HttpStatus status, String caseEventId,

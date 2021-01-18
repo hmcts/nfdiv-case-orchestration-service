@@ -3,10 +3,10 @@ package uk.gov.hmcts.reform.divorce.orchestration.tasks;
 import com.google.common.collect.ImmutableMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.divorce.orchestration.client.CaseFormatterClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
+import uk.gov.hmcts.reform.divorce.service.CaseFormatterService;
 
 import java.util.Map;
 
@@ -19,7 +19,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 @RequiredArgsConstructor
 public class FormatDivorceSessionToDnCaseDataTask implements Task<Map<String, Object>> {
 
-    private final CaseFormatterClient caseFormatterClient;
+    private final CaseFormatterService caseFormatterService;
 
     @Override
     public Map<String, Object> execute(TaskContext context, Map<String, Object> sessionData) {
@@ -30,9 +30,9 @@ public class FormatDivorceSessionToDnCaseDataTask implements Task<Map<String, Ob
                 FORMATTER_CASE_DATA_KEY, caseDetails.getCaseData(),
                 FORMATTER_DIVORCE_SESSION_KEY, sessionData
             );
-            return caseFormatterClient.transformToDnClarificationCaseFormat(divorceCaseWrapper);
+            return caseFormatterService.getDnClarificationCaseData(divorceCaseWrapper);
         }
 
-        return caseFormatterClient.transformToDnCaseFormat(sessionData);
+        return caseFormatterService.getDnCaseData(sessionData);
     }
 }
