@@ -27,10 +27,14 @@ public class SubmitCaseToCCDIntegrationTest extends RetrieveCaseSupport {
 
     private static final String PAYLOAD_CONTEXT_PATH = "fixtures/maintenance/submit/";
     private static final String DIVORCE_SESSION_WITH_COURT_SELECTED_JSON_PATH = "divorce-session-with-court-selected.json";
+    private static final String EMPTY_DIVORCE_SESSION_JSON_PATH = "empty-divorce-session.json";
     private static final String ALLOCATED_COURT_ID_KEY = "allocatedCourt.courtId";
 
     @Value("${case.orchestration.maintenance.submit.context-path}")
     private String caseCreationContextPath;
+
+    @Value("${case.orchestration.maintenance.submit-case.context-path}")
+    private String emptyCaseCreationContextPath;
 
     @Test
     public void givenDivorceSession_WithNoCourt_whenSubmitIsCalled_CaseIsCreated() throws Exception {
@@ -70,6 +74,33 @@ public class SubmitCaseToCCDIntegrationTest extends RetrieveCaseSupport {
         assertThat(allocatedCourt, is(notNullValue()));
     }
 
+    @Test
+    public void givenDraftDivorceSession_whenSubmitIsCalled_CaseIsCreated() throws Exception {
+        UserDetails userDetails = createCitizenUser();
+        Response submissionResponse = submitDraftCase(userDetails, EMPTY_DIVORCE_SESSION_JSON_PATH);
+
+        ResponseBody caseCreationResponseBody = submissionResponse.getBody();
+        System.out.println(caseCreationResponseBody);
+        assertThat(submissionResponse.getStatusCode(), is(HttpStatus.OK.value()));
+        assertThat(caseCreationResponseBody.path(CASE_ID_JSON_KEY), is(not("0")));
+    }
+
+    @Test
+    @Category(ExtendedTest.class)
+    public void givenAnExistingDraftCase_whenSubmitCaseIsCalled_aNewCaseIsNotCreated() throws Exception {
+        UserDetails userDetails = createCitizenUser();
+        Response submissionResponse = submitDraftCase(userDetails, EMPTY_DIVORCE_SESSION_JSON_PATH);
+
+        ResponseBody caseCreationResponseBody = submissionResponse.getBody();
+        assertThat(submissionResponse.getStatusCode(), is(HttpStatus.OK.value()));
+        String existingCaseId = caseCreationResponseBody.path(CASE_ID_JSON_KEY);
+        assertThat(existingCaseId, is(not("0")));
+
+        submissionResponse = submitDraftCase(userDetails, EMPTY_DIVORCE_SESSION_JSON_PATH);
+        caseCreationResponseBody = submissionResponse.getBody();
+        assertThat(caseCreationResponseBody.path(CASE_ID_JSON_KEY), is(existingCaseId));
+    }
+
     private Response submitCase(UserDetails userDetails, String fileName) throws Exception {
         final Map<String, Object> headers = new HashMap<>();
         headers.put(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
@@ -87,6 +118,26 @@ public class SubmitCaseToCCDIntegrationTest extends RetrieveCaseSupport {
                 serverUrl + caseCreationContextPath,
                 headers,
                 body
+        );
+    }
+
+    private Response submitDraftCase(UserDetails userDetails, String fileName) throws Exception {
+        final Map<String, Object> headers = new HashMap<>();
+        headers.put(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString());
+        headers.put(HttpHeaders.AUTHORIZATION, userDetails.getAuthToken());
+
+        String body = null;
+        if (fileName != null) {
+            body = ResourceLoader.loadJson(PAYLOAD_CONTEXT_PATH + fileName)
+                .replaceAll(USER_DEFAULT_EMAIL, userDetails.getEmailAddress());
+
+        }
+        System.out.println(body);
+
+        return RestUtil.postToRestService(
+            serverUrl + emptyCaseCreationContextPath,
+            headers,
+            body
         );
     }
 }

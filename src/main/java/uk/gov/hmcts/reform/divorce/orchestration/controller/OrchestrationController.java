@@ -97,7 +97,7 @@ public class OrchestrationController {
         @ApiResponse(code = 200, message = "Submit was successful and a case was created in CCD",
             response = CaseCreationResponse.class),
         @ApiResponse(code = 400, message = "Bad Request")})
-    public ResponseEntity<CaseCreationResponse> submit(
+    public ResponseEntity<CaseCreationResponse> submitCase(
         @RequestHeader(value = AUTHORIZATION_HEADER) String authorizationToken,
         @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws WorkflowException {
 
