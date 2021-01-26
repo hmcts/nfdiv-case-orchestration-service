@@ -149,6 +149,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.RESP_LAST_NAME_CCD_FIELD;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.YES_VALUE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.courts.CourtConstants.ALLOCATED_COURT_KEY;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.document.template.DocumentType.CASE_LIST_FOR_PRONOUNCEMENT;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.document.template.DocumentType.COSTS_ORDER;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.document.template.DocumentType.DECREE_NISI;
 
@@ -990,10 +991,19 @@ public class CaseOrchestrationServiceImplTest {
     }
 
     @Test
-    public void shouldCallTheRightWorkflow_ForDocumentGeneration() throws WorkflowException, CaseOrchestrationServiceException {
+    public void shouldCallTheRightWorkflow_ForDocumentGeneration_WithTemplateId() throws WorkflowException, CaseOrchestrationServiceException {
         when(documentGenerationWorkflow.run(ccdCallbackRequest.getCaseDetails(), AUTH_TOKEN, "b", "a", "b", "c")).thenReturn(requestPayload);
 
         final Map<String, Object> result = classUnderTest.handleDocumentGenerationCallback(ccdCallbackRequest, AUTH_TOKEN, "a", "b", "c");
+
+        assertThat(result, is(requestPayload));
+    }
+
+    @Test
+    public void shouldCallTheRightWorkflow_ForDocumentGeneration_WithDocumentType() throws WorkflowException, CaseOrchestrationServiceException {
+        when(documentGenerationWorkflow.run(ccdCallbackRequest.getCaseDetails(), AUTH_TOKEN, "b", COSTS_ORDER, "c")).thenReturn(requestPayload);
+
+        final Map<String, Object> result = classUnderTest.handleDocumentGenerationCallback(ccdCallbackRequest, AUTH_TOKEN, COSTS_ORDER, "b", "c");
 
         assertThat(result, is(requestPayload));
     }
@@ -1115,6 +1125,17 @@ public class CaseOrchestrationServiceImplTest {
 
         CaseOrchestrationServiceException caseOrchestrationServiceException = assertThrows(CaseOrchestrationServiceException.class,
             () -> classUnderTest.handleDocumentGenerationCallback(ccdCallbackRequest, AUTH_TOKEN, "a", "b", "c"));
+        assertThat(caseOrchestrationServiceException.getCaseId().get(), is(TEST_CASE_ID));
+        assertThat(caseOrchestrationServiceException.getCause(), is(workflowException));
+    }
+
+    @Test
+    public void shouldThrowException_ForDocumentGenerationWithDocumentType_WhenWorkflowExceptionIsCaught() throws WorkflowException {
+        WorkflowException workflowException = new WorkflowException("This operation threw an exception");
+        when(documentGenerationWorkflow.run(ccdCallbackRequest.getCaseDetails(), AUTH_TOKEN, "b", COSTS_ORDER, "c")).thenThrow(workflowException);
+
+        CaseOrchestrationServiceException caseOrchestrationServiceException = assertThrows(CaseOrchestrationServiceException.class,
+            () -> classUnderTest.handleDocumentGenerationCallback(ccdCallbackRequest, AUTH_TOKEN, COSTS_ORDER, "b", "c"));
         assertThat(caseOrchestrationServiceException.getCaseId().get(), is(TEST_CASE_ID));
         assertThat(caseOrchestrationServiceException.getCause(), is(workflowException));
     }
@@ -1432,7 +1453,7 @@ public class CaseOrchestrationServiceImplTest {
     }
 
     @Test
-    public void givenBulkCaseWithoutJudge_whenEditBulkCase_thenReturnCaseWithoutDocument() throws Exception {
+    public void givenBulkCaseWithoutJudge_whenEditBulkCase_thenReturnCaseWithoutDocument_WithTemplateId() throws Exception {
         when(validateBulkCaseListingWorkflow.run(ccdCallbackRequest.getCaseDetails().getCaseData())).thenReturn(expectedPayload);
 
         Map<String, Object> returnedPayload = classUnderTest.editBulkCaseListingData(ccdCallbackRequest, FILE_NAME,
@@ -1443,7 +1464,18 @@ public class CaseOrchestrationServiceImplTest {
     }
 
     @Test
-    public void givenBulkCaseWithJudge_whenEditBulkCase_thenReturnGenerateDocumentCalled() throws Exception {
+    public void givenBulkCaseWithoutJudge_whenEditBulkCase_thenReturnCaseWithoutDocument_WithDocumentType() throws Exception {
+        when(validateBulkCaseListingWorkflow.run(ccdCallbackRequest.getCaseDetails().getCaseData())).thenReturn(expectedPayload);
+
+        Map<String, Object> returnedPayload = classUnderTest.editBulkCaseListingData(ccdCallbackRequest, FILE_NAME,
+            CASE_LIST_FOR_PRONOUNCEMENT, DOCUMENT_TYPE, AUTH_TOKEN);
+
+        assertThat(returnedPayload, equalTo(expectedPayload));
+        verify(documentGenerationWorkflow, never()).run(any(), any(), any(), any(), any(), any());
+    }
+
+    @Test
+    public void givenBulkCaseWithJudge_whenEditBulkCase_thenReturnGenerateDocumentCalled_WithTemplateId() throws Exception {
         ccdCallbackRequest = CcdCallbackRequest.builder()
             .caseDetails(
                 CaseDetails.builder()
@@ -1465,6 +1497,31 @@ public class CaseOrchestrationServiceImplTest {
         assertThat(returnedPayload, equalTo(expectedPayload));
         verify(documentGenerationWorkflow)
             .run(ccdCallbackRequest.getCaseDetails(), AUTH_TOKEN, DOCUMENT_TYPE, TEMPLATE_ID, DOCUMENT_TYPE, FILE_NAME);
+    }
+
+    @Test
+    public void givenBulkCaseWithJudge_whenEditBulkCase_thenReturnGenerateDocumentCalled_WithDocumentType() throws Exception {
+        ccdCallbackRequest = CcdCallbackRequest.builder()
+            .caseDetails(
+                CaseDetails.builder()
+                    .caseData(ImmutableMap.of(PRONOUNCEMENT_JUDGE_CCD_FIELD, "Judge"))
+                    .caseId(TEST_CASE_ID)
+                    .state(TEST_STATE)
+                    .build())
+            .eventId(TEST_EVENT_ID)
+            .token(TEST_TOKEN)
+            .build();
+
+        when(validateBulkCaseListingWorkflow.run(ccdCallbackRequest.getCaseDetails().getCaseData())).thenReturn(expectedPayload);
+        when((documentGenerationWorkflow).run(ccdCallbackRequest.getCaseDetails(), AUTH_TOKEN, DOCUMENT_TYPE, CASE_LIST_FOR_PRONOUNCEMENT, FILE_NAME))
+            .thenReturn(expectedPayload);
+
+        Map<String, Object> returnedPayload = classUnderTest
+            .editBulkCaseListingData(ccdCallbackRequest, FILE_NAME, CASE_LIST_FOR_PRONOUNCEMENT, DOCUMENT_TYPE, AUTH_TOKEN);
+
+        assertThat(returnedPayload, equalTo(expectedPayload));
+        verify(documentGenerationWorkflow)
+            .run(ccdCallbackRequest.getCaseDetails(), AUTH_TOKEN, DOCUMENT_TYPE, CASE_LIST_FOR_PRONOUNCEMENT, FILE_NAME);
     }
 
     @Test
