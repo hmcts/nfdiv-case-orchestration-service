@@ -62,6 +62,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.workflows.SetOrderSummaryWorkfl
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SolicitorCreateWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SolicitorSubmissionWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SolicitorUpdateWorkflow;
+import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitCaseToCCDWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitCoRespondentAosWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDaCaseWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDnCaseWorkflow;
@@ -335,6 +336,9 @@ public class CaseOrchestrationServiceImplTest {
     @Mock
     private WelshSetPreviousStateWorkflow welshSetPreviousStateWorkflow;
 
+    @Mock
+    private SubmitCaseToCCDWorkflow submitCaseToCCDWorkflow;
+
     @InjectMocks
     private CaseOrchestrationServiceImpl classUnderTest;
 
@@ -511,6 +515,38 @@ public class CaseOrchestrationServiceImplTest {
 
         verify(submitToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
         verify(submitToCCDWorkflow, times(2)).errors();
+    }
+
+    @Test
+    public void givenDraftCaseDataValid_whenSubmit_thenReturnPayload() throws Exception {
+        Map<String, Object> expectedPayload = new HashMap<>();
+        expectedPayload.put("returnedKey", "returnedValue");
+        when(submitCaseToCCDWorkflow.run(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
+        when(submitCaseToCCDWorkflow.errors()).thenReturn(Collections.emptyMap());
+
+        System.out.println();
+
+        Map<String, Object> actual = classUnderTest.submitCase(requestPayload, AUTH_TOKEN);
+
+        assertThat(actual.get("returnedKey"), is("returnedValue"));
+        assertThat(actual.get("returnedKey"), is("returnedValue"));
+
+        verify(submitCaseToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
+        verify(submitCaseToCCDWorkflow).errors();
+    }
+
+    @Test
+    public void givenDraftCaseDataInvalid_whenSubmit_thenReturnListOfErrors() throws Exception {
+        when(submitCaseToCCDWorkflow.run(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
+        Map<String, Object> errors = singletonMap("new_Error", "An Error");
+        when(submitCaseToCCDWorkflow.errors()).thenReturn(errors);
+
+        Map<String, Object> actual = classUnderTest.submitCase(requestPayload, AUTH_TOKEN);
+
+        assertEquals(errors, actual);
+
+        verify(submitCaseToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
+        verify(submitCaseToCCDWorkflow, times(2)).errors();
     }
 
     @Test

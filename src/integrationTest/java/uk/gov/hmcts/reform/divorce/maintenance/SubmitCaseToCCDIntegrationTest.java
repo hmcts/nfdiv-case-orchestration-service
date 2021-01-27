@@ -27,7 +27,7 @@ public class SubmitCaseToCCDIntegrationTest extends RetrieveCaseSupport {
 
     private static final String PAYLOAD_CONTEXT_PATH = "fixtures/maintenance/submit/";
     private static final String DIVORCE_SESSION_WITH_COURT_SELECTED_JSON_PATH = "divorce-session-with-court-selected.json";
-    private static final String EMPTY_DIVORCE_SESSION_JSON_PATH = "empty-divorce-session.json";
+    private static final String EMPTY_DIVORCE_SESSION_JSON_PATH = "draft-divorce-session.json";
     private static final String ALLOCATED_COURT_ID_KEY = "allocatedCourt.courtId";
 
     @Value("${case.orchestration.maintenance.submit.context-path}")
