@@ -75,8 +75,6 @@ public class HealthCheckITest extends MockedFunctionalTest {
 
         assertThat(response.getStatusLine().getStatusCode(), equalTo(200));
         assertThat(JsonPath.read(body, "$.status").toString(), equalTo("UP"));
-        assertThat(JsonPath.read(body, "$.components.caseFormatterServiceHealthCheck.status").toString(),
-            equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.caseMaintenanceServiceHealthCheck.status").toString(),
             equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.documentGeneratorServiceHealthCheck.status").toString(),
@@ -112,8 +110,6 @@ public class HealthCheckITest extends MockedFunctionalTest {
 
         assertThat(response.getStatusLine().getStatusCode(), equalTo(503));
         assertThat(JsonPath.read(body, "$.status").toString(), equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.caseFormatterServiceHealthCheck.status").toString(),
-            equalTo("DOWN"));
         assertThat(JsonPath.read(body, "$.components.caseMaintenanceServiceHealthCheck.status").toString(),
             equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.documentGeneratorServiceHealthCheck.status").toString(),
@@ -126,40 +122,6 @@ public class HealthCheckITest extends MockedFunctionalTest {
             equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.sendLetterServiceHealthCheck.status").toString(),
             equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.diskSpace.status").toString(), equalTo("UP"));
-    }
-
-    @Test
-    public void givenCaseFormatterServiceIsDown_whenCheckHealth_thenReturnStatusDown() throws Exception {
-        mockEndpointAndResponse(formatterServiceServer, false);
-        mockEndpointAndResponse(maintenanceServiceServer, true);
-        mockEndpointAndResponse(validationServiceServer, true);
-        mockEndpointAndResponse(documentGeneratorServiceServer, true);
-        mockEndpointAndResponse(feesAndPaymentsServer, true);
-        mockEndpointAndResponse(idamServer, true);
-        mockEndpointAndResponse(paymentServiceServer, true);
-        mockEndpointAndResponse(sendLetterService, true);
-        mockEndpointAndResponse(serviceAuthProviderServer, true);
-
-        waitForMockChange();
-
-        HttpResponse response = getHealth();
-        String body = EntityUtils.toString(response.getEntity());
-
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(503));
-        assertThat(JsonPath.read(body, "$.status").toString(), equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.caseFormatterServiceHealthCheck.status").toString(),
-            equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.caseMaintenanceServiceHealthCheck.status").toString(),
-            equalTo("UP"));
-        assertThat(JsonPath.read(body, "$.components.documentGeneratorServiceHealthCheck.status").toString(),
-            equalTo("UP"));
-        assertThat(JsonPath.read(body, "$.components.feesAndPaymentsServiceHealthCheck.status").toString(),
-            equalTo("UP"));
-        assertThat(JsonPath.read(body, "$.components.paymentServiceHealthCheck.status").toString(),
-            equalTo("UP"));
-        assertThat(JsonPath.read(body, "$.components.serviceAuthProviderHealthCheck.status").toString(),
-            equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.diskSpace.status").toString(), equalTo("UP"));
     }
 
@@ -182,8 +144,6 @@ public class HealthCheckITest extends MockedFunctionalTest {
 
         assertThat(response.getStatusLine().getStatusCode(), equalTo(503));
         assertThat(JsonPath.read(body, "$.status").toString(), equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.caseFormatterServiceHealthCheck.status").toString(),
-            equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.caseMaintenanceServiceHealthCheck.status").toString(),
             equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.documentGeneratorServiceHealthCheck.status").toString(),
@@ -216,8 +176,6 @@ public class HealthCheckITest extends MockedFunctionalTest {
 
         assertThat(response.getStatusLine().getStatusCode(), equalTo(503));
         assertThat(JsonPath.read(body, "$.status").toString(), equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.caseFormatterServiceHealthCheck.status").toString(),
-            equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.caseMaintenanceServiceHealthCheck.status").toString(),
             equalTo("DOWN"));
         assertThat(JsonPath.read(body, "$.components.documentGeneratorServiceHealthCheck.status").toString(),
@@ -250,8 +208,6 @@ public class HealthCheckITest extends MockedFunctionalTest {
 
         assertThat(response.getStatusLine().getStatusCode(), equalTo(503));
         assertThat(JsonPath.read(body, "$.status").toString(), equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.caseFormatterServiceHealthCheck.status").toString(),
-            equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.caseMaintenanceServiceHealthCheck.status").toString(),
             equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.documentGeneratorServiceHealthCheck.status").toString(),
@@ -284,8 +240,6 @@ public class HealthCheckITest extends MockedFunctionalTest {
 
         assertThat(response.getStatusLine().getStatusCode(), equalTo(503));
         assertThat(JsonPath.read(body, "$.status").toString(), equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.caseFormatterServiceHealthCheck.status").toString(),
-            equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.caseMaintenanceServiceHealthCheck.status").toString(),
             equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.documentGeneratorServiceHealthCheck.status").toString(),
@@ -318,8 +272,6 @@ public class HealthCheckITest extends MockedFunctionalTest {
 
         assertThat(response.getStatusLine().getStatusCode(), equalTo(503));
         assertThat(JsonPath.read(body, "$.status").toString(), equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.caseFormatterServiceHealthCheck.status").toString(),
-            equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.caseMaintenanceServiceHealthCheck.status").toString(),
             equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.documentGeneratorServiceHealthCheck.status").toString(),
@@ -352,8 +304,6 @@ public class HealthCheckITest extends MockedFunctionalTest {
 
         assertThat(response.getStatusLine().getStatusCode(), equalTo(503));
         assertThat(JsonPath.read(body, "$.status").toString(), equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.caseFormatterServiceHealthCheck.status").toString(),
-            equalTo("DOWN"));
         assertThat(JsonPath.read(body, "$.components.caseMaintenanceServiceHealthCheck.status").toString(),
             equalTo("DOWN"));
         assertThat(JsonPath.read(body, "$.components.documentGeneratorServiceHealthCheck.status").toString(),

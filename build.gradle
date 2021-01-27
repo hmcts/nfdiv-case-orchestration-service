@@ -433,7 +433,6 @@ bootRun {
             systemProperty 'IDAM_API_REDIRECT_URL', 'https://div-pfe-aat.service.core-compute-aat.internal/authenticated'
             systemProperty 'SERVICE_AUTH_PROVIDER_URL', 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
             systemProperty 'CASE_MAINTENANCE_SERVICE_API_BASEURL', 'http://nfdiv-cms-aat.service.core-compute-aat.internal'
-            systemProperty 'CASE_FORMATTER_SERVICE_API_BASEURL', 'http://div-cfs-aat.service.core-compute-aat.internal'
             systemProperty 'SEND_LETTER_SERVICE_BASEURL', 'http://rpe-send-letter-service-aat.service.core-compute-aat.internal'
             systemProperty 'PAYMENT_API_BASEURL', 'http://payment-api-aat.service.core-compute-aat.internal'
             systemProperty 'PRD_API_BASEURL', 'http://rd-professional-api-aat.service.core-compute-aat.internal'
