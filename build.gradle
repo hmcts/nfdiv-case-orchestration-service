@@ -206,6 +206,16 @@ distributions {
 }
 
 sourceSets {
+    functionalTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir('src/functionalTest/java')
+        }
+        resources {
+            srcDir('src/functionalTest/resources')
+        }
+    }
     integrationTest {
         java {
             compileClasspath += main.output + test.output
@@ -227,6 +237,8 @@ sourceSets {
 }
 
 configurations {
+    functionalTestImplementation.extendsFrom testImplementation
+    functionalTestRuntime.extendsFrom testRuntime
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntime.extendsFrom testRuntime
 }
@@ -336,37 +348,37 @@ dependencies {
     }
     testImplementation group: 'io.zonky.test', name: 'embedded-database-spring-test', version: versions.embeddedPostgres
 
-    //integration test
-    integrationTestAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    integrationTestImplementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatypeJsr
-    integrationTestImplementation group: 'com.mashape.unirest', name: 'unirest-java', version: versions.unirest
-    integrationTestImplementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.feignHttpClient
-    integrationTestImplementation group: 'junit', name: 'junit', version: versions.junit
-    integrationTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity
-    integrationTestImplementation group: 'net.serenity-bdd', name: 'serenity-cucumber', version: versions.serenityCucumber
-    integrationTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
-    integrationTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity
-    integrationTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-    integrationTestImplementation group: 'org.apache.commons', name: 'commons-lang3', version: versions.commonsLang3
-    integrationTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    integrationTestImplementation group: 'org.skyscreamer', name: 'jsonassert', version: versions.jsonAssert
-    integrationTestImplementation group: 'org.springframework', name: 'spring-context-support'
-    integrationTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
-    integrationTestImplementation(group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign')
+    //functional test
+    functionalTestAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    functionalTestImplementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatypeJsr
+    functionalTestImplementation group: 'com.mashape.unirest', name: 'unirest-java', version: versions.unirest
+    functionalTestImplementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.feignHttpClient
+    functionalTestImplementation group: 'junit', name: 'junit', version: versions.junit
+    functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity
+    functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-cucumber', version: versions.serenityCucumber
+    functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+    functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity
+    functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+    functionalTestImplementation group: 'org.apache.commons', name: 'commons-lang3', version: versions.commonsLang3
+    functionalTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    functionalTestImplementation group: 'org.skyscreamer', name: 'jsonassert', version: versions.jsonAssert
+    functionalTestImplementation group: 'org.springframework', name: 'spring-context-support'
+    functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+    functionalTestImplementation(group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign')
             {
                 exclude group: 'io.reactivex', module: 'io.reactivex'
                 exclude group: 'io.reactivex', module: 'rxnetty'
                 exclude group: 'io.reactivex', module: 'rxnetty-contexts'
                 exclude group: 'io.reactivex', module: 'rxnetty-servo'
             }
-    integrationTestImplementation(group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: versions.ccdStoreClient)
+    functionalTestImplementation(group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: versions.ccdStoreClient)
             {
                 exclude group: 'io.reactivex', module: 'io.reactivex'
                 exclude group: 'io.reactivex', module: 'rxnetty'
                 exclude group: 'io.reactivex', module: 'rxnetty-contexts'
                 exclude group: 'io.reactivex', module: 'rxnetty-servo'
             }
-    integrationTestImplementation(group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: versions.serviceTokenGenerator)
+    functionalTestImplementation(group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: versions.serviceTokenGenerator)
             {
                 exclude group: 'io.reactivex', module: 'io.reactivex'
                 exclude group: 'io.reactivex', module: 'rxnetty'
@@ -392,7 +404,7 @@ dependencies {
 }
 
 dependencies {
-    integrationTestImplementation(sourceSets.test.output)
+    functionalTestImplementation(sourceSets.test.output)
 }
 
 task smoke(type: Test, description: 'Runs the smoke tests.', group: 'Verification') {
@@ -441,34 +453,9 @@ bootRun {
     }
 }
 
-task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
-    doFirst(){
-        if (System.getenv("TEST_URL") == null) {
-            println("Loading secrets from vault")
-
-            systemProperty 'AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY', getVaultSecret('cms-service-key')
-            systemProperty 'AUTH_PROVIDER_DOCUMENTGENERATOR_CLIENT_KEY', getVaultSecret('div-doc-s2s-auth-secret')
-            systemProperty 'IDAM_CLIENT_SECRET', getVaultSecret('idam-secret')
-        }
-        printf("Available processors:::::::::: " + Runtime.runtime.availableProcessors().intdiv(2).toString())
-    }
-
-    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
-    forkEvery = 10
-
-    exclude "uk/gov/hmcts/reform/divorce/callback/nightly/pipeline/**"
-    exclude "uk/gov/hmcts/reform/divorce/maintenance/nightly/pipeline/**"
-
-
+task functional(type: Test, description: 'Runs the integration tests') {
     setTestClassesDirs(sourceSets.integrationTest.output.classesDirs)
     setClasspath(sourceSets.integrationTest.runtimeClasspath)
-
-    if (System.getenv('CHANGE_TITLE')?.startsWith('[FAST]')) {
-        useJUnit {
-            excludeCategories 'uk.gov.hmcts.reform.divorce.category.ExtendedTest'
-        }
-    }
-    finalizedBy aggregate
 }
 
 task nightlyFunctional(type: Test, description: 'Runs the Nightly Only Functional tests.', group: 'Verification') {
@@ -483,8 +470,8 @@ task nightlyFunctional(type: Test, description: 'Runs the Nightly Only Functiona
     include "uk/gov/hmcts/reform/divorce/maintenance/nightly/pipeline/**"
 
 
-    setTestClassesDirs(sourceSets.integrationTest.output.classesDirs)
-    setClasspath(sourceSets.integrationTest.runtimeClasspath)
+    setTestClassesDirs(sourceSets.functionalTest.output.classesDirs)
+    setClasspath(sourceSets.functionalTest.runtimeClasspath)
 
     if (System.getenv('CHANGE_TITLE')?.startsWith('[FAST]')) {
         useJUnit {
