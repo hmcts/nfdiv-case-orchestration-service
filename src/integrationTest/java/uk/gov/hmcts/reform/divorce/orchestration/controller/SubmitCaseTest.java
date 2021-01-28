@@ -51,12 +51,15 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SUCCESS_STATUS;
 import static uk.gov.hmcts.reform.divorce.orchestration.testutil.DataTransformationTestHelper.getExpectedTranslatedCoreCaseData;
+import static uk.gov.hmcts.reform.divorce.orchestration.testutil.DataTransformationTestHelper.getExpectedTranslatedDraftCoreCaseData;
 import static uk.gov.hmcts.reform.divorce.orchestration.testutil.DataTransformationTestHelper.getTestDivorceSessionData;
+import static uk.gov.hmcts.reform.divorce.orchestration.testutil.DataTransformationTestHelper.getTestDraftDivorceSessionData;
 import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil.convertObjectToJsonString;
 
 public class SubmitCaseTest extends MockedFunctionalTest {
 
     private static final String API_URL = "/submit";
+    private static final String DRAFT_API_URL = "/case";
 
     private static final String SUBMISSION_CONTEXT_PATH = "/casemaintenance/version/1/submit";
     private static final String DELETE_DRAFT_CONTEXT_PATH = "/casemaintenance/version/1/drafts";
@@ -64,6 +67,8 @@ public class SubmitCaseTest extends MockedFunctionalTest {
 
     private DivorceSession testDivorceSessionData;
     private CoreCaseData expectedTranslatedCcdSessionData;
+    private DivorceSession testDivorceSessionDataEmptyDraft;
+    private CoreCaseData expectedTranslatedCcdSessionDataEmptyDraft;
 
     private static final ValidationResponse validationResponseOk = ValidationResponse.builder().build();
     private static final ValidationResponse validationResponseFail = ValidationResponse.builder()
@@ -84,6 +89,8 @@ public class SubmitCaseTest extends MockedFunctionalTest {
     public void setUp() throws IOException {
         testDivorceSessionData = getTestDivorceSessionData();
         expectedTranslatedCcdSessionData = getExpectedTranslatedCoreCaseData();
+        testDivorceSessionDataEmptyDraft = getTestDraftDivorceSessionData();
+        expectedTranslatedCcdSessionDataEmptyDraft = getExpectedTranslatedDraftCoreCaseData();
     }
 
     @Test
@@ -177,8 +184,84 @@ public class SubmitCaseTest extends MockedFunctionalTest {
             .andExpect(status().is4xxClientError());
     }
 
+
+    @Test
+    public void givenCaseDataAndAuth_whenDraftCaseIsSubmitted_thenReturnSuccess() throws Exception {
+        stubMaintenanceServerEndpointForSubmit(Collections.singletonMap(ID, TEST_CASE_ID));
+        when(validationService.validate(any())).thenReturn(validationResponseOk);
+
+        MvcResult result = webClient.perform(post(DRAFT_API_URL)
+            .header(AUTHORIZATION, AUTH_TOKEN)
+            .content(convertObjectToJsonString(testDivorceSessionData))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+        assertThat(responseBody, allOf(
+            isJson(),
+            hasJsonPath("$.caseId", equalTo(TEST_CASE_ID)),
+            hasJsonPath("$.status", equalTo(SUCCESS_STATUS))
+        ));
+
+    }
+
+    @Test
+    public void givenEmptyPayload_whenDraftCaseIsSubmitted_thenReturnSuccess() throws Exception {
+        stubMaintenanceServerEndpointForDraftSubmit(Collections.singletonMap(ID, TEST_CASE_ID));
+        when(validationService.validate(any())).thenReturn(validationResponseOk);
+
+        MvcResult result = webClient.perform(post(DRAFT_API_URL)
+            .header(AUTHORIZATION, AUTH_TOKEN)
+            .content(convertObjectToJsonString(testDivorceSessionDataEmptyDraft))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andReturn();
+
+        String responseBody = result.getResponse().getContentAsString();
+        assertThat(responseBody, allOf(
+            isJson(),
+            hasJsonPath("$.caseId", equalTo(TEST_CASE_ID)),
+            hasJsonPath("$.status", equalTo(SUCCESS_STATUS))
+        ));
+
+    }
+
+    @Test
+    public void givenNoAuthToken_whenDraftCaseIsSubmitted_thenReturnBadRequest() throws Exception {
+        webClient.perform(post(DRAFT_API_URL)
+            .content(convertObjectToJsonString(testDivorceSessionData))
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void givenNoPayload_whenDraftCaseIsSubmitted_thenReturnBadRequest() throws Exception {
+        webClient.perform(post(DRAFT_API_URL)
+            .header(AUTHORIZATION, AUTH_TOKEN)
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isBadRequest());
+    }
+
     private void stubMaintenanceServerEndpointForSubmit(Map<String, Object> response) {
         String testCcdTranslatedData = convertObjectToJsonString(expectedTranslatedCcdSessionData);
+        maintenanceServiceServer.stubFor(WireMock.post(SUBMISSION_CONTEXT_PATH)
+            .withRequestBody(equalToJson(testCcdTranslatedData))
+            .withHeader(AUTHORIZATION, new EqualToPattern(AUTH_TOKEN))
+            .willReturn(aResponse()
+                .withStatus(HttpStatus.OK.value())
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .withBody(convertObjectToJsonString(response))));
+    }
+
+    private void stubMaintenanceServerEndpointForDraftSubmit(Map<String, Object> response) {
+        String testCcdTranslatedData = convertObjectToJsonString(expectedTranslatedCcdSessionDataEmptyDraft);
         maintenanceServiceServer.stubFor(WireMock.post(SUBMISSION_CONTEXT_PATH)
             .withRequestBody(equalToJson(testCcdTranslatedData))
             .withHeader(AUTHORIZATION, new EqualToPattern(AUTH_TOKEN))
