@@ -16,7 +16,7 @@ buildscript {
 plugins {
     id 'application'
     id 'checkstyle'
-    id 'com.github.ben-manes.versions' version '0.28.0'
+    id 'com.github.ben-manes.versions' version '0.36.0'
     id 'com.jfrog.bintray' version '1.8.4'
     id 'info.solidsoft.pitest' version '1.5.1'
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
@@ -39,7 +39,7 @@ def versions = [
         commonsMath3                 : '3.6.1',
         divCommonLib                 : '1.4.0',
         dumbster                     : '1.7.1',
-        elasticsearch                : '7.9.3',
+        elasticsearch                : '7.10.2',
         feignHttpClient              : '10.3.0',
         flyway                       : '6.5.5',
         googleAuth                   : '1.5.0',
@@ -329,10 +329,7 @@ dependencies {
     runtimeOnly('org.springframework.boot:spring-boot-devtools')
 
     testImplementation group: 'org.awaitility', name: 'awaitility', version: versions.awaitility
-    testImplementation(group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '2.2.5.RELEASE') {
-        exclude(module: 'wiremock-jre8-standalone')
-    }
-    testImplementation group: 'com.github.tomakehurst', name: 'wiremock-jre8-standalone', version: '2.27.2'
+    testImplementation group: 'org.springframework.cloud', name: 'spring-cloud-contract-wiremock', version: '3.0.0'
     testImplementation(group: 'org.springframework.boot', name: 'spring-boot-starter-test') {
         exclude(module: 'commons-logging')
         exclude(module: 'android-json')
@@ -431,8 +428,6 @@ bootRun {
             systemProperty 'FEES_AND_PAYMENTS_SERVICE_API_BASEURL', 'http://div-fps-aat.service.core-compute-aat.internal'
             systemProperty 'DOCUMENT_MANAGEMENT_STORE_URL', 'http://dm-store-aat.service.core-compute-aat.internal'
 
-            systemProperty 'AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY', getVaultSecret('cms-service-key')
-            systemProperty 'AUTH_PROVIDER_DOCUMENTGENERATOR_CLIENT_KEY', getVaultSecret('div-doc-s2s-auth-secret')
             systemProperty 'SERVICE_AUTH_SECRET', getVaultSecret('cos-service-key')
             systemProperty 'IDAM_CLIENT_SECRET', getVaultSecret('idam-secret')
             systemProperty 'IDAM_CITIZEN_USERNAME', getVaultSecret('idam-citizen-username')
@@ -451,7 +446,7 @@ task functional(type: Test, description: 'Runs the functional tests.', group: 'V
         if (System.getenv("TEST_URL") == null) {
             println("Loading secrets from vault")
 
-            systemProperty 'AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY', getVaultSecret('ccd-submission-s2s-auth-secret')
+            systemProperty 'AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY', getVaultSecret('cms-service-key')
             systemProperty 'AUTH_PROVIDER_DOCUMENTGENERATOR_CLIENT_KEY', getVaultSecret('div-doc-s2s-auth-secret')
             systemProperty 'IDAM_CLIENT_SECRET', getVaultSecret('idam-secret')
         }
