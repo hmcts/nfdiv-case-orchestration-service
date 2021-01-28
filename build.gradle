@@ -459,17 +459,23 @@ task functional(type: Test, description: 'Runs the integration tests') {
     setClasspath(sourceSets.integrationTest.runtimeClasspath)
 }
 
-task nightlyFunctional(type: Test, description: 'Runs the Nightly Only Functional tests.', group: 'Verification') {
+task nightlyFunctional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
     doFirst(){
-        printf("::::::::::  Running  nightlyFunctional ::::::::::")
+        if (System.getenv("TEST_URL") == null) {
+            println("Loading secrets from vault")
+
+            systemProperty 'AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY', getVaultSecret('cms-service-key')
+            systemProperty 'AUTH_PROVIDER_DOCUMENTGENERATOR_CLIENT_KEY', getVaultSecret('div-doc-s2s-auth-secret')
+            systemProperty 'IDAM_CLIENT_SECRET', getVaultSecret('idam-secret')
+        }
+        printf("Available processors:::::::::: " + Runtime.runtime.availableProcessors().intdiv(2).toString())
     }
 
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
     forkEvery = 10
 
-    include "uk/gov/hmcts/reform/divorce/callback/nightly/pipeline/**"
-    include "uk/gov/hmcts/reform/divorce/maintenance/nightly/pipeline/**"
-
+    exclude "uk/gov/hmcts/reform/divorce/callback/nightly/pipeline/**"
+    exclude "uk/gov/hmcts/reform/divorce/maintenance/nightly/pipeline/**"
 
     setTestClassesDirs(sourceSets.functionalTest.output.classesDirs)
     setClasspath(sourceSets.functionalTest.runtimeClasspath)
