@@ -36,9 +36,8 @@ public class SubmitCaseToCCDWorkflow extends DefaultWorkflow<Map<String, Object>
             ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken)
         );
 
-        Map<String, Object> response = new HashMap<>(returnFromExecution);
+        return new HashMap<>(returnFromExecution);
 
-        return response;
     }
 
 }

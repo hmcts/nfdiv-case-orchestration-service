@@ -524,8 +524,6 @@ public class CaseOrchestrationServiceImplTest {
         when(submitCaseToCCDWorkflow.run(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
         when(submitCaseToCCDWorkflow.errors()).thenReturn(Collections.emptyMap());
 
-        System.out.println();
-
         Map<String, Object> actual = classUnderTest.submitCase(requestPayload, AUTH_TOKEN);
 
         assertThat(actual.get("returnedKey"), is("returnedValue"));

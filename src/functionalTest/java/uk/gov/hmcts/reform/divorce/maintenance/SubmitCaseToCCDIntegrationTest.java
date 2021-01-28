@@ -80,7 +80,6 @@ public class SubmitCaseToCCDIntegrationTest extends RetrieveCaseSupport {
         Response submissionResponse = submitDraftCase(userDetails, EMPTY_DIVORCE_SESSION_JSON_PATH);
 
         ResponseBody caseCreationResponseBody = submissionResponse.getBody();
-        System.out.println(caseCreationResponseBody);
         assertThat(submissionResponse.getStatusCode(), is(HttpStatus.OK.value()));
         assertThat(caseCreationResponseBody.path(CASE_ID_JSON_KEY), is(not("0")));
     }
@@ -132,7 +131,6 @@ public class SubmitCaseToCCDIntegrationTest extends RetrieveCaseSupport {
                 .replaceAll(USER_DEFAULT_EMAIL, userDetails.getEmailAddress());
 
         }
-        System.out.println(body);
 
         return RestUtil.postToRestService(
             serverUrl + emptyCaseCreationContextPath,
