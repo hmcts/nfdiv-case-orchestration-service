@@ -1,31 +1,25 @@
 package uk.gov.hmcts.reform.divorce.orchestration.workflows;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.courts.Court;
-import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
+import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.FormatDivorceSessionToCaseDataTask;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.SubmitCaseToCCD;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.courts.CourtConstants.ALLOCATED_COURT_KEY;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.courts.CourtConstants.REASON_FOR_DIVORCE_KEY;
-import static uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitToCCDWorkflow.SELECTED_COURT;
+import static org.mockito.Mockito.*;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class SubmitCaseToCCDWorkflowTest {
 
     @Mock
@@ -42,16 +36,16 @@ public class SubmitCaseToCCDWorkflowTest {
 
         Map<String, Object> incomingPayload = singletonMap("returnedKey", "returnedValue");
 
+
         when(formatDivorceSessionToCaseDataTask.execute(any(), eq(incomingPayload))).thenReturn(incomingPayload);
         when(submitCaseToCCD.execute(any(), eq(incomingPayload))).thenReturn(incomingPayload);
 
         Map<String, Object> actual = submitCaseToCCDWorkflow.run(incomingPayload, AUTH_TOKEN);
-        assertThat(actual.get("returnedKey"), is("returnedValue"));
+        assertThat(actual, hasEntry(equalTo("returnedKey"), equalTo("returnedValue")));
 
-        verify(submitCaseToCCDWorkflow).run(incomingPayload, AUTH_TOKEN);
-        verify(submitCaseToCCDWorkflow).errors();
+        verify(formatDivorceSessionToCaseDataTask).execute(any(), eq(incomingPayload));
+        verify(submitCaseToCCD).execute(any(), eq(incomingPayload));
 
-        verify(formatDivorceSessionToCaseDataTask).execute(any(), incomingPayload);
     }
 
 }
