@@ -497,7 +497,6 @@ public class CaseOrchestrationServiceImplTest {
         Map<String, Object> actual = classUnderTest.submit(requestPayload, AUTH_TOKEN);
 
         assertThat(actual.get("returnedKey"), is("returnedValue"));
-        assertThat(actual.get("returnedKey"), is("returnedValue"));
 
         verify(submitToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
         verify(submitToCCDWorkflow).errors();
@@ -528,7 +527,6 @@ public class CaseOrchestrationServiceImplTest {
 
         Map<String, Object> actual = classUnderTest.submitCase(requestPayload, AUTH_TOKEN);
 
-        assertThat(actual.get("returnedKey"), is("returnedValue"));
         assertThat(actual.get("returnedKey"), is("returnedValue"));
 
         verify(submitCaseToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
