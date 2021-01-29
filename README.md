@@ -68,10 +68,19 @@ To run all mutation tests execute the following command:
 
 **Integration tests**
 
-To run all integration tests locally:
+To run all mocked integration tests locally:
 
-* Start the app with AAT config using `./gradlew bootRun`
-* Start the test with AAT config using `./gradlew functional`
+```
+./gradlew functional
+```
+
+**E2E Integration tests**
+
+To run all E2E integration tests locally:
+```
+./gradlew bootRun
+./gradlew nightlyFunctional
+```
 
 **Faster PR builds**
 
