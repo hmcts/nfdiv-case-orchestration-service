@@ -22,7 +22,7 @@ public interface CaseOrchestrationService {
     Map<String, Object> ccdCallbackBulkPrintHandler(CcdCallbackRequest ccdCallbackRequest, String authToken)
         throws WorkflowException;
 
-    Boolean authenticateRespondent(String authToken) throws WorkflowException;
+    Boolean authenticateRespondent(String authToken, String idToken) throws WorkflowException;
 
     Map<String, Object> submit(Map<String, Object> divorceSession, String authToken) throws WorkflowException;
 

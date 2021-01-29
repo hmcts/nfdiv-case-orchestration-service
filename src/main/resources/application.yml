@@ -20,7 +20,7 @@ spring:
     maxLifetime: 7200000
     connectionTimeout: 30000
   application:
-    name: div-cos
+    name: nfdiv-cos
   resources:
     static-locations:
   mail:
@@ -113,10 +113,6 @@ jackson:
     FAIL_ON_EMPTY_BEANS: false
 
 case:
-  formatter:
-    service:
-      api:
-        baseurl: ${CASE_FORMATTER_SERVICE_API_BASEURL:http://localhost:4011}
   maintenance:
     service:
       api:
@@ -152,7 +148,7 @@ feature-toggle:
     share_a_case: ${FEATURE_SHARE_A_CASE:false}
 
 send-letter:
-  url: ${SEND_LETTER_SERIVCE_BASEURL:http://localhost:4021}
+  url: ${SEND_LETTER_SERVICE_BASEURL:http://localhost:4021}
 
 bulk-print:
   dueDate: 30
@@ -456,7 +452,7 @@ idam:
     password: ${IDAM_CASEWORKER_PASSWORD:dummypassword}
   s2s-auth:
     url: ${SERVICE_AUTH_PROVIDER_URL:http://localhost:4504}
-    microservice: ${SERVICE_AUTH_MICROSERVICE:divorce_frontend}
+    microservice: ${SERVICE_AUTH_MICROSERVICE:nfdiv_cos}
     secret: ${SERVICE_AUTH_SECRET:dummysecret}
     services-allowed-to-update: ${BSP_SERVICES_ALLOWED_TO_UPDATE:bulk_scan_orchestrator}
     services-allowed-to-validate: ${BSP_SERVICES_ALLOWED_TO_VALIDATE:bulk_scan_processor}

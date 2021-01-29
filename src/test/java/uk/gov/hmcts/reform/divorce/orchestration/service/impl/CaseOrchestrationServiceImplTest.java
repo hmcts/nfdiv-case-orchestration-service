@@ -117,6 +117,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_COURT;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_DECREE_ABSOLUTE_GRANTED_DATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_EVENT_ID;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ID_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_PAYLOAD_TO_RETURN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_PETITIONER_FIRST_NAME;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_PETITIONER_LAST_NAME;
@@ -473,13 +474,13 @@ public class CaseOrchestrationServiceImplTest {
     public void whenAuthenticateRespondent_thenProceedAsExpected() throws WorkflowException {
         final Boolean expected = true;
 
-        when(authenticateRespondentWorkflow.run(AUTH_TOKEN)).thenReturn(expected);
+        when(authenticateRespondentWorkflow.run(AUTH_TOKEN, TEST_ID_TOKEN)).thenReturn(expected);
 
-        Boolean actual = classUnderTest.authenticateRespondent(AUTH_TOKEN);
+        Boolean actual = classUnderTest.authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN);
 
         assertEquals(expected, actual);
 
-        verify(authenticateRespondentWorkflow).run(AUTH_TOKEN);
+        verify(authenticateRespondentWorkflow).run(AUTH_TOKEN, TEST_ID_TOKEN);
     }
 
     @Test

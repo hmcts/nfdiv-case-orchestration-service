@@ -3,7 +3,7 @@
 
 properties([
         parameters([
-                string(name: 'PRODUCT_NAME', defaultValue: 'div', description: 'Divorce'),
+                string(name: 'PRODUCT_NAME', defaultValue: 'nfdiv', description: 'Divorce'),
                 string(name: 'COMPONENT', defaultValue: 'cos', description: 'Default Case Orchestration Service'),
                 string(name: 'TYPE', defaultValue: 'java', description: ''),
                 string(name: 'ENVIRONMENT', defaultValue: 'saat', description: 'Environment where code should be build and deployed'),
@@ -21,8 +21,8 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 }
 
 def secrets = [
-        'div-${env}': [
-            secret("ccd-submission-s2s-auth-secret", "AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY"),
+        'nfdiv-${env}': [
+            secret("cms-service-key", "AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY"),
             secret("div-doc-s2s-auth-secret", "AUTH_PROVIDER_DOCUMENTGENERATOR_CLIENT_KEY"),
             secret("idam-secret", "IDAM_CLIENT_SECRET")
         ]

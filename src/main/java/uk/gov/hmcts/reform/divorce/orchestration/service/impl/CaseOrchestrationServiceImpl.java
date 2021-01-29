@@ -232,8 +232,8 @@ public class CaseOrchestrationServiceImpl implements CaseOrchestrationService {
     }
 
     @Override
-    public Boolean authenticateRespondent(String authToken) throws WorkflowException {
-        return authenticateRespondentWorkflow.run(authToken);
+    public Boolean authenticateRespondent(String authToken, String idToken) throws WorkflowException {
+        return authenticateRespondentWorkflow.run(authToken, idToken);
     }
 
     @Override

@@ -37,7 +37,7 @@ def versions = [
         commonsIo                    : '2.6',
         commonsLang3                 : '3.9',
         commonsMath3                 : '3.6.1',
-        divCommonLib                 : '1.2.5',
+        divCommonLib                 : '1.4.3',
         dumbster                     : '1.7.1',
         elasticsearch                : '7.10.2',
         feignHttpClient              : '10.3.0',
@@ -160,6 +160,10 @@ allprojects {
                 entry 'tomcat-embed-websocket'
                 entry 'tomcat-embed-el'
             }
+            //CVE-2020-25638
+            dependencySet(group: 'org.hibernate', version: '5.4.25.Final') {
+                entry 'hibernate-core'
+            }
             //CVE-2017-18640
             dependency group: 'org.yaml',name: 'snakeyaml', version: '1.26'
         }
@@ -178,7 +182,7 @@ bootJar {
                 'Implementation-Version': project.version
     }
 
-    archiveFileName = 'div-case-orchestration-service.jar'
+    archiveFileName = 'nfdiv-case-orchestration-service.jar'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.divorce.orchestration.OrchestrationServiceApplication'
@@ -202,6 +206,16 @@ distributions {
 }
 
 sourceSets {
+    functionalTest {
+        java {
+            compileClasspath += main.output + test.output
+            runtimeClasspath += main.output + test.output
+            srcDir('src/functionalTest/java')
+        }
+        resources {
+            srcDir('src/functionalTest/resources')
+        }
+    }
     integrationTest {
         java {
             compileClasspath += main.output + test.output
@@ -223,6 +237,8 @@ sourceSets {
 }
 
 configurations {
+    functionalTestImplementation.extendsFrom testImplementation
+    functionalTestRuntime.extendsFrom testRuntime
     integrationTestImplementation.extendsFrom testImplementation
     integrationTestRuntime.extendsFrom testRuntime
 }
@@ -241,6 +257,7 @@ dependencies {
     testCompileOnly("org.projectlombok:lombok:${versions.lombok}")
     annotationProcessor("org.projectlombok:lombok:${versions.lombok}")
     testAnnotationProcessor("org.projectlombok:lombok:${versions.lombok}")
+    integrationTestAnnotationProcessor("org.projectlombok:lombok:${versions.lombok}")
 
     implementation group: 'com.sun.xml.bind', name: 'jaxb-osgi', version: '2.3.3'
     implementation group: 'com.jayway.jsonpath', name: 'json-path-assert', version: versions.jsonPathAssert
@@ -274,7 +291,7 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
     implementation group: 'org.springframework.retry', name: 'spring-retry'
     implementation group: 'uk.gov.hmcts.reform', name: 'bsp-common-lib', version: versions.bspCommonLib
-    implementation group: 'uk.gov.hmcts.reform', name: 'div-common-lib', version: versions.divCommonLib
+    implementation group: 'uk.gov.hmcts.reform', name: 'nfdiv-common-lib', version: versions.divCommonLib
     implementation group: 'uk.gov.hmcts.reform', name: 'idam-client', version: versions.idamClient
     implementation group: 'uk.gov.hmcts.reform', name: 'logging', version: versions.reformsJavaLogging
     implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformsJavaLogging
@@ -332,37 +349,37 @@ dependencies {
     }
     testImplementation group: 'io.zonky.test', name: 'embedded-database-spring-test', version: versions.embeddedPostgres
 
-    //integration test
-    integrationTestAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    integrationTestImplementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatypeJsr
-    integrationTestImplementation group: 'com.mashape.unirest', name: 'unirest-java', version: versions.unirest
-    integrationTestImplementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.feignHttpClient
-    integrationTestImplementation group: 'junit', name: 'junit', version: versions.junit
-    integrationTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity
-    integrationTestImplementation group: 'net.serenity-bdd', name: 'serenity-cucumber', version: versions.serenityCucumber
-    integrationTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
-    integrationTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity
-    integrationTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
-    integrationTestImplementation group: 'org.apache.commons', name: 'commons-lang3', version: versions.commonsLang3
-    integrationTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    integrationTestImplementation group: 'org.skyscreamer', name: 'jsonassert', version: versions.jsonAssert
-    integrationTestImplementation group: 'org.springframework', name: 'spring-context-support'
-    integrationTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
-    integrationTestImplementation(group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign')
+    //functional test
+    functionalTestAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    functionalTestImplementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatypeJsr
+    functionalTestImplementation group: 'com.mashape.unirest', name: 'unirest-java', version: versions.unirest
+    functionalTestImplementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.feignHttpClient
+    functionalTestImplementation group: 'junit', name: 'junit', version: versions.junit
+    functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity
+    functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-cucumber', version: versions.serenityCucumber
+    functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
+    functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-rest-assured', version: versions.serenity
+    functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-spring', version: versions.serenity
+    functionalTestImplementation group: 'org.apache.commons', name: 'commons-lang3', version: versions.commonsLang3
+    functionalTestImplementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    functionalTestImplementation group: 'org.skyscreamer', name: 'jsonassert', version: versions.jsonAssert
+    functionalTestImplementation group: 'org.springframework', name: 'spring-context-support'
+    functionalTestImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+    functionalTestImplementation(group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign')
             {
                 exclude group: 'io.reactivex', module: 'io.reactivex'
                 exclude group: 'io.reactivex', module: 'rxnetty'
                 exclude group: 'io.reactivex', module: 'rxnetty-contexts'
                 exclude group: 'io.reactivex', module: 'rxnetty-servo'
             }
-    integrationTestImplementation(group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: versions.ccdStoreClient)
+    functionalTestImplementation(group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: versions.ccdStoreClient)
             {
                 exclude group: 'io.reactivex', module: 'io.reactivex'
                 exclude group: 'io.reactivex', module: 'rxnetty'
                 exclude group: 'io.reactivex', module: 'rxnetty-contexts'
                 exclude group: 'io.reactivex', module: 'rxnetty-servo'
             }
-    integrationTestImplementation(group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: versions.serviceTokenGenerator)
+    functionalTestImplementation(group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: versions.serviceTokenGenerator)
             {
                 exclude group: 'io.reactivex', module: 'io.reactivex'
                 exclude group: 'io.reactivex', module: 'rxnetty'
@@ -388,7 +405,7 @@ dependencies {
 }
 
 dependencies {
-    integrationTestImplementation(sourceSets.test.output)
+    functionalTestImplementation(sourceSets.test.output)
 }
 
 task smoke(type: Test, description: 'Runs the smoke tests.', group: 'Verification') {
@@ -397,22 +414,60 @@ task smoke(type: Test, description: 'Runs the smoke tests.', group: 'Verificatio
     }
 }
 
-task bootRunAat(type: BootRun, description: 'Runs the app using AAT config', dependsOn: 'classes', group: 'Application') {
-    environment "http_proxy", "http://proxyout.reform.hmcts.net:8080"
-    main = bootJar.mainClassName
-    doFirst() {
-        classpath = sourceSets.main.runtimeClasspath
-        systemProperties = System.properties
-        systemProperty 'spring.profiles.active', 'aat'
-        systemProperty 'http.proxyHost', 'proxyout.reform.hmcts.net'
-        systemProperty 'http.proxyPort', '8080'
-        systemProperty 'https.proxyHost', 'proxyout.reform.hmcts.net'
-        systemProperty 'https.proxyPort', '8080'
+ext.getVaultSecret = { String secretName ->
+    new ByteArrayOutputStream().withStream { os ->
+        exec {
+            commandLine 'az', 'keyvault', 'secret', 'show', '--vault-name', 'nfdiv-aat', '-o', 'tsv', '--query', 'value', '--name', secretName
+            standardOutput = os
+        }
+        return os.toString().replace('\n', '')
     }
 }
 
-task functional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
+bootRun {
+    doFirst() {
+        if (System.getenv("IDAM_API_BASEURL") == null) {
+            println("Loading secrets from vault")
+
+            systemProperty 'IDAM_API_URL', 'https://idam-api.aat.platform.hmcts.net'
+            systemProperty 'IDAM_API_REDIRECT_URL', 'https://div-pfe-aat.service.core-compute-aat.internal/authenticated'
+            systemProperty 'SERVICE_AUTH_PROVIDER_URL', 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
+            systemProperty 'CASE_MAINTENANCE_SERVICE_API_BASEURL', 'http://nfdiv-cms-aat.service.core-compute-aat.internal'
+            systemProperty 'SEND_LETTER_SERVICE_BASEURL', 'http://rpe-send-letter-service-aat.service.core-compute-aat.internal'
+            systemProperty 'PAYMENT_API_BASEURL', 'http://payment-api-aat.service.core-compute-aat.internal'
+            systemProperty 'PRD_API_BASEURL', 'http://rd-professional-api-aat.service.core-compute-aat.internal'
+            systemProperty 'DOCUMENT_GENERATOR_SERVICE_API_BASEURL', 'http://div-dgs-aat.service.core-compute-aat.internal'
+            systemProperty 'FEES_AND_PAYMENTS_SERVICE_API_BASEURL', 'http://div-fps-aat.service.core-compute-aat.internal'
+            systemProperty 'DOCUMENT_MANAGEMENT_STORE_URL', 'http://dm-store-aat.service.core-compute-aat.internal'
+
+            systemProperty 'SERVICE_AUTH_SECRET', getVaultSecret('cos-service-key')
+            systemProperty 'IDAM_CLIENT_SECRET', getVaultSecret('idam-secret')
+            systemProperty 'IDAM_CITIZEN_USERNAME', getVaultSecret('idam-citizen-username')
+            systemProperty 'IDAM_CITIZEN_PASSWORD', getVaultSecret('idam-citizen-password')
+            systemProperty 'IDAM_CASEWORKER_USERNAME', getVaultSecret('idam-caseworker-username')
+            systemProperty 'IDAM_CASEWORKER_PASSWORD', getVaultSecret('idam-caseworker-password')
+            systemProperty 'DIV_SCHEDULER_DB_PASSWORD', getVaultSecret('cos-postgresql-password')
+            systemProperty 'UK_GOV_NOTIFY_API_KEY', getVaultSecret('uk-gov-notify-api-key')
+
+            systemProperty "user.timezone", "UTC"
+        }
+    }
+}
+
+task functional(type: Test, description: 'Runs the integration tests', group: 'Verification') {
+    setTestClassesDirs(sourceSets.integrationTest.output.classesDirs)
+    setClasspath(sourceSets.integrationTest.runtimeClasspath)
+}
+
+task nightlyFunctional(type: Test, description: 'Runs the functional tests.', group: 'Verification') {
     doFirst(){
+        if (System.getenv("TEST_URL") == null) {
+            println("Loading secrets from vault")
+
+            systemProperty 'AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY', getVaultSecret('cms-service-key')
+            systemProperty 'AUTH_PROVIDER_DOCUMENTGENERATOR_CLIENT_KEY', getVaultSecret('div-doc-s2s-auth-secret')
+            systemProperty 'IDAM_CLIENT_SECRET', getVaultSecret('idam-secret')
+        }
         printf("Available processors:::::::::: " + Runtime.runtime.availableProcessors().intdiv(2).toString())
     }
 
@@ -422,32 +477,8 @@ task functional(type: Test, description: 'Runs the functional tests.', group: 'V
     exclude "uk/gov/hmcts/reform/divorce/callback/nightly/pipeline/**"
     exclude "uk/gov/hmcts/reform/divorce/maintenance/nightly/pipeline/**"
 
-
-    setTestClassesDirs(sourceSets.integrationTest.output.classesDirs)
-    setClasspath(sourceSets.integrationTest.runtimeClasspath)
-
-    if (System.getenv('CHANGE_TITLE')?.startsWith('[FAST]')) {
-        useJUnit {
-            excludeCategories 'uk.gov.hmcts.reform.divorce.category.ExtendedTest'
-        }
-    }
-    finalizedBy aggregate
-}
-
-task nightlyFunctional(type: Test, description: 'Runs the Nightly Only Functional tests.', group: 'Verification') {
-    doFirst(){
-        printf("::::::::::  Running  nightlyFunctional ::::::::::")
-    }
-
-    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
-    forkEvery = 10
-
-    include "uk/gov/hmcts/reform/divorce/callback/nightly/pipeline/**"
-    include "uk/gov/hmcts/reform/divorce/maintenance/nightly/pipeline/**"
-
-
-    setTestClassesDirs(sourceSets.integrationTest.output.classesDirs)
-    setClasspath(sourceSets.integrationTest.runtimeClasspath)
+    setTestClassesDirs(sourceSets.functionalTest.output.classesDirs)
+    setClasspath(sourceSets.functionalTest.runtimeClasspath)
 
     if (System.getenv('CHANGE_TITLE')?.startsWith('[FAST]')) {
         useJUnit {
@@ -508,8 +539,8 @@ def sonarExclusions = [
 
 sonarqube {
     properties {
-        property "sonar.projectName", "Divorce :: div-case-orchestration-service"
-        property "sonar.projectKey", "div-case-orchestration-service"
+        property "sonar.projectName", "Divorce :: nfdiv-case-orchestration-service"
+        property "sonar.projectKey", "nfdiv-case-orchestration-service"
         property "sonar.exclusions", sonarExclusions.join(", ")
         property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
         property "sonar.pitest.mode", "reuseReport"
