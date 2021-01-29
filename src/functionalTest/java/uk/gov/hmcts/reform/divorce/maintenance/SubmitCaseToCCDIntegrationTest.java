@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.divorce.maintenance;
 
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static org.hamcrest.core.IsNull.notNullValue;
@@ -81,11 +83,8 @@ public class SubmitCaseToCCDIntegrationTest extends RetrieveCaseSupport {
 
         ResponseBody caseCreationResponseBody = submissionResponse.getBody();
         assertThat(submissionResponse.getStatusCode(), is(HttpStatus.OK.value()));
-        assertThat(caseCreationResponseBody.path(CASE_ID_JSON_KEY), is(not("0")));
+        assertThat(caseCreationResponseBody.path(CASE_ID_JSON_KEY), is(not(emptyOrNullString())));
     }
-
-    @Test
-
 
     private Response submitCase(UserDetails userDetails, String fileName) throws Exception {
         final Map<String, Object> headers = new HashMap<>();

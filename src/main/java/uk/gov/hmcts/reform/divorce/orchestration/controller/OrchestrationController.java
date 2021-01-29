@@ -106,17 +106,15 @@ public class OrchestrationController {
         Map<String, Object> serviceResponse = orchestrationService.submitCase(payload, authorizationToken);
 
         if (serviceResponse.containsKey(VALIDATION_ERROR_KEY)) {
-            endpointResponse = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             log.error("Bad request. Found this validation error: {}", serviceResponse.get(VALIDATION_ERROR_KEY));
-        } else {
-            CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
-            caseCreationResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
-            caseCreationResponse.setStatus(SUCCESS_STATUS);
+            return endpointResponse = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
-            endpointResponse = ResponseEntity.ok(caseCreationResponse);
         }
+        CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
+        caseCreationResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
+        caseCreationResponse.setStatus(SUCCESS_STATUS);
+        return ResponseEntity.ok(caseCreationResponse);
 
-        return endpointResponse;
     }
 
     @PostMapping(path = "/updateCase/{caseId}", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
