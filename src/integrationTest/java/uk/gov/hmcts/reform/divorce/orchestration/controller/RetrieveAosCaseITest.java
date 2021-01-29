@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.hmcts.reform.divorce.model.UserDetails;
@@ -13,13 +14,15 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.testutil.CourtsMatcher;
 import uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil;
+import uk.gov.hmcts.reform.divorce.service.CaseFormatterService;
 
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
 import static org.hamcrest.CoreMatchers.containsString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -43,7 +46,6 @@ public class RetrieveAosCaseITest extends IdamTestSupport {
 
     private static final String API_URL = "/retrieve-aos-case";
     private static final String RETRIEVE_AOS_CASE_CONTEXT_PATH = "/casemaintenance/version/1/retrieveAosCase";
-    private static final String FORMAT_TO_DIVORCE_CONTEXT_PATH = "/caseformatter/version/1/to-divorce-format";
     private static final String IDAM_USER_DETAILS_URL = "/details";
 
     private static final Map<String, Object> CASE_DATA = ImmutableMap.of(
@@ -56,6 +58,9 @@ public class RetrieveAosCaseITest extends IdamTestSupport {
             .state(TEST_STATE)
             .caseData(CASE_DATA)
             .build();
+
+    @MockBean
+    private CaseFormatterService caseFormatterService;
 
     @Autowired
     private MockMvc webClient;
@@ -94,25 +99,12 @@ public class RetrieveAosCaseITest extends IdamTestSupport {
     }
 
     @Test
-    public void givenCFSThrowsException_whenRetrieveAosCase_thenPropagateException() throws Exception {
-        stubIdamUserDetailsEndpoint(HttpStatus.OK, AUTH_TOKEN, getUserDetailsResponse());
-        stubRetrieveAosCaseFromCMS(CASE_DETAILS);
-
-        stubFormatterServerEndpoint(INTERNAL_SERVER_ERROR, TEST_ERROR);
-
-        webClient.perform(get(API_URL)
-            .header(AUTHORIZATION, AUTH_TOKEN)
-            .accept(APPLICATION_JSON))
-            .andExpect(status().isInternalServerError())
-            .andExpect(content().string(containsString(TEST_ERROR)));
-    }
-
-    @Test
+    @SuppressWarnings("unchecked")
     public void givenAllGoesWellProceedAsExpected() throws Exception {
         stubIdamUserDetailsEndpoint(HttpStatus.OK, AUTH_TOKEN, getUserDetailsResponse());
         stubRetrieveAosCaseFromCMS(CASE_DETAILS);
 
-        stubFormatterServerEndpoint();
+        when(caseFormatterService.transformToDivorceSession(any(Map.class))).thenReturn(CASE_DATA);
 
         CaseDataResponse expected = CaseDataResponse.builder()
             .data(CASE_DATA)
@@ -136,19 +128,6 @@ public class RetrieveAosCaseITest extends IdamTestSupport {
     private void stubRetrieveAosCaseFromCMS(HttpStatus status, String message) {
         maintenanceServiceServer.stubFor(WireMock.get(RETRIEVE_AOS_CASE_CONTEXT_PATH)
             .withHeader(AUTHORIZATION, new EqualToPattern(AUTH_TOKEN))
-            .willReturn(aResponse()
-                .withStatus(status.value())
-                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .withBody(message)));
-    }
-
-    private void stubFormatterServerEndpoint() {
-        stubFormatterServerEndpoint(OK, convertObjectToJsonString(CASE_DATA));
-    }
-
-    private void stubFormatterServerEndpoint(HttpStatus status, String message) {
-        formatterServiceServer.stubFor(WireMock.post(FORMAT_TO_DIVORCE_CONTEXT_PATH)
-            .withRequestBody(equalToJson(convertObjectToJsonString(CASE_DATA)))
             .willReturn(aResponse()
                 .withStatus(status.value())
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)

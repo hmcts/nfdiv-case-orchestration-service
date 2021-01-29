@@ -37,7 +37,7 @@ def versions = [
         commonsIo                    : '2.6',
         commonsLang3                 : '3.9',
         commonsMath3                 : '3.6.1',
-        divCommonLib                 : '1.4.0',
+        divCommonLib                 : '1.4.3',
         dumbster                     : '1.7.1',
         elasticsearch                : '7.10.2',
         feignHttpClient              : '10.3.0',
@@ -433,7 +433,6 @@ bootRun {
             systemProperty 'IDAM_API_REDIRECT_URL', 'https://div-pfe-aat.service.core-compute-aat.internal/authenticated'
             systemProperty 'SERVICE_AUTH_PROVIDER_URL', 'http://rpe-service-auth-provider-aat.service.core-compute-aat.internal'
             systemProperty 'CASE_MAINTENANCE_SERVICE_API_BASEURL', 'http://nfdiv-cms-aat.service.core-compute-aat.internal'
-            systemProperty 'CASE_FORMATTER_SERVICE_API_BASEURL', 'http://div-cfs-aat.service.core-compute-aat.internal'
             systemProperty 'SEND_LETTER_SERVICE_BASEURL', 'http://rpe-send-letter-service-aat.service.core-compute-aat.internal'
             systemProperty 'PAYMENT_API_BASEURL', 'http://payment-api-aat.service.core-compute-aat.internal'
             systemProperty 'PRD_API_BASEURL', 'http://rd-professional-api-aat.service.core-compute-aat.internal'
@@ -450,6 +449,7 @@ bootRun {
             systemProperty 'DIV_SCHEDULER_DB_PASSWORD', getVaultSecret('cos-postgresql-password')
             systemProperty 'UK_GOV_NOTIFY_API_KEY', getVaultSecret('uk-gov-notify-api-key')
 
+            systemProperty "user.timezone", "UTC"
         }
     }
 }
