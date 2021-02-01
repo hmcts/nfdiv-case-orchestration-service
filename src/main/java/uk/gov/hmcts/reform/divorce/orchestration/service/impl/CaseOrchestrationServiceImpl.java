@@ -31,7 +31,6 @@ import uk.gov.hmcts.reform.divorce.orchestration.workflows.CreateNewAmendedCaseA
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.DNSubmittedWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.DecreeNisiAboutToBeGrantedWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.DecreeNisiDecisionStateWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.DeleteDraftWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.DocumentGenerationWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.GenerateCoRespondentAnswersWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.GetCaseWithIdWorkflow;
@@ -50,8 +49,6 @@ import uk.gov.hmcts.reform.divorce.orchestration.workflows.RespondentSolicitorLi
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.RespondentSolicitorNominatedWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.RespondentSubmittedCallbackWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.RetrieveAosCaseWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.RetrieveDraftWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SaveDraftWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SendClarificationSubmittedNotificationWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SendCoRespondSubmissionNotificationWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SendDnPronouncedNotificationWorkflow;
@@ -117,9 +114,6 @@ public class CaseOrchestrationServiceImpl implements CaseOrchestrationService {
 
     private final IssueEventWorkflow issueEventWorkflow;
     private final CcdCallbackBulkPrintWorkflow ccdCallbackBulkPrintWorkflow;
-    private final RetrieveDraftWorkflow retrieveDraftWorkflow;
-    private final SaveDraftWorkflow saveDraftWorkflow;
-    private final DeleteDraftWorkflow deleteDraftWorkflow;
     private final AuthenticateRespondentWorkflow authenticateRespondentWorkflow;
     private final SubmitToCCDWorkflow submitToCCDWorkflow;
     private final UpdateToCCDWorkflow updateToCCDWorkflow;
@@ -310,41 +304,6 @@ public class CaseOrchestrationServiceImpl implements CaseOrchestrationService {
                 paymentUpdate.getCcdCaseNumber());
         }
         return payload;
-    }
-
-
-    @Override
-    public Map<String, Object> getDraft(String authToken) throws WorkflowException {
-        log.info("Returning draft");
-        return retrieveDraftWorkflow.run(authToken);
-    }
-
-    @Override
-    public Map<String, Object> saveDraft(Map<String, Object> payLoad,
-                                         String authToken,
-                                         String sendEmail) throws WorkflowException {
-        Map<String, Object> response = saveDraftWorkflow.run(payLoad, authToken, sendEmail);
-
-        if (saveDraftWorkflow.errors().isEmpty()) {
-            log.info("Draft saved");
-            return response;
-        } else {
-            log.error("Workflow error saving draft");
-            return saveDraftWorkflow.errors();
-        }
-
-    }
-
-    @Override
-    public Map<String, Object> deleteDraft(String authToken) throws WorkflowException {
-        Map<String, Object> response = deleteDraftWorkflow.run(authToken);
-        if (deleteDraftWorkflow.errors().isEmpty()) {
-            log.info("Draft deleted");
-            return response;
-        } else {
-            log.error("Workflow error deleting draft");
-            return deleteDraftWorkflow.errors();
-        }
     }
 
     @Override

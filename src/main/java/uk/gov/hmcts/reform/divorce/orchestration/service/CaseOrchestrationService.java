@@ -40,14 +40,6 @@ public interface CaseOrchestrationService {
 
     CcdCallbackResponse aosReceived(CcdCallbackRequest ccdCallbackRequest, String authToken) throws WorkflowException;
 
-    Map<String, Object> getDraft(String authToken) throws WorkflowException;
-
-    Map<String, Object> saveDraft(Map<String, Object> payLoad,
-                                  String authorizationToken,
-                                  String sendEmail) throws WorkflowException;
-
-    Map<String, Object> deleteDraft(String authorizationToken) throws WorkflowException;
-
     Map<String, Object> sendPetitionerSubmissionNotificationEmail(CcdCallbackRequest ccdCallbackRequest) throws CaseOrchestrationServiceException;
 
     Map<String, Object> sendPetitionerGenericUpdateNotificationEmail(CcdCallbackRequest ccdCallbackRequest)
