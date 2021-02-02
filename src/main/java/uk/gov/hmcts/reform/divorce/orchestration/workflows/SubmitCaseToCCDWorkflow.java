@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.DefaultWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.FormatDivorceSessionToCaseDataTask;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.SubmitCaseToCCD;
 
 import java.util.HashMap;
@@ -20,15 +19,11 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 public class SubmitCaseToCCDWorkflow extends DefaultWorkflow<Map<String, Object>> {
 
     @Autowired
-    private FormatDivorceSessionToCaseDataTask formatDivorceSessionToCaseDataTask;
-
-    @Autowired
     private SubmitCaseToCCD submitCaseToCCD;
 
     public Map<String, Object> run(Map<String, Object> payload, String authToken) throws WorkflowException {
         Map<String, Object> returnFromExecution = this.execute(
             new Task[]{
-                formatDivorceSessionToCaseDataTask,
                 submitCaseToCCD
             },
             payload,

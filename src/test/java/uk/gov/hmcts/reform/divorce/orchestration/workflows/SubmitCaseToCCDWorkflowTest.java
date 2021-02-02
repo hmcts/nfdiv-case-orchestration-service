@@ -38,13 +38,11 @@ public class SubmitCaseToCCDWorkflowTest {
         Map<String, Object> incomingPayload = singletonMap("returnedKey", "returnedValue");
 
 
-        when(formatDivorceSessionToCaseDataTask.execute(any(), eq(incomingPayload))).thenReturn(incomingPayload);
         when(submitCaseToCCD.execute(any(), eq(incomingPayload))).thenReturn(incomingPayload);
 
         Map<String, Object> actual = submitCaseToCCDWorkflow.run(incomingPayload, AUTH_TOKEN);
         assertThat(actual, hasEntry(equalTo("returnedKey"), equalTo("returnedValue")));
 
-        verify(formatDivorceSessionToCaseDataTask).execute(any(), eq(incomingPayload));
         verify(submitCaseToCCD).execute(any(), eq(incomingPayload));
 
     }

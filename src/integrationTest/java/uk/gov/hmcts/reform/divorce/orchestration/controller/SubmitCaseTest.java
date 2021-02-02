@@ -184,34 +184,9 @@ public class SubmitCaseTest extends MockedFunctionalTest {
             .andExpect(status().is4xxClientError());
     }
 
-
     @Test
-    public void givenCaseDataAndAuth_whenDraftCaseIsSubmitted_thenReturnSuccess() throws Exception {
-        stubMaintenanceServerEndpointForSubmit(Collections.singletonMap(ID, TEST_CASE_ID));
-        when(validationService.validate(any())).thenReturn(validationResponseOk);
-
-        MvcResult result = webClient.perform(post(DRAFT_API_URL)
-            .header(AUTHORIZATION, AUTH_TOKEN)
-            .content(convertObjectToJsonString(testDivorceSessionData))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().is2xxSuccessful())
-            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andReturn();
-
-        String responseBody = result.getResponse().getContentAsString();
-        assertThat(responseBody, allOf(
-            isJson(),
-            hasJsonPath("$.caseId", equalTo(TEST_CASE_ID)),
-            hasJsonPath("$.status", equalTo(SUCCESS_STATUS))
-        ));
-
-    }
-
-    @Test
-    public void givenEmptyPayload_whenDraftCaseIsSubmitted_thenReturnSuccess() throws Exception {
+    public void givenBasicDraftPayload_whenDraftCaseIsSubmitted_thenReturnSuccess() throws Exception {
         stubMaintenanceServerEndpointForDraftSubmit(Collections.singletonMap(ID, TEST_CASE_ID));
-        when(validationService.validate(any())).thenReturn(validationResponseOk);
 
         MvcResult result = webClient.perform(post(DRAFT_API_URL)
             .header(AUTHORIZATION, AUTH_TOKEN)

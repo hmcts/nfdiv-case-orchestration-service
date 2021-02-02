@@ -25,9 +25,8 @@ public class DataTransformationTestHelper {
     }
 
     public static CoreCaseData getExpectedTranslatedDraftCoreCaseData() throws IOException {
-        CoreCaseData coreCaseData = getJsonFromResourceFile("/jsonExamples/payloads/transformations/ccd/empty-draft-case.json", CoreCaseData.class);
-        coreCaseData.setCreatedDate(LocalDate.now().toString());
-        return coreCaseData;
+        return getJsonFromResourceFile("/jsonExamples/payloads/transformations/ccd/empty-draft-case.json", CoreCaseData.class);
+
     }
 
 }

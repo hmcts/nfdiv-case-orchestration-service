@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.divorce.maintenance;
 
 import io.restassured.response.Response;
 import io.restassured.response.ResponseBody;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.entity.ContentType;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
