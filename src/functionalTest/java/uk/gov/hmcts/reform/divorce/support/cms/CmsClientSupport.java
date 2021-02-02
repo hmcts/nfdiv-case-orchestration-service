@@ -10,9 +10,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.ccd.client.model.SearchResult;
-import uk.gov.hmcts.reform.divorce.model.idam.UserDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CaseMaintenanceClient;
-import uk.gov.hmcts.reform.divorce.util.ResourceLoader;
 import uk.gov.hmcts.reform.divorce.util.RestUtil;
 
 import java.util.List;
@@ -31,17 +29,6 @@ public class CmsClientSupport {
 
     @Value("${case_maintenance.api.url}")
     private String cmsBaseUrl;
-
-
-    public Map<String, Object> getDrafts(UserDetails userDetails) {
-        return cmsClient.getDrafts(userDetails.getAuthToken());
-    }
-
-    @SuppressWarnings("unchecked")
-    public void saveDrafts(String fileName, UserDetails userDetails) {
-        Map<String, Object> draftResource = ResourceLoader.loadJsonToObject(fileName, Map.class);
-        cmsClient.saveDraft(draftResource, userDetails.getAuthToken(), true);
-    }
 
     /**
      * Search cases via CMS' search endpoint.

@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.SearchResult;
 
@@ -92,14 +91,6 @@ public interface CaseMaintenanceClient {
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken,
             @PathVariable("caseId") String caseId);
 
-    @ApiOperation("Save draft case")
-    @PutMapping(value = "/casemaintenance/version/1/drafts",
-        headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
-    Map<String, Object> saveDraft(
-            @RequestBody Map<String, Object> draft,
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken,
-            @RequestParam(value = "divorceFormat") boolean divorceFormat);
-
     @ApiOperation("Retrieve Petition")
     @GetMapping(value = "/casemaintenance/version/1/retrieveCase")
     CaseDetails retrievePetition(
@@ -115,16 +106,6 @@ public interface CaseMaintenanceClient {
     CaseDetails retrievePetitionById(
             @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken,
             @PathVariable("caseId") String caseId);
-
-    @ApiOperation("Delete draft case")
-    @DeleteMapping(value = "/casemaintenance/version/1/drafts")
-    Map<String, Object> deleteDraft(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken);
-
-    @ApiOperation("Get drafts")
-    @GetMapping(value = "/casemaintenance/version/1/drafts")
-    Map<String, Object> getDrafts(
-            @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken);
 
     @ApiOperation("Search cases")
     @PostMapping(value = "/casemaintenance/version/1/search",
