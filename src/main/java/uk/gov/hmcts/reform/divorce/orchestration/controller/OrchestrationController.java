@@ -106,6 +106,7 @@ public class OrchestrationController {
             return endpointResponse = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 
         }
+
         CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
         caseCreationResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
         caseCreationResponse.setStatus(SUCCESS_STATUS);

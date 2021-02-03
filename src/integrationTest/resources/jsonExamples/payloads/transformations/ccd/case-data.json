@@ -215,5 +215,6 @@
   "D8InferredPetitionerGender": "female",
   "D8InferredRespondentGender": "male",
   "D8PetitionerConsent": "YES",
-  "RespondentContactDetailsConfidential": "share"
+  "RespondentContactDetailsConfidential": "share",
+  "D8Cohort": "onlineSubmissionPrivateBeta"
 }

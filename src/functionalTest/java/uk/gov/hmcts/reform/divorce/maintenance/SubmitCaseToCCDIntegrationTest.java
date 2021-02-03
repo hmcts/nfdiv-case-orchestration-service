@@ -112,9 +112,7 @@ public class SubmitCaseToCCDIntegrationTest extends RetrieveCaseSupport {
 
         String body = null;
         if (fileName != null) {
-            body = ResourceLoader.loadJson(PAYLOAD_CONTEXT_PATH + fileName)
-                .replaceAll(USER_DEFAULT_EMAIL, userDetails.getEmailAddress());
-
+            body = ResourceLoader.loadJson(PAYLOAD_CONTEXT_PATH + fileName);
         }
 
         return RestUtil.postToRestService(
