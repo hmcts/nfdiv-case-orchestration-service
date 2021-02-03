@@ -9,7 +9,6 @@ import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.DefaultWorkf
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.CourtAllocationTask;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.DeleteDraftTask;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.DuplicateCaseValidationTask;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.FormatDivorceSessionToCaseDataTask;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.SubmitCaseToCCD;
@@ -43,9 +42,6 @@ public class SubmitToCCDWorkflow extends DefaultWorkflow<Map<String, Object>> {
     @Autowired
     private SubmitCaseToCCD submitCaseToCCD;
 
-    @Autowired
-    private DeleteDraftTask deleteDraftTask;
-
     public Map<String, Object> run(Map<String, Object> payload, String authToken) throws WorkflowException {
         Map<String, Object> returnFromExecution = this.execute(
             new Task[]{
@@ -53,8 +49,7 @@ public class SubmitToCCDWorkflow extends DefaultWorkflow<Map<String, Object>> {
                 courtAllocationTask,
                 formatDivorceSessionToCaseDataTask,
                 validateCaseDataTask,
-                submitCaseToCCD,
-                deleteDraftTask
+                submitCaseToCCD
             },
             payload,
             ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken)

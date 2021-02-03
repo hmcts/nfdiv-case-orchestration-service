@@ -5,19 +5,16 @@ import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.MapUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
@@ -30,7 +27,6 @@ import uk.gov.hmcts.reform.divorce.orchestration.service.CaseOrchestrationServic
 import uk.gov.hmcts.reform.idam.client.models.UserDetails;
 
 import java.util.Map;
-import javax.validation.constraints.NotNull;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTHORIZATION_HEADER;
@@ -133,52 +129,6 @@ public class OrchestrationController {
                 .caseId(orchestrationService.update(payload, authorizationToken, caseId).get(ID).toString())
                 .status(SUCCESS_STATUS)
                 .build());
-    }
-
-    @GetMapping(path = "/draftsapi/version/1", produces = APPLICATION_JSON)
-    @ApiOperation(value = "Retrieves a divorce case draft")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "A draft exists. The draft content is in the response body"),
-        @ApiResponse(code = 404, message = "Draft does not exist")})
-    public ResponseEntity<Map<String, Object>> retrieveDraft(
-        @ApiParam(value = "JWT authorisation token issued by IDAM", required = true)
-        @RequestHeader(AUTHORIZATION_HEADER) final String authorizationToken)
-        throws WorkflowException {
-
-        Map<String, Object> response = orchestrationService.getDraft(authorizationToken);
-        if (MapUtils.isEmpty(response)) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping(path = "/draftsapi/version/1", consumes = APPLICATION_JSON)
-    @ApiOperation(value = "Saves or updates a draft case to Draft Store")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Draft saved")})
-    public ResponseEntity<Map<String, Object>> saveDraft(
-        @ApiParam(value = "JWT authorisation token issued by IDAM", required = true)
-        @RequestHeader(HttpHeaders.AUTHORIZATION) final String authorizationToken,
-        @ApiParam(value = "The draft case", required = true)
-        @RequestBody
-        @NotNull Map<String, Object> payload,
-        @RequestParam(value = "sendEmail", required = false)
-        @ApiParam(value = "Determines if the petitioner should receive the notification that the draft has been saved") final String sendEmail)
-        throws WorkflowException {
-
-        // Deprecation Warning: sendEmail as String instead of Boolean to be backwards compatible with current PFE
-        return ResponseEntity.ok(orchestrationService.saveDraft(payload, authorizationToken, sendEmail));
-    }
-
-    @DeleteMapping(path = "/draftsapi/version/1")
-    @ApiOperation(value = "Deletes a Divorce draft case")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "The Divorce draft case has been deleted successfully")})
-    public ResponseEntity<Map<String, Object>> deleteDraft(
-        @RequestHeader(AUTHORIZATION_HEADER)
-        @ApiParam(value = "JWT authorisation token issued by IDAM", required = true) final String authorizationToken) throws WorkflowException {
-
-        return ResponseEntity.ok(orchestrationService.deleteDraft(authorizationToken));
     }
 
     @GetMapping(path = "/retrieve-aos-case", produces = APPLICATION_JSON)
