@@ -61,14 +61,14 @@ public class SubmitCaseTest extends MockedFunctionalTest {
     private static final String API_URL = "/submit";
     private static final String DRAFT_API_URL = "/case";
 
-    private static final String SUBMISSION_CONTEXT_PATH = "/casemaintenance/version/1/submit";
+    private static final String SUBMISSION_CONTEXT_PATH = "/case";
     private static final String DELETE_DRAFT_CONTEXT_PATH = "/casemaintenance/version/1/drafts";
     private static final String RETRIEVE_CASE_CONTEXT_PATH = "/casemaintenance/version/1/case";
 
     private DivorceSession testDivorceSessionData;
     private CoreCaseData expectedTranslatedCcdSessionData;
-    private DivorceSession testDivorceSessionDataEmptyDraft;
-    private CoreCaseData expectedTranslatedCcdSessionDataEmptyDraft;
+    private DivorceSession testDivorceSessionDataDraft;
+    private CoreCaseData expectedTranslatedCcdSessionDataDraft;
 
     private static final ValidationResponse validationResponseOk = ValidationResponse.builder().build();
     private static final ValidationResponse validationResponseFail = ValidationResponse.builder()
@@ -89,8 +89,8 @@ public class SubmitCaseTest extends MockedFunctionalTest {
     public void setUp() throws IOException {
         testDivorceSessionData = getTestDivorceSessionData();
         expectedTranslatedCcdSessionData = getExpectedTranslatedCoreCaseData();
-        testDivorceSessionDataEmptyDraft = getTestDraftDivorceSessionData();
-        expectedTranslatedCcdSessionDataEmptyDraft = getExpectedTranslatedDraftCoreCaseData();
+        testDivorceSessionDataDraft = getTestDraftDivorceSessionData();
+        expectedTranslatedCcdSessionDataDraft = getExpectedTranslatedDraftCoreCaseData();
     }
 
     @Test
@@ -190,7 +190,7 @@ public class SubmitCaseTest extends MockedFunctionalTest {
 
         MvcResult result = webClient.perform(post(DRAFT_API_URL)
             .header(AUTHORIZATION, AUTH_TOKEN)
-            .content(convertObjectToJsonString(testDivorceSessionDataEmptyDraft))
+            .content(convertObjectToJsonString(testDivorceSessionDataDraft))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().is2xxSuccessful())
@@ -236,7 +236,7 @@ public class SubmitCaseTest extends MockedFunctionalTest {
     }
 
     private void stubMaintenanceServerEndpointForDraftSubmit(Map<String, Object> response) {
-        String testCcdTranslatedData = convertObjectToJsonString(expectedTranslatedCcdSessionDataEmptyDraft);
+        String testCcdTranslatedData = convertObjectToJsonString(expectedTranslatedCcdSessionDataDraft);
         maintenanceServiceServer.stubFor(WireMock.post(SUBMISSION_CONTEXT_PATH)
             .withRequestBody(equalToJson(testCcdTranslatedData))
             .withHeader(AUTHORIZATION, new EqualToPattern(AUTH_TOKEN))

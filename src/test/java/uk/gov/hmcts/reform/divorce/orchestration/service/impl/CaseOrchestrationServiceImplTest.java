@@ -324,9 +324,6 @@ public class CaseOrchestrationServiceImplTest {
     @Mock
     private WelshSetPreviousStateWorkflow welshSetPreviousStateWorkflow;
 
-    @Mock
-    private SubmitCaseToCCDWorkflow submitCaseToCCDWorkflow;
-
     @InjectMocks
     private CaseOrchestrationServiceImpl classUnderTest;
 

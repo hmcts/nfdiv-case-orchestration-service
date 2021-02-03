@@ -15,7 +15,7 @@ public class DataTransformationTestHelper {
     }
 
     public static DivorceSession getTestDraftDivorceSessionData() throws IOException {
-        return getJsonFromResourceFile("/jsonExamples/payloads/transformations/divorce/empty-draft-case.json", DivorceSession.class);
+        return getJsonFromResourceFile("/jsonExamples/payloads/transformations/divorce/draft-case.json", DivorceSession.class);
     }
 
     public static CoreCaseData getExpectedTranslatedCoreCaseData() throws IOException {
@@ -25,7 +25,7 @@ public class DataTransformationTestHelper {
     }
 
     public static CoreCaseData getExpectedTranslatedDraftCoreCaseData() throws IOException {
-        return getJsonFromResourceFile("/jsonExamples/payloads/transformations/ccd/empty-draft-case.json", CoreCaseData.class);
+        return getJsonFromResourceFile("/jsonExamples/payloads/transformations/ccd/draft-case.json", CoreCaseData.class);
 
     }
 
