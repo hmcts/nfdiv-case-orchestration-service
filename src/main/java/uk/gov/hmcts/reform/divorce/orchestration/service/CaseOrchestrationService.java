@@ -26,8 +26,6 @@ public interface CaseOrchestrationService {
 
     Map<String, Object> submit(Map<String, Object> divorceSession, String authToken) throws WorkflowException;
 
-    Map<String, Object> submitCase(Map<String, Object> divorceSession, String authToken) throws WorkflowException;
-
     Map<String, Object> update(Map<String, Object> divorceEventSession,
                                String authToken, String caseId) throws WorkflowException;
 

@@ -87,33 +87,6 @@ public class OrchestrationController {
         return endpointResponse;
     }
 
-    @PostMapping(path = "/case", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
-    @ApiOperation(value = "Create case in CCD - called by Petitioner Frontend")
-    @ApiResponses(value = {
-        @ApiResponse(code = 200, message = "Submit was successful and a case was created in CCD",
-            response = CaseCreationResponse.class),
-        @ApiResponse(code = 400, message = "Bad Request")})
-    public ResponseEntity<CaseCreationResponse> submitCase(
-        @RequestHeader(value = AUTHORIZATION_HEADER) String authorizationToken,
-        @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws WorkflowException {
-
-        ResponseEntity<CaseCreationResponse> endpointResponse;
-
-        Map<String, Object> serviceResponse = orchestrationService.submitCase(payload, authorizationToken);
-
-        if (serviceResponse.containsKey(VALIDATION_ERROR_KEY)) {
-            log.error("Bad request. Found this validation error: {}", serviceResponse.get(VALIDATION_ERROR_KEY));
-            return endpointResponse = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
-        }
-
-        CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
-        caseCreationResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
-        caseCreationResponse.setStatus(SUCCESS_STATUS);
-        return ResponseEntity.ok(caseCreationResponse);
-
-    }
-
     @PostMapping(path = "/updateCase/{caseId}", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
     @ApiOperation(value = "Update case in CCD - called by Frontend applications")
     @ApiResponses(value = {

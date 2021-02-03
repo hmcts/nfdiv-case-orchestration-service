@@ -452,35 +452,6 @@ public class CaseOrchestrationServiceImplTest {
     }
 
     @Test
-    public void givenDraftCaseDataValid_whenSubmit_thenReturnPayload() throws Exception {
-        Map<String, Object> expectedPayload = new HashMap<>();
-        expectedPayload.put("returnedKey", "returnedValue");
-        when(submitCaseToCCDWorkflow.run(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
-        when(submitCaseToCCDWorkflow.errors()).thenReturn(Collections.emptyMap());
-
-        Map<String, Object> actual = classUnderTest.submitCase(requestPayload, AUTH_TOKEN);
-
-        assertThat(actual.get("returnedKey"), is("returnedValue"));
-
-        verify(submitCaseToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
-        verify(submitCaseToCCDWorkflow).errors();
-    }
-
-    @Test
-    public void givenDraftCaseDataInvalid_whenSubmit_thenReturnListOfErrors() throws Exception {
-        when(submitCaseToCCDWorkflow.run(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
-        Map<String, Object> errors = singletonMap("new_Error", "An Error");
-        when(submitCaseToCCDWorkflow.errors()).thenReturn(errors);
-
-        Map<String, Object> actual = classUnderTest.submitCase(requestPayload, AUTH_TOKEN);
-
-        assertEquals(errors, actual);
-
-        verify(submitCaseToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
-        verify(submitCaseToCCDWorkflow, times(2)).errors();
-    }
-
-    @Test
     public void givenCaseDataValid_whenUpdate_thenReturnPayload() throws Exception {
         when(updateToCCDWorkflow.run(requestPayload, AUTH_TOKEN, TEST_CASE_ID))
             .thenReturn(requestPayload);

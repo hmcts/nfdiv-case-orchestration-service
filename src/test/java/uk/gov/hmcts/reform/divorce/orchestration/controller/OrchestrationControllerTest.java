@@ -323,33 +323,4 @@ public class OrchestrationControllerTest {
         assertEquals(caseData, response.getBody());
     }
 
-    @Test
-    public void whenSubmitDraft_thenReturnCaseResponse() throws Exception {
-        final Map<String, Object> caseData = Collections.emptyMap();
-        final Map<String, Object> serviceReturnData = new HashMap<>();
-        serviceReturnData.put(ID, TEST_CASE_ID);
-        when(caseOrchestrationService.submitCase(caseData, AUTH_TOKEN)).thenReturn(serviceReturnData);
-
-        ResponseEntity<CaseCreationResponse> response = classUnderTest.submitCase(AUTH_TOKEN, caseData);
-
-        CaseCreationResponse responseBody = response.getBody();
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
-        assertThat(responseBody.getCaseId(), equalTo(TEST_CASE_ID));
-        assertThat(responseBody.getStatus(), equalTo(SUCCESS_STATUS));
-    }
-
-    @Test
-    public void givenErrors_whenSubmittingDraft_thenReturnBadRequest() throws Exception {
-        final Map<String, Object> caseData = Collections.emptyMap();
-        final Map<String, Object> invalidResponse = Collections.singletonMap(
-            VALIDATION_ERROR_KEY,
-            ValidationResponse.builder().build()
-        );
-
-        when(caseOrchestrationService.submitCase(caseData, AUTH_TOKEN)).thenReturn(invalidResponse);
-
-        ResponseEntity response = classUnderTest.submitCase(AUTH_TOKEN, caseData);
-
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.BAD_REQUEST));
-    }
 }

@@ -61,7 +61,6 @@ import uk.gov.hmcts.reform.divorce.orchestration.workflows.SolicitorCreateWorkfl
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SolicitorDnFetchDocWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SolicitorSubmissionWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SolicitorUpdateWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitCaseToCCDWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitCoRespondentAosWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDaCaseWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDnCaseWorkflow;
@@ -117,7 +116,6 @@ public class CaseOrchestrationServiceImpl implements CaseOrchestrationService {
     private final CcdCallbackBulkPrintWorkflow ccdCallbackBulkPrintWorkflow;
     private final AuthenticateRespondentWorkflow authenticateRespondentWorkflow;
     private final SubmitToCCDWorkflow submitToCCDWorkflow;
-    private final SubmitCaseToCCDWorkflow submitCaseToCCDWorkflow;
     private final UpdateToCCDWorkflow updateToCCDWorkflow;
     private final RetrieveAosCaseWorkflow retrieveAosCaseWorkflow;
     private final LinkRespondentWorkflow linkRespondentWorkflow;
@@ -242,19 +240,6 @@ public class CaseOrchestrationServiceImpl implements CaseOrchestrationService {
         } else {
             log.info("Case with CASE ID: {} submit failed", payload.get(ID));
             return submitToCCDWorkflow.errors();
-        }
-    }
-
-    @Override
-    public Map<String, Object> submitCase(Map<String, Object> divorceSession, String authToken) throws WorkflowException {
-        Map<String, Object> payload = submitCaseToCCDWorkflow.run(divorceSession, authToken);
-
-        if (submitCaseToCCDWorkflow.errors().isEmpty()) {
-            log.info("Case with CASE ID: {} submitted", payload.get(ID));
-            return payload;
-        } else {
-            log.info("Case with CASE ID: {} submit failed", payload.get(ID));
-            return submitCaseToCCDWorkflow.errors();
         }
     }
 

@@ -44,7 +44,7 @@ public interface CaseMaintenanceClient {
     );
 
     @ApiOperation("Submit Case")
-    @PostMapping(value = "/casemaintenance/version/1/submit",
+    @PostMapping(value = "/case",
         headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
     Map<String, Object> submitCase(
         @RequestBody Map<String, Object> submitCase,
