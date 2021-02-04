@@ -6,6 +6,6 @@ import java.util.Map;
 
 public interface CaseService {
 
-    Map<String, Object> submitCase(Map<String, Object> divorceSession, String authToken) throws WorkflowException;
+    Map<String, Object> submitDraftCase(Map<String, Object> divorceSession, String authToken) throws WorkflowException;
 
 }

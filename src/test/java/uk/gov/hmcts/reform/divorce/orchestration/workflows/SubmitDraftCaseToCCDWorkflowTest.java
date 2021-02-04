@@ -8,8 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.FormatDivorceSessionToCaseDataTask;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.SubmitCaseToCCD;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.draftcase.SubmitDraftCaseToCcd;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,16 +25,13 @@ import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SubmitCaseToCCDWorkflowTest {
+public class SubmitDraftCaseToCCDWorkflowTest {
 
     @Mock
-    private FormatDivorceSessionToCaseDataTask formatDivorceSessionToCaseDataTask;
-
-    @Mock
-    private SubmitCaseToCCD submitCaseToCCD;
+    private SubmitDraftCaseToCcd submitDraftCaseToCcd;
 
     @InjectMocks
-    private SubmitCaseToCCDWorkflow submitCaseToCCDWorkflow;
+    private SubmitDraftCaseToCCDWorkflow submitDraftCaseToCCDWorkflow;
 
     @Test
     public void whenSubmittingCaseToCCDWorkflow_ShouldExecuteTasks_AndReturnPayload() throws Exception {
@@ -43,12 +39,12 @@ public class SubmitCaseToCCDWorkflowTest {
         Map<String, Object> incomingPayload = singletonMap("returnedKey", "returnedValue");
 
 
-        when(submitCaseToCCD.execute(any(), eq(incomingPayload))).thenReturn(incomingPayload);
+        when(submitDraftCaseToCcd.execute(any(), eq(incomingPayload))).thenReturn(incomingPayload);
 
-        Map<String, Object> actual = submitCaseToCCDWorkflow.run(incomingPayload, AUTH_TOKEN);
+        Map<String, Object> actual = submitDraftCaseToCCDWorkflow.run(incomingPayload, AUTH_TOKEN);
         assertThat(actual, hasEntry(equalTo("returnedKey"), equalTo("returnedValue")));
 
-        verify(submitCaseToCCD).execute(any(), eq(incomingPayload));
+        verify(submitDraftCaseToCcd).execute(any(), eq(incomingPayload));
 
     }
 
@@ -59,11 +55,11 @@ public class SubmitCaseToCCDWorkflowTest {
 
         Map<String, Object> incomingPayload = new HashMap<>();
 
-        when(submitCaseToCCD.execute(context, incomingPayload)).thenThrow(TaskException.class);
+        when(submitDraftCaseToCcd.execute(context, incomingPayload)).thenThrow(TaskException.class);
 
-        submitCaseToCCDWorkflow.run(incomingPayload, AUTH_TOKEN);
+        submitDraftCaseToCCDWorkflow.run(incomingPayload, AUTH_TOKEN);
 
-        verify(submitCaseToCCD).execute(context, incomingPayload);
+        verify(submitDraftCaseToCcd).execute(context, incomingPayload);
     }
 
 }

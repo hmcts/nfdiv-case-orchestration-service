@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitCaseToCCDWorkflow;
+import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDraftCaseToCCDWorkflow;
 
 import java.util.Map;
 
@@ -16,18 +16,18 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 @RequiredArgsConstructor
 public class CaseServiceImpl implements CaseService {
 
-    private final SubmitCaseToCCDWorkflow submitCaseToCCDWorkflow;
+    private final SubmitDraftCaseToCCDWorkflow submitDraftCaseToCCDWorkflow;
 
     @Override
-    public Map<String, Object> submitCase(Map<String, Object> divorceSession, String authToken) throws WorkflowException {
-        Map<String, Object> payload = submitCaseToCCDWorkflow.run(divorceSession, authToken);
+    public Map<String, Object> submitDraftCase(Map<String, Object> divorceSession, String authToken) throws WorkflowException {
+        Map<String, Object> payload = submitDraftCaseToCCDWorkflow.run(divorceSession, authToken);
 
-        if (submitCaseToCCDWorkflow.errors().isEmpty()) {
+        if (submitDraftCaseToCCDWorkflow.errors().isEmpty()) {
             log.info("Case with CASE ID: {} submitted", payload.get(ID));
             return payload;
         } else {
             log.info("Case with CASE ID: {} submit failed", payload.get(ID));
-            return submitCaseToCCDWorkflow.errors();
+            return submitDraftCaseToCCDWorkflow.errors();
         }
     }
 

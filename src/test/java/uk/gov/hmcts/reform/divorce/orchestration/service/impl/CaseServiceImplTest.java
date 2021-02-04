@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackRequest;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitCaseToCCDWorkflow;
+import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDraftCaseToCCDWorkflow;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,10 +33,10 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 public class CaseServiceImplTest {
 
     @Mock
-    private SubmitCaseToCCDWorkflow submitCaseToCCDWorkflow;
+    private SubmitDraftCaseToCCDWorkflow submitDraftCaseToCCDWorkflow;
 
     @InjectMocks
-    private CaseServiceImpl classUnderTest;
+    private CaseServiceImpl caseService;
 
     private CcdCallbackRequest ccdCallbackRequest;
 
@@ -64,28 +64,28 @@ public class CaseServiceImplTest {
     public void givenDraftCaseDataValid_whenSubmit_thenReturnPayload() throws Exception {
         Map<String, Object> expectedPayload = new HashMap<>();
         expectedPayload.put("returnedKey", "returnedValue");
-        when(submitCaseToCCDWorkflow.run(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
-        when(submitCaseToCCDWorkflow.errors()).thenReturn(Collections.emptyMap());
+        when(submitDraftCaseToCCDWorkflow.run(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
+        when(submitDraftCaseToCCDWorkflow.errors()).thenReturn(Collections.emptyMap());
 
-        Map<String, Object> actual = classUnderTest.submitCase(requestPayload, AUTH_TOKEN);
+        Map<String, Object> actual = caseService.submitDraftCase(requestPayload, AUTH_TOKEN);
 
         assertThat(actual.get("returnedKey"), is("returnedValue"));
 
-        verify(submitCaseToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
-        verify(submitCaseToCCDWorkflow).errors();
+        verify(submitDraftCaseToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
+        verify(submitDraftCaseToCCDWorkflow).errors();
     }
 
     @Test
     public void givenDraftCaseDataInvalid_whenSubmit_thenReturnListOfErrors() throws Exception {
-        when(submitCaseToCCDWorkflow.run(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
+        when(submitDraftCaseToCCDWorkflow.run(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
         Map<String, Object> errors = singletonMap("new_Error", "An Error");
-        when(submitCaseToCCDWorkflow.errors()).thenReturn(errors);
+        when(submitDraftCaseToCCDWorkflow.errors()).thenReturn(errors);
 
-        Map<String, Object> actual = classUnderTest.submitCase(requestPayload, AUTH_TOKEN);
+        Map<String, Object> actual = caseService.submitDraftCase(requestPayload, AUTH_TOKEN);
 
         assertEquals(errors, actual);
 
-        verify(submitCaseToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
-        verify(submitCaseToCCDWorkflow, times(2)).errors();
+        verify(submitDraftCaseToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
+        verify(submitDraftCaseToCCDWorkflow, times(2)).errors();
     }
 }

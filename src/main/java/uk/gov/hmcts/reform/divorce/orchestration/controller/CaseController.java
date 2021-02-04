@@ -41,14 +41,11 @@ public class CaseController {
         @RequestHeader(value = AUTHORIZATION_HEADER) String authorizationToken,
         @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws WorkflowException {
 
-        ResponseEntity<CaseCreationResponse> endpointResponse;
-
-        Map<String, Object> serviceResponse = caseService.submitCase(payload, authorizationToken);
+        Map<String, Object> serviceResponse = caseService.submitDraftCase(payload, authorizationToken);
 
         if (serviceResponse.containsKey(VALIDATION_ERROR_KEY)) {
             log.error("Bad request. Found this validation error: {}", serviceResponse.get(VALIDATION_ERROR_KEY));
-            return endpointResponse = ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
