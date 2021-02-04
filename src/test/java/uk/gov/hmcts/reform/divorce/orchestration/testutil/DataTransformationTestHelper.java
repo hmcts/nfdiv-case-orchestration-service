@@ -14,10 +14,19 @@ public class DataTransformationTestHelper {
         return getJsonFromResourceFile("/jsonExamples/payloads/transformations/divorce/case-data.json", DivorceSession.class);
     }
 
+    public static DivorceSession getTestDraftDivorceSessionData() throws IOException {
+        return getJsonFromResourceFile("/jsonExamples/payloads/transformations/divorce/draft-case.json", DivorceSession.class);
+    }
+
     public static CoreCaseData getExpectedTranslatedCoreCaseData() throws IOException {
         CoreCaseData coreCaseData = getJsonFromResourceFile("/jsonExamples/payloads/transformations/ccd/case-data.json", CoreCaseData.class);
         coreCaseData.setCreatedDate(LocalDate.now().toString());
         return coreCaseData;
+    }
+
+    public static CoreCaseData getExpectedTranslatedDraftCoreCaseData() throws IOException {
+        return getJsonFromResourceFile("/jsonExamples/payloads/transformations/ccd/draft-case.json", CoreCaseData.class);
+
     }
 
 }
