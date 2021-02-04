@@ -110,7 +110,6 @@ allprojects {
     }
 
     repositories {
-        mavenLocal()
         mavenCentral()
         jcenter()
         maven { url "https://dl.bintray.com/hmcts/hmcts-maven" }
