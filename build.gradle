@@ -467,7 +467,11 @@ task nightlyFunctional(type: Test, description: 'Runs the functional tests.', gr
             systemProperty 'AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY', getVaultSecret('cms-service-key')
             systemProperty 'AUTH_PROVIDER_DOCUMENTGENERATOR_CLIENT_KEY', getVaultSecret('div-doc-s2s-auth-secret')
             systemProperty 'IDAM_CLIENT_SECRET', getVaultSecret('idam-secret')
-        }
+            //systemProperty 'IDAM_API_BASEURL', 'http://localhost:5000'
+            //systemProperty 'CASE_MAINTENANCE_SERVICE_API_BASEURL', 'http://localhost:4010'
+            //systemProperty 'CASE_DATA_STORE_BASEURL', 'http://localhost:4452'
+            //systemProperty 'PAYMENT_API_BASEURL', 'http://localhost:8383'
+         }
         printf("Available processors:::::::::: " + Runtime.runtime.availableProcessors().intdiv(2).toString())
     }
 
