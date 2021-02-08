@@ -8,11 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
@@ -54,4 +57,23 @@ public class CaseController {
         return ResponseEntity.ok(caseCreationResponse);
 
     }
+
+    @PatchMapping(path = "/case", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    @ApiOperation(value = "Update case in CCD - called by Petitioner Frontend")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Update was successful and case was updated in CCD",
+            response = CaseResponse.class),
+        @ApiResponse(code = 400, message = "Bad Request")})
+    public ResponseEntity<CaseResponse> updateCase(
+        @RequestHeader(value = AUTHORIZATION_HEADER) String authorizationToken,
+        @PathVariable String caseId,
+        @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws WorkflowException {
+
+        return ResponseEntity.ok(
+            CaseResponse.builder()
+                .caseId(caseService.updateDraftCase(payload, authorizationToken, caseId).get(ID).toString())
+                .status(SUCCESS_STATUS)
+                .build());
+    }
+
 }
