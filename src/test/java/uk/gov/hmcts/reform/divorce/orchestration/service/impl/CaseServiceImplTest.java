@@ -9,6 +9,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackRequest;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDraftCaseToCCDWorkflow;
+import uk.gov.hmcts.reform.divorce.orchestration.workflows.UpdateDraftCaseInCCDWorkflow;
+import uk.gov.hmcts.reform.divorce.orchestration.workflows.UpdateToCCDWorkflow;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,6 +36,9 @@ public class CaseServiceImplTest {
 
     @Mock
     private SubmitDraftCaseToCCDWorkflow submitDraftCaseToCCDWorkflow;
+
+    @Mock
+    private UpdateDraftCaseInCCDWorkflow updateDraftCaeInCCDWorkflow;
 
     @InjectMocks
     private CaseServiceImpl caseService;
@@ -87,5 +92,33 @@ public class CaseServiceImplTest {
 
         verify(submitDraftCaseToCCDWorkflow).run(requestPayload, AUTH_TOKEN);
         verify(submitDraftCaseToCCDWorkflow, times(2)).errors();
+    }
+
+    @Test
+    public void givenDraftCaseUpdateValid_whenSubmit_thenReturnPayload() throws Exception {
+        when(updateDraftCaeInCCDWorkflow.run(requestPayload, AUTH_TOKEN, TEST_CASE_ID))
+            .thenReturn(requestPayload);
+
+        Map<String, Object> actual = caseService.updateDraftCase(requestPayload, AUTH_TOKEN, TEST_CASE_ID);
+
+        assertEquals(requestPayload, actual);
+
+        verify(updateDraftCaeInCCDWorkflow).run(requestPayload, AUTH_TOKEN, TEST_CASE_ID);
+    }
+
+    @Test
+    public void givenDraftCaseDataInvalid_whenUpdating_thenReturnListOfErrors() throws Exception {
+        when(updateDraftCaeInCCDWorkflow.run(requestPayload, AUTH_TOKEN, TEST_CASE_ID)).thenReturn(expectedPayload);
+        Map<String, Object> errors = singletonMap("new_Error", "An Error");
+        when(updateDraftCaeInCCDWorkflow.errors()).thenReturn(errors);
+
+        Map<String, Object> actual = caseService.updateDraftCase(requestPayload, AUTH_TOKEN, TEST_CASE_ID);
+
+        System.out.println("ACTUAL: " + actual);
+        System.out.println("ERRORS: " + errors);
+        assertEquals(errors, actual);
+
+        verify(updateDraftCaeInCCDWorkflow).run(requestPayload, AUTH_TOKEN, TEST_CASE_ID);
+        verify(updateDraftCaeInCCDWorkflow, times(2)).errors();
     }
 }

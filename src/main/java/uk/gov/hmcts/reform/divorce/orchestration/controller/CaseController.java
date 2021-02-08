@@ -69,11 +69,17 @@ public class CaseController {
         @PathVariable String caseId,
         @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws WorkflowException {
 
-        return ResponseEntity.ok(
-            CaseResponse.builder()
-                .caseId(caseService.updateDraftCase(payload, authorizationToken, caseId).get(ID).toString())
-                .status(SUCCESS_STATUS)
-                .build());
+        Map<String, Object> serviceResponse = caseService.updateDraftCase(payload, authorizationToken, caseId);
+
+        if (serviceResponse.containsKey(VALIDATION_ERROR_KEY)) {
+            log.error("Bad request. Found this validation error: {}", serviceResponse.get(VALIDATION_ERROR_KEY));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        }
+
+        CaseResponse caseResponse = new CaseResponse();
+        caseResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
+        caseResponse.setStatus(SUCCESS_STATUS);
+        return ResponseEntity.ok(caseResponse);
     }
 
 }

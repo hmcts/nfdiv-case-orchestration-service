@@ -8,6 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.divorce.model.response.ValidationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
 import java.util.Collections;
@@ -62,6 +63,37 @@ public class CaseControllerTest {
         when(caseService.submitDraftCase(caseData, AUTH_TOKEN)).thenReturn(invalidResponse);
 
         final ResponseEntity<CaseCreationResponse> response = classUnderTest.submitCase(AUTH_TOKEN, caseData);
+
+        assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
+    }
+
+    @Test
+    public void whenUpdatingDraft_thenReturnCaseResponse() throws Exception {
+        final Map<String, Object> caseData = Collections.emptyMap();
+        final Map<String, Object> serviceReturnData = new HashMap<>();
+        serviceReturnData.put(ID, TEST_CASE_ID);
+        when(caseService.updateDraftCase(caseData, AUTH_TOKEN, ID)).thenReturn(serviceReturnData);
+
+        final ResponseEntity<CaseResponse> response = classUnderTest.updateCase(AUTH_TOKEN, ID, caseData);
+
+        final CaseResponse responseBody = response.getBody();
+        assertThat(response.getStatusCode(), equalTo(OK));
+        assertThat(responseBody, notNullValue());
+        assertThat(responseBody.getCaseId(), equalTo(TEST_CASE_ID));
+        assertThat(responseBody.getStatus(), equalTo(SUCCESS_STATUS));
+    }
+
+    @Test
+    public void givenErrors_whenUpdatingDraft_thenReturnBadRequest() throws Exception {
+        final Map<String, Object> caseData = Collections.emptyMap();
+        final Map<String, Object> invalidResponse = Collections.singletonMap(
+            VALIDATION_ERROR_KEY,
+            ValidationResponse.builder().build()
+        );
+
+        when(caseService.updateDraftCase(caseData, AUTH_TOKEN, ID)).thenReturn(invalidResponse);
+
+        final ResponseEntity<CaseResponse> response = classUnderTest.updateCase(AUTH_TOKEN, ID, caseData);
 
         assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
     }

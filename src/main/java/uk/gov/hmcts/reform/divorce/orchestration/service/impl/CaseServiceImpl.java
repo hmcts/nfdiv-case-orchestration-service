@@ -39,8 +39,14 @@ public class CaseServiceImpl implements CaseService {
                                       String caseId) throws WorkflowException {
         Map<String, Object> payload = updateDraftCaseInCCDWorkflow.run(divorceSession, authToken, caseId);
 
-        log.info("Updated case with CASE ID: {}", payload.get(ID));
-        return payload;
+        if (updateDraftCaseInCCDWorkflow.errors().isEmpty()) {
+            log.info("Updated case with CASE ID: {}", payload.get(ID));
+            return payload;
+        } else {
+            log.info("Case with CASE ID: {} update failed", payload.get(ID));
+            return updateDraftCaseInCCDWorkflow.errors();
+        }
+
     }
 
 }
