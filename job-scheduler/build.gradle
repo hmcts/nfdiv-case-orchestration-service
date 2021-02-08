@@ -25,7 +25,8 @@ def versions = [
   jacksonDatabind   : '2.11.1',
   lombok            : '1.18.12',
   postgresql        : '42.2.13',
-  reformJavaLogging : '5.0.1'
+  reformJavaLogging : '5.0.1',
+  junit             : '4.13.1'
 ]
 
 dependencies {
@@ -45,6 +46,7 @@ dependencies {
     force = true
   }
 
+  testCompile group: 'junit', name: 'junit', version: versions.junit
   testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
   testCompile group: 'org.assertj', name: 'assertj-core', version: versions.assertj
 }

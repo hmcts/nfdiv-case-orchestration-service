@@ -328,7 +328,6 @@ dependencies {
     functionalTestImplementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: versions.jacksonDatatypeJsr
     functionalTestImplementation group: 'com.mashape.unirest', name: 'unirest-java', version: versions.unirest
     functionalTestImplementation group: 'io.github.openfeign', name: 'feign-httpclient', version: versions.feignHttpClient
-    functionalTestImplementation group: 'junit', name: 'junit', version: versions.junit
     functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-core', version: versions.serenity
     functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-cucumber', version: versions.serenityCucumber
     functionalTestImplementation group: 'net.serenity-bdd', name: 'serenity-junit', version: versions.serenity
