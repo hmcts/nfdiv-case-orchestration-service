@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.DefaultWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.UpdateDraftCaseInCCD;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.draftcase.UpdateDraftCaseInCCD;
 
 import java.util.Map;
 
