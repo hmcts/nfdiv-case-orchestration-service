@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.divorce.orchestration.tasks;
 
 import feign.FeignException;
+import feign.Request;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -42,16 +43,14 @@ import static uk.gov.hmcts.reform.divorce.orchestration.util.elasticsearch.CMSEl
 public class SearchDNPronouncedCasesTaskTest {
 
     private static final String DN_GRANTED_DATE = String.format("data.%s", DECREE_NISI_GRANTED_DATE_CCD_FIELD);
-
-    @Mock
-    private CMSElasticSearchSupport mockCmsElasticSearchSupport;
-
-    @InjectMocks
-    private SearchDNPronouncedCasesTask classUnderTest;
-
+    private static final Request DUMMY_REQUEST = Request.create(
+        Request.HttpMethod.GET, "http//example.com", Collections.emptyMap(), Request.Body.empty(), null);
     private static final String TWO_MINUTES = "2m";
     private final String timeSinceDNWasPronounced = TWO_MINUTES;
-
+    @Mock
+    private CMSElasticSearchSupport mockCmsElasticSearchSupport;
+    @InjectMocks
+    private SearchDNPronouncedCasesTask classUnderTest;
     private DefaultTaskContext contextBeingModified;
 
     @Before
@@ -98,7 +97,7 @@ public class SearchDNPronouncedCasesTaskTest {
     @Test
     public void shouldRethrowFeignException() throws TaskException {
         when(mockCmsElasticSearchSupport.searchCMSCases(eq(AUTH_TOKEN), any(), any()))
-            .thenThrow(new FeignException.BadRequest("Bad test request", "".getBytes()));
+            .thenThrow(new FeignException.BadRequest("Bad test request", DUMMY_REQUEST, "".getBytes()));
 
         Map<String, Object> actualResult = null;
         try {
