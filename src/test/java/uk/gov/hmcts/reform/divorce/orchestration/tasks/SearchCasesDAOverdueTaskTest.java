@@ -1,7 +1,6 @@
 package uk.gov.hmcts.reform.divorce.orchestration.tasks;
 
 import feign.FeignException;
-import feign.Request;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.hamcrest.CoreMatchers;
 import org.junit.Before;
@@ -41,8 +40,6 @@ import static wiremock.org.eclipse.jetty.http.HttpStatus.BAD_REQUEST_400;
 public class SearchCasesDAOverdueTaskTest {
 
     private static final String DN_GRANTED_DATE = String.format("data.%s", DECREE_NISI_GRANTED_DATE_CCD_FIELD);
-    private static final Request DUMMY_REQUEST = Request.create(
-        Request.HttpMethod.GET, "http//example.com", Collections.emptyMap(), Request.Body.empty(), null);
 
     @Mock
     private CMSElasticSearchSupport cmsElasticSearchSupport;
@@ -141,7 +138,7 @@ public class SearchCasesDAOverdueTaskTest {
             eq(AUTH_TOKEN),
             any(),
             any())
-        ).thenThrow(new FeignException.BadRequest("Bad test request", DUMMY_REQUEST, "".getBytes()));
+        ).thenThrow(new FeignException.BadRequest("Bad test request", "".getBytes()));
 
         try {
             classUnderTest.execute(contextBeingModified, Collections.emptyMap());

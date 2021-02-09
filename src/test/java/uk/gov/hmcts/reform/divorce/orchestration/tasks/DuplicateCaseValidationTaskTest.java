@@ -38,8 +38,6 @@ import static uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitToCCDWor
 
 @RunWith(MockitoJUnitRunner.class)
 public class DuplicateCaseValidationTaskTest {
-    private static final Request DUMMY_REQUEST = Request.create(
-        Request.HttpMethod.GET, "http//example.com", Collections.emptyMap(), Request.Body.empty(), null);
 
     @Mock
     private TaskCommons taskCommons;
@@ -65,7 +63,7 @@ public class DuplicateCaseValidationTaskTest {
     @Test
     public void givenGetCaseThrowsANotFoundException_whenExecute_thenDoNothing() throws TaskException {
         Response response = Response.builder()
-            .request(DUMMY_REQUEST)
+            .request(Request.create(Request.HttpMethod.GET, "http//example.com", Collections.emptyMap(), null))
             .headers(Collections.emptyMap())
             .status(HttpStatus.NOT_FOUND.value()).build();
 
@@ -83,7 +81,7 @@ public class DuplicateCaseValidationTaskTest {
     @Test(expected = FeignException.class)
     public void givenGetCaseThrowsAServerException_whenExecute_thenThrowException() throws TaskException {
         Response response = Response.builder()
-            .request(DUMMY_REQUEST)
+            .request(Request.create(Request.HttpMethod.GET, "http//example.com", Collections.emptyMap(), null))
             .headers(Collections.emptyMap())
             .status(HttpStatus.GATEWAY_TIMEOUT.value()).build();
 

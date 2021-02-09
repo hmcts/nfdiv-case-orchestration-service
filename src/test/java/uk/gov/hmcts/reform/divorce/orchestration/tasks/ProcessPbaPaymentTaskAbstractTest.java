@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.divorce.orchestration.tasks;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
-import feign.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -75,9 +74,6 @@ import static uk.gov.hmcts.reform.divorce.orchestration.testutil.PbaClientErrorT
 
 @RunWith(MockitoJUnitRunner.class)
 public abstract class ProcessPbaPaymentTaskAbstractTest {
-
-    private static final Request DUMMY_REQUEST = Request.create(
-        Request.HttpMethod.GET, "http//example.com", Collections.emptyMap(), Request.Body.empty(), null);
 
     @Mock
     private PaymentClient paymentClient;
@@ -282,7 +278,7 @@ public abstract class ProcessPbaPaymentTaskAbstractTest {
         byte[] body = ObjectMapperTestUtil.convertObjectToJsonString(paymentResponse).getBytes();
         return (invocation) -> {
             if (httpStatus.value() >= 400) {
-                throw new FeignException.FeignClientException(httpStatus.value(), errorMessage, DUMMY_REQUEST, body);
+                throw new FeignException.FeignClientException(httpStatus.value(), errorMessage, body);
             }
             return ResponseEntity.status(httpStatus).body(paymentResponse);
         };
