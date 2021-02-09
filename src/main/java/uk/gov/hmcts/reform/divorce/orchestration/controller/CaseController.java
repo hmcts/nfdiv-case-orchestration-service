@@ -58,7 +58,7 @@ public class CaseController {
 
     }
 
-    @PatchMapping(path = "/case", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    @PatchMapping(path = "/case/{caseId}", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
     @ApiOperation(value = "Update case in CCD - called by Petitioner Frontend")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Update was successful and case was updated in CCD",

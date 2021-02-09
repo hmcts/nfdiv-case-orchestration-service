@@ -25,13 +25,11 @@ public class UpdateDraftCaseInCCDWorkflow extends DefaultWorkflow<Map<String, Ob
                                    String authToken,
                                    String caseId) throws WorkflowException {
 
-        Map<String, Object> payload = (Map<String, Object>) divorceEvent.get(CASE_EVENT_DATA_JSON_KEY);
-
         return this.execute(
             new Task[] {
                 updateDraftCaseInCCD
             },
-            payload,
+            (Map<String, Object>) divorceEvent.get(CASE_EVENT_DATA_JSON_KEY),
             ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken),
             ImmutablePair.of(CASE_ID_JSON_KEY, caseId)
         );
