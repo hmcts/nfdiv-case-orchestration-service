@@ -35,9 +35,8 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public Map<String, Object> updateDraftCase(Map<String, Object> divorceSession,
-                                      String authToken,
-                                      String caseId) throws WorkflowException {
-        Map<String, Object> payload = updateDraftCaseInCCDWorkflow.run(divorceSession, authToken, caseId);
+                                      String authToken) throws WorkflowException {
+        Map<String, Object> payload = updateDraftCaseInCCDWorkflow.run(divorceSession, authToken);
 
         if (updateDraftCaseInCCDWorkflow.errors().isEmpty()) {
             log.info("Updated case with CASE ID: {}", payload.get(ID));

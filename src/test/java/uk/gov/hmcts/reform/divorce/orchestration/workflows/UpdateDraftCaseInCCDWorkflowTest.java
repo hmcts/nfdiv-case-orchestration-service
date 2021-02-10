@@ -44,7 +44,6 @@ public class UpdateDraftCaseInCCDWorkflowTest {
 
         context = new DefaultTaskContext();
         context.setTransientObject(AUTH_TOKEN_JSON_KEY, AUTH_TOKEN);
-        context.setTransientObject(CASE_ID_JSON_KEY, TEST_CASE_ID);
     }
 
     @Test
@@ -53,7 +52,7 @@ public class UpdateDraftCaseInCCDWorkflowTest {
 
         when(updateDraftCaseInCCD.execute(context, testData)).thenReturn(resultData);
 
-        assertEquals(resultData, updateDraftCaseInCCDWorkflow.run(eventData, AUTH_TOKEN, TEST_CASE_ID));
+        assertEquals(resultData, updateDraftCaseInCCDWorkflow.run(eventData, AUTH_TOKEN));
 
         verify(updateDraftCaseInCCD).execute(context, testData);
     }

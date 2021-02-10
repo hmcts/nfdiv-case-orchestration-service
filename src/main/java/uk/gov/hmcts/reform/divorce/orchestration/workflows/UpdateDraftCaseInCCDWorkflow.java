@@ -22,16 +22,14 @@ public class UpdateDraftCaseInCCDWorkflow extends DefaultWorkflow<Map<String, Ob
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> run(Map<String, Object> divorceEvent,
-                                   String authToken,
-                                   String caseId) throws WorkflowException {
+                                   String authToken) throws WorkflowException {
 
         return this.execute(
             new Task[] {
                 updateDraftCaseInCCD
             },
             (Map<String, Object>) divorceEvent.get(CASE_EVENT_DATA_JSON_KEY),
-            ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken),
-            ImmutablePair.of(CASE_ID_JSON_KEY, caseId)
+            ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken)
         );
     }
 }

@@ -72,9 +72,9 @@ public class CaseControllerTest {
         final Map<String, Object> caseData = Collections.emptyMap();
         final Map<String, Object> serviceReturnData = new HashMap<>();
         serviceReturnData.put(ID, TEST_CASE_ID);
-        when(caseService.updateDraftCase(caseData, AUTH_TOKEN, ID)).thenReturn(serviceReturnData);
+        when(caseService.updateDraftCase(caseData, AUTH_TOKEN)).thenReturn(serviceReturnData);
 
-        final ResponseEntity<CaseResponse> response = classUnderTest.updateCase(AUTH_TOKEN, ID, caseData);
+        final ResponseEntity<CaseResponse> response = classUnderTest.updateCase(AUTH_TOKEN, caseData);
 
         final CaseResponse responseBody = response.getBody();
         assertThat(response.getStatusCode(), equalTo(OK));
@@ -91,9 +91,9 @@ public class CaseControllerTest {
             ValidationResponse.builder().build()
         );
 
-        when(caseService.updateDraftCase(caseData, AUTH_TOKEN, ID)).thenReturn(invalidResponse);
+        when(caseService.updateDraftCase(caseData, AUTH_TOKEN)).thenReturn(invalidResponse);
 
-        final ResponseEntity<CaseResponse> response = classUnderTest.updateCase(AUTH_TOKEN, ID, caseData);
+        final ResponseEntity<CaseResponse> response = classUnderTest.updateCase(AUTH_TOKEN, caseData);
 
         assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
     }

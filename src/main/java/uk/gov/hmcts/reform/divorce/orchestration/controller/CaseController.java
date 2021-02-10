@@ -58,7 +58,7 @@ public class CaseController {
 
     }
 
-    @PatchMapping(path = "/case/{caseId}", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
+    @PatchMapping(path = "/case", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
     @ApiOperation(value = "Update case in CCD - called by Petitioner Frontend")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Update was successful and case was updated in CCD",
@@ -66,10 +66,9 @@ public class CaseController {
         @ApiResponse(code = 400, message = "Bad Request")})
     public ResponseEntity<CaseResponse> updateCase(
         @RequestHeader(value = AUTHORIZATION_HEADER) String authorizationToken,
-        @PathVariable String caseId,
         @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws WorkflowException {
 
-        Map<String, Object> serviceResponse = caseService.updateDraftCase(payload, authorizationToken, caseId);
+        Map<String, Object> serviceResponse = caseService.updateDraftCase(payload, authorizationToken);
 
         if (serviceResponse.containsKey(VALIDATION_ERROR_KEY)) {
             log.error("Bad request. Found this validation error: {}", serviceResponse.get(VALIDATION_ERROR_KEY));

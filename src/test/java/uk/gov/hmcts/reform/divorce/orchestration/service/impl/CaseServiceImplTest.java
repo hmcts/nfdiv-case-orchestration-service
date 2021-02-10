@@ -95,29 +95,29 @@ public class CaseServiceImplTest {
 
     @Test
     public void givenDraftCaseUpdateValid_whenSubmit_thenReturnPayload() throws Exception {
-        when(updateDraftCaeInCCDWorkflow.run(requestPayload, AUTH_TOKEN, TEST_CASE_ID))
+        when(updateDraftCaeInCCDWorkflow.run(requestPayload, AUTH_TOKEN))
             .thenReturn(requestPayload);
 
-        Map<String, Object> actual = caseService.updateDraftCase(requestPayload, AUTH_TOKEN, TEST_CASE_ID);
+        Map<String, Object> actual = caseService.updateDraftCase(requestPayload, AUTH_TOKEN);
 
         assertEquals(requestPayload, actual);
 
-        verify(updateDraftCaeInCCDWorkflow).run(requestPayload, AUTH_TOKEN, TEST_CASE_ID);
+        verify(updateDraftCaeInCCDWorkflow).run(requestPayload, AUTH_TOKEN);
     }
 
     @Test
     public void givenDraftCaseDataInvalid_whenUpdating_thenReturnListOfErrors() throws Exception {
-        when(updateDraftCaeInCCDWorkflow.run(requestPayload, AUTH_TOKEN, TEST_CASE_ID)).thenReturn(expectedPayload);
+        when(updateDraftCaeInCCDWorkflow.run(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
         Map<String, Object> errors = singletonMap("new_Error", "An Error");
         when(updateDraftCaeInCCDWorkflow.errors()).thenReturn(errors);
 
-        Map<String, Object> actual = caseService.updateDraftCase(requestPayload, AUTH_TOKEN, TEST_CASE_ID);
+        Map<String, Object> actual = caseService.updateDraftCase(requestPayload, AUTH_TOKEN);
 
         System.out.println("ACTUAL: " + actual);
         System.out.println("ERRORS: " + errors);
         assertEquals(errors, actual);
 
-        verify(updateDraftCaeInCCDWorkflow).run(requestPayload, AUTH_TOKEN, TEST_CASE_ID);
+        verify(updateDraftCaeInCCDWorkflow).run(requestPayload, AUTH_TOKEN);
         verify(updateDraftCaeInCCDWorkflow, times(2)).errors();
     }
 }

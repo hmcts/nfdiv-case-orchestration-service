@@ -29,7 +29,6 @@ public interface CMSClient {
         headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
     Map<String, Object> updateDraftCase(
         @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken,
-        @PathVariable("caseId") String caseId,
         @RequestBody Map<String, Object> requestBody
     );
 

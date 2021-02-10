@@ -36,12 +36,12 @@ public class UpdateDraftCaseInCCDTest {
 
         final Map<String, Object> resultData = Collections.singletonMap("Hello", "World");
 
-        when(caseMaintenanceServiceClient.updateDraftCase(AUTH_TOKEN, TEST_CASE_ID, TEST_DATA))
+        when(caseMaintenanceServiceClient.updateDraftCase(AUTH_TOKEN, TEST_DATA))
             .thenReturn(resultData);
 
         assertEquals(resultData, updateDraftCaseInCCD.execute(context, TEST_DATA));
 
-        verify(caseMaintenanceServiceClient).updateDraftCase(AUTH_TOKEN, TEST_CASE_ID, TEST_DATA);
+        verify(caseMaintenanceServiceClient).updateDraftCase(AUTH_TOKEN, TEST_DATA);
     }
 
     private TaskContext createContext() {

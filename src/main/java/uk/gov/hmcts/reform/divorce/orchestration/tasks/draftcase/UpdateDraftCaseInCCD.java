@@ -21,7 +21,6 @@ public class UpdateDraftCaseInCCD implements Task<Map<String, Object>> {
     public Map<String, Object> execute(TaskContext context, Map<String, Object> caseData) {
         return caseMaintenanceServiceClient.updateDraftCase(
             context.getTransientObject(AUTH_TOKEN_JSON_KEY),
-            context.getTransientObject(CASE_ID_JSON_KEY),
             caseData
         );
     }
