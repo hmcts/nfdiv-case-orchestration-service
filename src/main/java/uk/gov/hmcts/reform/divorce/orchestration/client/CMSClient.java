@@ -25,7 +25,7 @@ public interface CMSClient {
     );
 
     @ApiOperation("Update Draft Case")
-    @PostMapping(value = "/case/{caseId}",
+    @PostMapping(value = "/case",
         headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
     Map<String, Object> updateDraftCase(
         @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken,
