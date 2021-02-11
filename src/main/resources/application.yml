@@ -536,32 +536,17 @@ bulk-action:
       base-rate: 1000
   min-cases: 30
 
-# GENERAL SPRING BOOT ACTUATOR CONFIG
-# Context path for Spring Boot Actuator endpoints
-# Allow actuator endpoints to be accessed without requiring authentication
-# Enable default health indicators
-# Enable disk space health check
 management:
-  health:
-    mail:
-      enabled: false
-    elasticsearch:
-      enabled: false
   endpoint:
     health:
-      probes:
-        #This disables the Kubernetes probes provided by Spring, since we already provide a custom liveness probe (see uk.gov.hmcts.reform.health.Liveness)
-        enabled: false
       show-details: "ALWAYS"
       cache:
         time-to-live: 4000
   endpoints:
     web:
       base-path: /
-      path-mapping:
-        health: health
       exposure:
-        include: info, health, metrics
+        include: health, info, prometheus
 
 logging:
   level:
@@ -569,3 +554,7 @@ logging:
     uk.gov.hmcts.reform.divorce.orchestration: DEBUG
   pattern:
     console: "%d{yyyy-MMM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n"
+
+azure:
+  application-insights:
+    instrumentation-key: ${APPINSIGHTS_INSTRUMENTATIONKEY:00000000-0000-0000-0000-000000000000}

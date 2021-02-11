@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.divorce.orchestration.workflows;
 
 import feign.FeignException;
+import feign.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +21,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.tasks.SetSolicitorLinkedField;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.ValidateExistingSolicitorLink;
 import uk.gov.hmcts.reform.idam.client.models.UserDetails;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,6 +45,8 @@ public class RespondentSolicitorLinkCaseWorkflowTest {
     private static final String CASE_REFERENCE = "CaseReference";
     private static final String RESPONDENT_SOLICITOR_CASE_NO = "RespondentSolicitorCaseNo";
     private static final String RESPONDENT_SOLICITOR_PIN = "RespondentSolicitorPin";
+    private static final Request DUMMY_REQUEST = Request.create(
+        Request.HttpMethod.GET, "http//example.com", Collections.emptyMap(), Request.Body.empty(), null);
 
     @Mock
     private GetCaseWithIdTask getCaseWithId;
@@ -73,10 +77,10 @@ public class RespondentSolicitorLinkCaseWorkflowTest {
         payload.put(RESPONDENT_SOLICITOR_CASE_NO, respondentSolicitorCaseLink);
         payload.put(RESPONDENT_SOLICITOR_PIN, TEST_PIN);
         caseDetails = CaseDetails.builder()
-                .caseId(TEST_CASE_ID)
-                .state(TEST_STATE)
-                .caseData(payload)
-                .build();
+            .caseId(TEST_CASE_ID)
+            .state(TEST_STATE)
+            .caseData(payload)
+            .build();
         context = new DefaultTaskContext();
         context.setTransientObject(CASE_ID_JSON_KEY, TEST_CASE_ID);
         context.setTransientObject(AUTH_TOKEN_JSON_KEY, TEST_TOKEN);
@@ -108,7 +112,7 @@ public class RespondentSolicitorLinkCaseWorkflowTest {
     public void caseNotFoundIsWrappedInWorkflowException() throws WorkflowException, TaskException {
         final UserDetails userDetails = UserDetails.builder().build();
 
-        when(getCaseWithId.execute(any(), eq(userDetails))).thenThrow(new FeignException.NotFound("test", null));
+        when(getCaseWithId.execute(any(), eq(userDetails))).thenThrow(new FeignException.NotFound("test", DUMMY_REQUEST, null));
 
         respondentSolicitorLinkCaseWorkflow.run(caseDetails, TEST_TOKEN);
     }
@@ -120,7 +124,7 @@ public class RespondentSolicitorLinkCaseWorkflowTest {
         when(getCaseWithId.execute(any(), eq(userDetails))).thenReturn(userDetails);
         when(validateExistingSolicitorLink.execute(any(), eq(userDetails))).thenReturn(userDetails);
         when(retrievePinUserDetails.execute(any(), eq(userDetails))).thenReturn(userDetails);
-        when(linkRespondentTask.execute(any(), eq(userDetails))).thenThrow(new FeignException.Unauthorized("test", null));
+        when(linkRespondentTask.execute(any(), eq(userDetails))).thenThrow(new FeignException.Unauthorized("test", DUMMY_REQUEST, null));
 
         respondentSolicitorLinkCaseWorkflow.run(caseDetails, TEST_TOKEN);
     }
@@ -129,7 +133,7 @@ public class RespondentSolicitorLinkCaseWorkflowTest {
     public void otherExceptionsNotWrappedInWorkflowException() throws WorkflowException, TaskException {
         final UserDetails userDetails = UserDetails.builder().build();
 
-        when(getCaseWithId.execute(any(), eq(userDetails))).thenThrow(new FeignException.GatewayTimeout("test", null));
+        when(getCaseWithId.execute(any(), eq(userDetails))).thenThrow(new FeignException.GatewayTimeout("test", DUMMY_REQUEST, null));
 
         respondentSolicitorLinkCaseWorkflow.run(caseDetails, TEST_TOKEN);
     }

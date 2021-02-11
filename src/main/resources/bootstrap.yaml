@@ -15,3 +15,4 @@ spring:
         nfdiv.idam-caseworker-password: IDAM_CASEWORKER_PASSWORD
         nfdiv.cos-postgresql-password: DIV_SCHEDULER_DB_PASSWORD
         nfdiv.uk-gov-notify-api-key: UK_GOV_NOTIFY_API_KEY
+        nfdiv.AppInsightsInstrumentationKey: APPINSIGHTS_INSTRUMENTATIONKEY

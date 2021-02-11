@@ -1,16 +1,22 @@
 package uk.gov.hmcts.reform.divorce.orchestration.testutil;
 
 import feign.FeignException;
+import feign.Request;
 import org.springframework.http.HttpStatus;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.pay.CreditAccountPaymentResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.pay.StatusHistoriesItem;
 import uk.gov.hmcts.reform.divorce.orchestration.util.payment.PbaErrorMessage;
+
+import java.util.Collections;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_SOLICITOR_ACCOUNT_NUMBER;
 
 public class PbaClientErrorTestUtil {
+    private static final Request DUMMY_REQUEST = Request.create(
+        Request.HttpMethod.GET, "http//example.com", Collections.emptyMap(), Request.Body.empty(), null);
+
     public static final String TEST_ERROR_MESSAGE = "error message";
 
     public static CreditAccountPaymentResponse getBasicFailedResponse() {
@@ -40,10 +46,10 @@ public class PbaClientErrorTestUtil {
 
     public static FeignException buildException(HttpStatus httpStatus, CreditAccountPaymentResponse paymentResponse) {
         byte[] body = ObjectMapperTestUtil.convertObjectToJsonString(paymentResponse).getBytes();
-        return new FeignException.FeignClientException(httpStatus.value(), TEST_ERROR_MESSAGE, body);
+        return new FeignException.FeignClientException(httpStatus.value(), TEST_ERROR_MESSAGE, DUMMY_REQUEST, body);
     }
 
     public static FeignException buildExceptionWithOutResponseBody(HttpStatus httpStatus) {
-        return new FeignException.FeignClientException(httpStatus.value(), TEST_ERROR_MESSAGE, TEST_ERROR_MESSAGE.getBytes());
+        return new FeignException.FeignClientException(httpStatus.value(), TEST_ERROR_MESSAGE, DUMMY_REQUEST, TEST_ERROR_MESSAGE.getBytes());
     }
 }
