@@ -5,8 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDraftCaseToCCDWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.PatchCaseInCCDWorkflow;
+import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDraftCaseToCCDWorkflow;
 
 import java.util.Map;
 
@@ -24,7 +24,7 @@ public class CaseServiceImpl implements CaseService {
     public Map<String, Object> submitDraftCase(
                 Map<String, Object> divorceSession,
                 String authToken
-        ) throws WorkflowException {
+    ) throws WorkflowException {
         Map<String, Object> payload = submitDraftCaseToCCDWorkflow.run(divorceSession, authToken);
 
         if (submitDraftCaseToCCDWorkflow.errors().isEmpty()) {
@@ -40,7 +40,7 @@ public class CaseServiceImpl implements CaseService {
     public Map<String, Object> patchCase(
                 Map<String, Object> divorceSession,
                 String authToken
-        ) throws WorkflowException {
+    ) throws WorkflowException {
         Map<String, Object> payload = patchCaseInCCDWorkflow.run(divorceSession, authToken);
 
         if (patchCaseInCCDWorkflow.errors().isEmpty()) {
