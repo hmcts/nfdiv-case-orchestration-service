@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.orchestration.tasks.draftcase;
+package uk.gov.hmcts.reform.divorce.orchestration.tasks.ccdcase;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,14 +11,14 @@ import java.util.Map;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
 
 @Component
-public class UpdateDraftCaseInCCD implements Task<Map<String, Object>> {
+public class PatchCaseInCCD implements Task<Map<String, Object>> {
 
     @Autowired
     private CMSClient caseMaintenanceServiceClient;
 
     @Override
     public Map<String, Object> execute(TaskContext context, Map<String, Object> caseData) {
-        return caseMaintenanceServiceClient.updateDraftCase(
+        return caseMaintenanceServiceClient.patchCase(
             context.getTransientObject(AUTH_TOKEN_JSON_KEY),
             caseData
         );

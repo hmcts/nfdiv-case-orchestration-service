@@ -8,7 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.draftcase.UpdateDraftCaseInCCD;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.ccdcase.PatchCaseInCCD;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,13 +22,13 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_EVENT_DATA_JSON_KEY;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateDraftCaseInCCDWorkflowTest {
+public class PatchCaseInCCDWorkflowTest {
 
     @Mock
-    private UpdateDraftCaseInCCD updateDraftCaseInCCD;
+    private PatchCaseInCCD patchCaseInCCD;
 
     @InjectMocks
-    private UpdateDraftCaseInCCDWorkflow updateDraftCaseInCCDWorkflow;
+    private PatchCaseInCCDWorkflow patchCaseInCCDWorkflow;
 
     private Map<String, Object> eventData;
     private Map<String, Object> testData;
@@ -45,13 +45,13 @@ public class UpdateDraftCaseInCCDWorkflowTest {
     }
 
     @Test
-    public void runShouldExecuteTasksAndReturnPayload() throws Exception {
+    public void shouldExecuteTasksAndReturnPayload() throws Exception {
         Map<String, Object> resultData = Collections.singletonMap("Hello", "World");
 
-        when(updateDraftCaseInCCD.execute(context, testData)).thenReturn(resultData);
+        when(patchCaseInCCD.execute(context, testData)).thenReturn(resultData);
 
-        assertEquals(resultData, updateDraftCaseInCCDWorkflow.run(eventData, AUTH_TOKEN));
+        assertEquals(resultData, patchCaseInCCDWorkflow.run(eventData, AUTH_TOKEN));
 
-        verify(updateDraftCaseInCCD).execute(context, testData);
+        verify(patchCaseInCCD).execute(context, testData);
     }
 }

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.orchestration.tasks.draftcase;
+package uk.gov.hmcts.reform.divorce.orchestration.tasks.ccdcase;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

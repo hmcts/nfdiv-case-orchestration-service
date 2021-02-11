@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.orchestration.tasks.draftcase;
+package uk.gov.hmcts.reform.divorce.orchestration.tasks.ccdcase;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,14 +21,14 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_ID_JSON_KEY;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UpdateDraftCaseInCCDTest {
+public class PatchCaseInCCDTest {
     private static final Map<String, Object> TEST_DATA = Collections.emptyMap();
 
     @Mock
     private CMSClient caseMaintenanceServiceClient;
 
     @InjectMocks
-    private UpdateDraftCaseInCCD updateDraftCaseInCCD;
+    private uk.gov.hmcts.reform.divorce.orchestration.tasks.ccdcase.PatchCaseInCCD patchCaseInCCD;
 
     @Test
     public void executeShouldCallCaseMaintenanceClientUpdateEndpoint() {
@@ -36,12 +36,12 @@ public class UpdateDraftCaseInCCDTest {
 
         final Map<String, Object> resultData = Collections.singletonMap("Hello", "World");
 
-        when(caseMaintenanceServiceClient.updateDraftCase(AUTH_TOKEN, TEST_DATA))
+        when(caseMaintenanceServiceClient.patchCase(AUTH_TOKEN, TEST_DATA))
             .thenReturn(resultData);
 
-        assertEquals(resultData, updateDraftCaseInCCD.execute(context, TEST_DATA));
+        assertEquals(resultData, patchCaseInCCD.execute(context, TEST_DATA));
 
-        verify(caseMaintenanceServiceClient).updateDraftCase(AUTH_TOKEN, TEST_DATA);
+        verify(caseMaintenanceServiceClient).patchCase(AUTH_TOKEN, TEST_DATA);
     }
 
     private TaskContext createContext() {

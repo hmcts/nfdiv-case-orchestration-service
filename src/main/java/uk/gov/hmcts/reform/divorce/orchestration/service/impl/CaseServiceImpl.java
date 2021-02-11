@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDraftCaseToCCDWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.UpdateDraftCaseInCCDWorkflow;
+import uk.gov.hmcts.reform.divorce.orchestration.workflows.PatchCaseInCCDWorkflow;
 
 import java.util.Map;
 
@@ -18,10 +18,13 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 public class CaseServiceImpl implements CaseService {
 
     private final SubmitDraftCaseToCCDWorkflow submitDraftCaseToCCDWorkflow;
-    private final UpdateDraftCaseInCCDWorkflow updateDraftCaseInCCDWorkflow;
+    private final PatchCaseInCCDWorkflow patchCaseInCCDWorkflow;
 
     @Override
-    public Map<String, Object> submitDraftCase(Map<String, Object> divorceSession, String authToken) throws WorkflowException {
+    public Map<String, Object> submitDraftCase(
+                Map<String, Object> divorceSession,
+                String authToken
+        ) throws WorkflowException {
         Map<String, Object> payload = submitDraftCaseToCCDWorkflow.run(divorceSession, authToken);
 
         if (submitDraftCaseToCCDWorkflow.errors().isEmpty()) {
@@ -34,16 +37,18 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public Map<String, Object> updateDraftCase(Map<String, Object> divorceSession,
-                                      String authToken) throws WorkflowException {
-        Map<String, Object> payload = updateDraftCaseInCCDWorkflow.run(divorceSession, authToken);
+    public Map<String, Object> patchCase(
+                Map<String, Object> divorceSession,
+                String authToken
+        ) throws WorkflowException {
+        Map<String, Object> payload = patchCaseInCCDWorkflow.run(divorceSession, authToken);
 
-        if (updateDraftCaseInCCDWorkflow.errors().isEmpty()) {
+        if (patchCaseInCCDWorkflow.errors().isEmpty()) {
             log.info("Updated case with CASE ID: {}", payload.get(ID));
             return payload;
         } else {
             log.info("Case with CASE ID: {} update failed", payload.get(ID));
-            return updateDraftCaseInCCDWorkflow.errors();
+            return patchCaseInCCDWorkflow.errors();
         }
 
     }

@@ -1,8 +1,9 @@
-package uk.gov.hmcts.reform.divorce.orchestration.controller.draftcase;
+package uk.gov.hmcts.reform.divorce.orchestration.controller.ccdcase;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +22,7 @@ import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.equalToJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
@@ -38,13 +40,13 @@ import static uk.gov.hmcts.reform.divorce.orchestration.testutil.DataTransformat
 import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil.convertObject;
 import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil.convertObjectToJsonString;
 
-public class UpdateDraftCaseTest extends MockedFunctionalTest {
+public class PatchCaseTest extends MockedFunctionalTest {
 
-    private static final String UPDATE_PATH = "/case";
-    private static final String UPDATE_CONTEXT_PATH = "/case";
+    private static final String PATCH_PATH = "/case";
+    private static final UrlPattern PATCH_CONTEXT_PATH = urlPathEqualTo("/case");
 
-    private DivorceSession testDivorceSessionDataDraft;
-    private CoreCaseData expectedCcdSessionDataDraft;
+    private DivorceSession testDivorceSessionData;
+    private CoreCaseData expectedCcdSessionData;
 
     private Map<String, Object> eventData;
 
@@ -53,26 +55,26 @@ public class UpdateDraftCaseTest extends MockedFunctionalTest {
 
     @Before
     public void setUp() throws IOException {
-        testDivorceSessionDataDraft = getTestDraftDivorceSessionData();
-        expectedCcdSessionDataDraft = getExpectedTranslatedDraftCoreCaseData();
+        testDivorceSessionData = getTestDraftDivorceSessionData();
+        expectedCcdSessionData = getExpectedTranslatedDraftCoreCaseData();
 
         eventData = new HashMap<>();
-        eventData.put(CASE_EVENT_DATA_JSON_KEY, convertObject(testDivorceSessionDataDraft, new TypeReference<>() {
+        eventData.put(CASE_EVENT_DATA_JSON_KEY, convertObject(testDivorceSessionData, new TypeReference<>() {
         }));
     }
 
     @Test
-    public void shouldUpdateDraftCase() throws Exception {
+    public void shouldPatchCase() throws Exception {
         Map<String, Object> responseData = Collections.singletonMap(ID, TEST_CASE_ID);
 
-        stubMaintenanceServerEndpointForDraftUpdate(responseData);
+        stubMaintenanceServerEndpointForPatch(responseData);
 
         CaseResponse updateResponse = CaseResponse.builder()
             .caseId(TEST_CASE_ID)
             .status(SUCCESS_STATUS)
             .build();
 
-        webClient.perform(patch(UPDATE_PATH)
+        webClient.perform(patch(PATCH_PATH)
             .header(AUTHORIZATION, AUTH_TOKEN)
             .content(convertObjectToJsonString(eventData))
             .contentType(MediaType.APPLICATION_JSON)
@@ -83,16 +85,16 @@ public class UpdateDraftCaseTest extends MockedFunctionalTest {
 
     @Test
     public void shouldReturnBadRequestIfNoAuthenticationToken() throws Exception {
-        webClient.perform(patch(UPDATE_PATH)
-            .content(convertObjectToJsonString(testDivorceSessionDataDraft))
+        webClient.perform(patch(PATCH_PATH)
+            .content(convertObjectToJsonString(testDivorceSessionData))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
     }
 
-    private void stubMaintenanceServerEndpointForDraftUpdate(Map<String, Object> response) {
-        maintenanceServiceServer.stubFor(WireMock.post(UPDATE_CONTEXT_PATH)
-            .withRequestBody(equalToJson(convertObjectToJsonString(expectedCcdSessionDataDraft)))
+    private void stubMaintenanceServerEndpointForPatch(Map<String, Object> response) {
+        maintenanceServiceServer.stubFor(WireMock.patch(PATCH_CONTEXT_PATH)
+            .withRequestBody(equalToJson(convertObjectToJsonString(expectedCcdSessionData)))
             .withHeader(AUTHORIZATION, new EqualToPattern(AUTH_TOKEN))
             .willReturn(aResponse()
                 .withStatus(HttpStatus.OK.value())

@@ -8,7 +8,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.draftcase.SubmitDraftCaseToCcd;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.ccdcase.SubmitDraftCaseToCcd;
 
 import java.util.HashMap;
 import java.util.Map;

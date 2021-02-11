@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.DefaultWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.draftcase.UpdateDraftCaseInCCD;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.ccdcase.PatchCaseInCCD;
 
 import java.util.Map;
 
@@ -14,10 +14,10 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_EVENT_DATA_JSON_KEY;
 
 @Component
-public class UpdateDraftCaseInCCDWorkflow extends DefaultWorkflow<Map<String, Object>> {
+public class PatchCaseInCCDWorkflow extends DefaultWorkflow<Map<String, Object>> {
 
     @Autowired
-    private UpdateDraftCaseInCCD updateDraftCaseInCCD;
+    private PatchCaseInCCD patchCaseInCCD;
 
     @SuppressWarnings("unchecked")
     public Map<String, Object> run(Map<String, Object> divorceEvent,
@@ -25,7 +25,7 @@ public class UpdateDraftCaseInCCDWorkflow extends DefaultWorkflow<Map<String, Ob
 
         return this.execute(
             new Task[] {
-                updateDraftCaseInCCD
+                patchCaseInCCD
             },
             (Map<String, Object>) divorceEvent.get(CASE_EVENT_DATA_JSON_KEY),
             ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken)

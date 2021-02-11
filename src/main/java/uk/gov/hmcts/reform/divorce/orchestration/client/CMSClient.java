@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.divorce.orchestration.client;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -23,10 +24,10 @@ public interface CMSClient {
         @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken
     );
 
-    @ApiOperation("Update Draft Case")
-    @PostMapping(value = "/case",
+    @ApiOperation("Patch Case")
+    @PatchMapping(value = "/case",
         headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
-    Map<String, Object> updateDraftCase(
+    Map<String, Object> patchCase(
         @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken,
         @RequestBody Map<String, Object> requestBody
     );

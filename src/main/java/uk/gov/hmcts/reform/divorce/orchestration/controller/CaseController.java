@@ -34,7 +34,7 @@ public class CaseController {
     private CaseService caseService;
 
     @PostMapping(path = "/case", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
-    @ApiOperation(value = "Create case in CCD - called by Petitioner Frontend")
+    @ApiOperation(value = "Create case in CCD")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Submit was successful and a case was created in CCD",
             response = CaseCreationResponse.class),
@@ -58,7 +58,7 @@ public class CaseController {
     }
 
     @PatchMapping(path = "/case", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)
-    @ApiOperation(value = "Update case in CCD - called by Petitioner Frontend")
+    @ApiOperation(value = "Patch case in CCD")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Update was successful and case was updated in CCD",
             response = CaseResponse.class),
@@ -67,7 +67,7 @@ public class CaseController {
         @RequestHeader(value = AUTHORIZATION_HEADER) String authorizationToken,
         @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws WorkflowException {
 
-        Map<String, Object> serviceResponse = caseService.updateDraftCase(payload, authorizationToken);
+        Map<String, Object> serviceResponse = caseService.patchCase(payload, authorizationToken);
 
         if (serviceResponse.containsKey(VALIDATION_ERROR_KEY)) {
             log.error("Bad request. Found this validation error: {}", serviceResponse.get(VALIDATION_ERROR_KEY));

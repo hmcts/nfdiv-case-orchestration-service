@@ -8,6 +8,6 @@ public interface CaseService {
 
     Map<String, Object> submitDraftCase(Map<String, Object> divorceSession, String authToken) throws WorkflowException;
 
-    Map<String, Object> updateDraftCase(Map<String, Object> divorceEventSession, String authToken) throws WorkflowException;
+    Map<String, Object> patchCase(Map<String, Object> divorceEventSession, String authToken) throws WorkflowException;
 
 }

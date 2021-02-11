@@ -9,7 +9,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackRequest;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDraftCaseToCCDWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.UpdateDraftCaseInCCDWorkflow;
+import uk.gov.hmcts.reform.divorce.orchestration.workflows.PatchCaseInCCDWorkflow;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,7 +37,7 @@ public class CaseServiceImplTest {
     private SubmitDraftCaseToCCDWorkflow submitDraftCaseToCCDWorkflow;
 
     @Mock
-    private UpdateDraftCaseInCCDWorkflow updateDraftCaeInCCDWorkflow;
+    private PatchCaseInCCDWorkflow updateDraftCaeInCCDWorkflow;
 
     @InjectMocks
     private CaseServiceImpl caseService;
@@ -94,11 +94,11 @@ public class CaseServiceImplTest {
     }
 
     @Test
-    public void givenDraftCaseUpdateValid_whenSubmit_thenReturnPayload() throws Exception {
+    public void givenCaseUpdateValid_whenSubmit_thenReturnPayload() throws Exception {
         when(updateDraftCaeInCCDWorkflow.run(requestPayload, AUTH_TOKEN))
             .thenReturn(requestPayload);
 
-        Map<String, Object> actual = caseService.updateDraftCase(requestPayload, AUTH_TOKEN);
+        Map<String, Object> actual = caseService.patchCase(requestPayload, AUTH_TOKEN);
 
         assertEquals(requestPayload, actual);
 
@@ -106,12 +106,12 @@ public class CaseServiceImplTest {
     }
 
     @Test
-    public void givenDraftCaseDataInvalid_whenUpdating_thenReturnListOfErrors() throws Exception {
+    public void givenCaseDataInvalid_whenUpdating_thenReturnListOfErrors() throws Exception {
         when(updateDraftCaeInCCDWorkflow.run(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
         Map<String, Object> errors = singletonMap("new_Error", "An Error");
         when(updateDraftCaeInCCDWorkflow.errors()).thenReturn(errors);
 
-        Map<String, Object> actual = caseService.updateDraftCase(requestPayload, AUTH_TOKEN);
+        Map<String, Object> actual = caseService.patchCase(requestPayload, AUTH_TOKEN);
 
         System.out.println("ACTUAL: " + actual);
         System.out.println("ERRORS: " + errors);

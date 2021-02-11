@@ -68,11 +68,11 @@ public class CaseControllerTest {
     }
 
     @Test
-    public void whenUpdatingDraft_thenReturnCaseResponse() throws Exception {
+    public void whenUpdatingCase_thenReturnCaseResponse() throws Exception {
         final Map<String, Object> caseData = Collections.emptyMap();
         final Map<String, Object> serviceReturnData = new HashMap<>();
         serviceReturnData.put(ID, TEST_CASE_ID);
-        when(caseService.updateDraftCase(caseData, AUTH_TOKEN)).thenReturn(serviceReturnData);
+        when(caseService.patchCase(caseData, AUTH_TOKEN)).thenReturn(serviceReturnData);
 
         final ResponseEntity<CaseResponse> response = classUnderTest.updateCase(AUTH_TOKEN, caseData);
 
@@ -84,14 +84,14 @@ public class CaseControllerTest {
     }
 
     @Test
-    public void givenErrors_whenUpdatingDraft_thenReturnBadRequest() throws Exception {
+    public void givenErrors_whenUpdatingCase_thenReturnBadRequest() throws Exception {
         final Map<String, Object> caseData = Collections.emptyMap();
         final Map<String, Object> invalidResponse = Collections.singletonMap(
             VALIDATION_ERROR_KEY,
             ValidationResponse.builder().build()
         );
 
-        when(caseService.updateDraftCase(caseData, AUTH_TOKEN)).thenReturn(invalidResponse);
+        when(caseService.patchCase(caseData, AUTH_TOKEN)).thenReturn(invalidResponse);
 
         final ResponseEntity<CaseResponse> response = classUnderTest.updateCase(AUTH_TOKEN, caseData);
 
