@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.divorce.orchestration.config;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.core.env.AbstractEnvironment;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.Environment;
@@ -17,7 +16,8 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class PropertyLogger  {
 
-    @EventListener
+    // remove comment to enable properties logging on boot
+    // @EventListener
     public void handleContextRefresh(ContextRefreshedEvent event) {
         final Environment env = event.getApplicationContext().getEnvironment();
         log.info("====== Environment and configuration ======");

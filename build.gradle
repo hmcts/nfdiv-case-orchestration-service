@@ -393,14 +393,14 @@ bootRun {
             systemProperty 'FEES_AND_PAYMENTS_SERVICE_API_BASEURL', 'http://div-fps-aat.service.core-compute-aat.internal'
             systemProperty 'DOCUMENT_MANAGEMENT_STORE_URL', 'http://dm-store-aat.service.core-compute-aat.internal'
 
-            systemProperty 'SERVICE_AUTH_SECRET', getVaultSecret('cos-service-key')
-            systemProperty 'IDAM_CLIENT_SECRET', getVaultSecret('idam-secret')
-            systemProperty 'IDAM_CITIZEN_USERNAME', getVaultSecret('idam-citizen-username')
-            systemProperty 'IDAM_CITIZEN_PASSWORD', getVaultSecret('idam-citizen-password')
-            systemProperty 'IDAM_CASEWORKER_USERNAME', getVaultSecret('idam-caseworker-username')
-            systemProperty 'IDAM_CASEWORKER_PASSWORD', getVaultSecret('idam-caseworker-password')
-            systemProperty 'DIV_SCHEDULER_DB_PASSWORD', getVaultSecret('cos-postgresql-password')
-            systemProperty 'UK_GOV_NOTIFY_API_KEY', getVaultSecret('uk-gov-notify-api-key')
+            systemProperty 'nfdiv.cos-service-key', getVaultSecret('cos-service-key')
+            systemProperty 'nfdiv.idam-secret', getVaultSecret('idam-secret')
+            systemProperty 'nfdiv.idam-citizen-username', getVaultSecret('idam-citizen-username')
+            systemProperty 'nfdiv.idam-citizen-password', getVaultSecret('idam-citizen-password')
+            systemProperty 'nfdiv.idam-caseworker-username', getVaultSecret('idam-caseworker-username')
+            systemProperty 'nfdiv.idam-caseworker-password', getVaultSecret('idam-caseworker-password')
+            systemProperty 'nfdiv.cos-postgresql-password', getVaultSecret('cos-postgresql-password')
+            systemProperty 'nfdiv.uk-gov-notify-api-key', getVaultSecret('uk-gov-notify-api-key')
 
             systemProperty "user.timezone", "UTC"
         }
