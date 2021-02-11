@@ -49,12 +49,7 @@ public class AuthUtil {
     }
 
     private String getIdamOauth2Token(String username, String password) {
-        System.out.println(citizenUserName);
-        System.out.println(citizenPassword);
-        System.out.println(authClientSecret);
-        System.out.println(authRedirectUrl);
-        System.out.println(authClientId);
-        return idamClient.getAccessTokenResponse(username, password).accessToken;
+        return idamClient.authenticateUser(username, password);
     }
 
     public String getBearerToken(String token) {
