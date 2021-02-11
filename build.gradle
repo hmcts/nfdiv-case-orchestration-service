@@ -58,7 +58,6 @@ def versions = [
         pitest                       : '1.4.10',
         postgresql                   : '42.2.13',
         puppyCrawl                   : '8.29',
-        reformPropertiesVolume       : '0.1.0',
         reformsJavaLogging           : '5.1.7',
         sendLetterClient             : '2.2.0',
         serenity                     : '2.2.13',
@@ -280,7 +279,6 @@ dependencies {
     implementation group: 'uk.gov.hmcts.reform', name: 'logging-appinsights', version: versions.reformsJavaLogging
     implementation group: 'uk.gov.hmcts.reform', name: 'logging-httpcomponents', version: versions.reformsJavaLogging
     implementation group: 'uk.gov.hmcts.reform', name: 'logging-spring', version: versions.reformsJavaLogging
-    implementation group: 'uk.gov.hmcts.reform', name: 'properties-volume-spring-boot-starter', version: versions.reformPropertiesVolume
     implementation group: 'uk.gov.hmcts.reform', name: 'service-auth-provider-client', version: versions.serviceTokenGenerator
     implementation group: 'uk.gov.hmcts.reform', name: 'send-letter-client', version: versions.sendLetterClient
     implementation group: 'uk.gov.service.notify', name: 'notifications-java-client', version: versions.hmctsNotify
