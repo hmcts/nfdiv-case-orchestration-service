@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.divorce.orchestration.util;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,7 +8,6 @@ import uk.gov.hmcts.reform.idam.client.IdamClient;
 
 @SuppressWarnings("squid:S1118")
 @Component
-@Slf4j
 public class AuthUtil {
 
     private static final String BEARER = "Bearer ";
@@ -51,11 +49,11 @@ public class AuthUtil {
     }
 
     private String getIdamOauth2Token(String username, String password) {
-        log.info(citizenUserName);
-        log.info(citizenPassword);
-        log.info(authClientSecret);
-        log.info(authRedirectUrl);
-        log.info(authClientId);
+        System.out.println(citizenUserName);
+        System.out.println(citizenPassword);
+        System.out.println(authClientSecret);
+        System.out.println(authRedirectUrl);
+        System.out.println(authClientId);
         return idamClient.getAccessTokenResponse(username, password).accessToken;
     }
 
