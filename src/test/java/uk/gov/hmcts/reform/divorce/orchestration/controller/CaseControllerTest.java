@@ -5,10 +5,13 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.divorce.model.response.ValidationResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
 import java.util.Collections;
@@ -18,6 +21,8 @@ import java.util.Map;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
@@ -96,5 +101,26 @@ public class CaseControllerTest {
         final ResponseEntity<CaseResponse> response = classUnderTest.updateCase(AUTH_TOKEN, caseData);
 
         assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
+    }
+
+    @Test
+    public void whenGetCaseFromCcd_thenReturnExpectedResponse() throws CaseNotFoundException {
+        final CaseDataResponse caseDataResponse = CaseDataResponse.builder().build();
+
+        when(caseService.getCase(AUTH_TOKEN)).thenReturn(caseDataResponse);
+
+        ResponseEntity<CaseDataResponse> response = classUnderTest.retrieveCase(AUTH_TOKEN);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(caseDataResponse, response.getBody());
+
+        verify(caseService).getCase(AUTH_TOKEN);
+    }
+
+    @Test(expected = CaseNotFoundException.class)
+    public void givenThrowsCaseNotFoundException_whenGetCase_thenReturnExpectedResponse() throws CaseNotFoundException {
+        when(caseService.getCase(AUTH_TOKEN)).thenThrow(new CaseNotFoundException("Case not found"));
+
+        classUnderTest.retrieveCase(AUTH_TOKEN);
     }
 }
