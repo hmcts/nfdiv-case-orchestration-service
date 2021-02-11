@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 import uk.gov.hmcts.reform.idam.client.models.AuthenticateUserResponse;
-import uk.gov.hmcts.reform.idam.client.models.TokenResponse;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -39,9 +38,8 @@ public class AuthUtilTest {
     @Test
     public void testGetCitizenToken() {
         AuthenticateUserResponse authenticateResponse = new AuthenticateUserResponse(TEST_PIN_CODE);
-        TokenResponse response = new TokenResponse(BEARER_AUTH_TYPE + " " + authenticateResponse.getCode(), "", "", "", "", "");
-        when(idamClient.getAccessTokenResponse(anyString(), anyString()))
-            .thenReturn(response);
+        when(idamClient.authenticateUser(anyString(), anyString()))
+            .thenReturn(BEARER_AUTH_TYPE + " " + authenticateResponse.getCode());
 
         String token = authUtil.getCitizenToken();
         assertTrue(token.startsWith("Bearer"));
