@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.divorce.orchestration.tasks;
 
 import com.google.common.collect.ImmutableMap;
 import feign.FeignException;
+import feign.Request;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -70,6 +71,9 @@ public class BulkCaseCreateTaskTest {
 
     private static final String ERROR_CASE_ID = "errorCaseID";
 
+    private static final Request DUMMY_REQUEST = Request.create(
+        Request.HttpMethod.GET, "http//example.com", Collections.emptyMap(), Request.Body.empty(), null);
+
     @Mock
     private CaseMaintenanceClient caseMaintenanceClient;
 
@@ -92,7 +96,7 @@ public class BulkCaseCreateTaskTest {
         Map<String, Object> response = classToTest.execute(context, null);
 
         assertTrue(response.isEmpty());
-        verify(caseMaintenanceClient, never()).submitBulkCase(any(),any());
+        verify(caseMaintenanceClient, never()).submitBulkCase(any(), any());
     }
 
     @Test
@@ -100,19 +104,19 @@ public class BulkCaseCreateTaskTest {
         setMinimumNumberOfCases(10);
 
         TaskContext context = new DefaultTaskContext();
-        SearchResult  searchResult = createSearchResult();
+        SearchResult searchResult = createSearchResult();
         context.setTransientObject(SEARCH_RESULT_KEY, Collections.singletonList(searchResult));
         context.setTransientObject(AUTH_TOKEN_JSON_KEY, AUTH_TOKEN);
 
         classToTest.execute(context, null);
 
-        verify(caseMaintenanceClient, never()).submitBulkCase(any(),any());
+        verify(caseMaintenanceClient, never()).submitBulkCase(any(), any());
     }
 
     @Test
     public void givenSearchList_thenProcessAll() {
         TaskContext context = new DefaultTaskContext();
-        SearchResult  searchResult = createSearchResult();
+        SearchResult searchResult = createSearchResult();
         context.setTransientObject(SEARCH_RESULT_KEY, Collections.singletonList(searchResult));
         context.setTransientObject(AUTH_TOKEN_JSON_KEY, AUTH_TOKEN);
         Map<String, Object> cmsResponse = Collections.emptyMap();
@@ -129,7 +133,7 @@ public class BulkCaseCreateTaskTest {
     @Test
     public void givenError_whenCreateBulkCase_thenReturnErrorOnContext() {
         TaskContext context = new DefaultTaskContext();
-        SearchResult  searchResult = createSearchResult();
+        SearchResult searchResult = createSearchResult();
         SearchResult errorResult = SearchResult
             .builder()
             .cases(Collections.singletonList(CaseDetails.builder()
@@ -144,7 +148,7 @@ public class BulkCaseCreateTaskTest {
         when(ccdUtilMock.getCurrentDateWithCustomerFacingFormat()).thenReturn(CURRENT_DATE);
         when(caseMaintenanceClient.submitBulkCase(bulkCaseFormat(), AUTH_TOKEN)).thenReturn(cmsResponse);
         when(caseMaintenanceClient.submitBulkCase(not(eq(bulkCaseFormat())), eq(AUTH_TOKEN)))
-            .thenThrow(new FeignException.BadRequest("Request failed", "Request failed".getBytes()));
+            .thenThrow(new FeignException.BadRequest("Request failed", DUMMY_REQUEST, "Request failed".getBytes()));
 
         Map<String, Object> response = classToTest.execute(context, null);
 
