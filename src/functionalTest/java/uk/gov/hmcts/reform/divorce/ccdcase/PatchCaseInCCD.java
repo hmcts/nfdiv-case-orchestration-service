@@ -37,7 +37,7 @@ public class PatchCaseInCCD extends IntegrationTest {
     private String draftCaseContextPath;
 
     @Test
-    public void givenDivorceSession_whenDraftUpdateIsCalled_caseIdIsReturned() throws Exception {
+    public void givenDivorceSessionWithId_whenPatchIsCalled_caseIsUpdated() throws Exception {
         UserDetails citizenUser = createCitizenUser();
 
         final Response response = submitDraftCase(citizenUser, DRAFT_DIVORCE_SESSION_JSON_PATH);
@@ -54,7 +54,7 @@ public class PatchCaseInCCD extends IntegrationTest {
     }
 
     @Test
-    public void givenDivorceSessionWithNoId_whenDraftUpdateIsCalled_400ErrorIsReturned() throws Exception {
+    public void givenDivorceSessionWithNoId_whenPatchIsCalled_400ErrorIsReturned() throws Exception {
         UserDetails citizenUser = createCitizenUser();
 
         final Response response = submitDraftCase(citizenUser, DRAFT_DIVORCE_SESSION_JSON_PATH);
