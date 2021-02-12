@@ -62,4 +62,23 @@ public class RestUtil {
             .get(url)
             .andReturn();
     }
+
+    public static Response patchToRestService(String url, Map<String, Object> headers, String requestBody,
+                                              Map<String, Object> params) {
+        if (requestBody != null) {
+            return SerenityRest.given()
+                .headers(headers)
+                .queryParams(params)
+                .body(requestBody)
+                .when()
+                .patch(url)
+                .andReturn();
+        } else {
+            return SerenityRest.given()
+                .headers(headers)
+                .when()
+                .patch(url)
+                .andReturn();
+        }
+    }
 }
