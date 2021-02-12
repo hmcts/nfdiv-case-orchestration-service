@@ -2,14 +2,14 @@
 import uk.gov.hmcts.contino.AppPipelineDsl
 
 properties([
-        [$class: 'GithubProjectProperty', projectUrlStr: 'https://github.com/hmcts/div-case-orchestration-service.git'],
+        [$class: 'GithubProjectProperty', projectUrlStr: 'https://github.com/hmcts/nfdiv-case-orchestration-service.git'],
         pipelineTriggers([[$class: 'GitHubPushTrigger']])
 ])
 
 @Library("Infrastructure")
 
 def type = "java"
-def product = "div"
+def product = "nfdiv"
 def component = "cos"
 
 static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
@@ -22,10 +22,10 @@ static LinkedHashMap<String, Object> secret(String secretName, String envVar) {
 }
 
 def secrets = [
-        'div-${env}': [
-                secret("ccd-submission-s2s-auth-secret", "AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY"),
+        'nfdiv-${env}': [
+                secret("cms-service-key", "AUTH_PROVIDER_CCDSUBMISSION_CLIENT_KEY"),
                 secret("div-doc-s2s-auth-secret", "AUTH_PROVIDER_DOCUMENTGENERATOR_CLIENT_KEY"),
-                secret("frontend-secret", "SERVICE_AUTH_SECRET"),
+                secret("cos-service-key", "SERVICE_AUTH_SECRET"),
                 secret("idam-secret", "IDAM_CLIENT_SECRET"),
                 secret("idam-citizen-password", "IDAM_CITIZEN_PASSWORD"),
                 secret("idam-caseworker-password", "IDAM_CASEWORKER_PASSWORD")

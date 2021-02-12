@@ -34,7 +34,6 @@ import uk.gov.hmcts.reform.divorce.orchestration.workflows.CleanStatusCallbackWo
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.CreateNewAmendedCaseAndSubmitToCCDWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.DNSubmittedWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.DecreeNisiAboutToBeGrantedWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.DeleteDraftWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.DocumentGenerationWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.GenerateCoRespondentAnswersWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.GetCaseWithIdWorkflow;
@@ -52,8 +51,6 @@ import uk.gov.hmcts.reform.divorce.orchestration.workflows.RemoveLinkWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.RespondentSolicitorLinkCaseWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.RespondentSolicitorNominatedWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.RetrieveAosCaseWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.RetrieveDraftWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SaveDraftWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SendClarificationSubmittedNotificationWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SendCoRespondSubmissionNotificationWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SendPetitionerClarificationRequestNotificationWorkflow;
@@ -104,7 +101,6 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -120,6 +116,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_COURT;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_DECREE_ABSOLUTE_GRANTED_DATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_EVENT_ID;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ID_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_PAYLOAD_TO_RETURN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_PETITIONER_FIRST_NAME;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_PETITIONER_LAST_NAME;
@@ -164,15 +161,6 @@ public class CaseOrchestrationServiceImplTest {
 
     @Mock
     private IssueEventWorkflow issueEventWorkflow;
-
-    @Mock
-    private RetrieveDraftWorkflow retrieveDraftWorkflow;
-
-    @Mock
-    private SaveDraftWorkflow saveDraftWorkflow;
-
-    @Mock
-    private DeleteDraftWorkflow deleteDraftWorkflow;
 
     @Mock
     private AuthenticateRespondentWorkflow authenticateRespondentWorkflow;
@@ -381,15 +369,6 @@ public class CaseOrchestrationServiceImplTest {
         assertEquals(TEST_PIN, actual.get(RESPONDENT_PIN));
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void givenDraftInWorkflowResponse_whenGetDraft_thenReturnPayloadFromWorkflow() throws WorkflowException {
-        Map<String, Object> testExpectedPayload = mock(Map.class);
-
-        when(retrieveDraftWorkflow.run(AUTH_TOKEN)).thenReturn(testExpectedPayload);
-        assertEquals(testExpectedPayload, classUnderTest.getDraft(AUTH_TOKEN));
-    }
-
     @Test
     public void whenRetrieveAosCase_thenProceedAsExpected() throws WorkflowException {
         when(retrieveAosCaseWorkflow.run(AUTH_TOKEN)).thenReturn(TEST_PAYLOAD_TO_RETURN);
@@ -422,62 +401,18 @@ public class CaseOrchestrationServiceImplTest {
         verify(getCaseWorkflow).run(AUTH_TOKEN);
     }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    public void whenSaveDraft_thenReturnPayloadFromWorkflow() throws WorkflowException {
-        Map<String, Object> payload = mock(Map.class);
-        Map<String, Object> testExpectedPayload = mock(Map.class);
-
-        when(saveDraftWorkflow.run(payload, AUTH_TOKEN, Boolean.TRUE.toString())).thenReturn(testExpectedPayload);
-        assertEquals(testExpectedPayload, classUnderTest.saveDraft(payload, AUTH_TOKEN, Boolean.TRUE.toString()));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void givenErrorOnDraftWorkflow_whenSaveDraft_thenReturnErrors() throws WorkflowException {
-        Map<String, Object> expectedErrors = mock(Map.class);
-        Map<String, Object> payload = mock(Map.class);
-        Map<String, Object> workflowResponsePayload = mock(Map.class);
-
-        when(saveDraftWorkflow.run(payload, AUTH_TOKEN, Boolean.TRUE.toString())).thenReturn(workflowResponsePayload);
-        when(saveDraftWorkflow.errors()).thenReturn(expectedErrors);
-
-        assertEquals(expectedErrors, classUnderTest.saveDraft(payload, AUTH_TOKEN, Boolean.TRUE.toString()));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void givenUserWithADraft_whenDeleteDraft_thenReturnPayloadFromWorkflow() throws WorkflowException {
-        Map<String, Object> testExpectedPayload = mock(Map.class);
-        when(deleteDraftWorkflow.run(AUTH_TOKEN)).thenReturn(testExpectedPayload);
-        assertEquals(testExpectedPayload, classUnderTest.deleteDraft(AUTH_TOKEN));
-    }
-
-    @SuppressWarnings("unchecked")
-    @Test
-    public void givenErrorOnDraftWorkflow_whenDeleteDraft_thenReturnErrors() throws WorkflowException {
-        Map<String, Object> expectedErrors = mock(Map.class);
-        Map<String, Object> workflowResponsePayload = mock(Map.class);
-
-        when(deleteDraftWorkflow.run(AUTH_TOKEN)).thenReturn(workflowResponsePayload);
-        when(deleteDraftWorkflow.errors()).thenReturn(expectedErrors);
-
-        assertEquals(expectedErrors, classUnderTest.deleteDraft(AUTH_TOKEN));
-    }
-
-
     @SuppressWarnings("ConstantConditions")
     @Test
     public void whenAuthenticateRespondent_thenProceedAsExpected() throws WorkflowException {
         final Boolean expected = true;
 
-        when(authenticateRespondentWorkflow.run(AUTH_TOKEN)).thenReturn(expected);
+        when(authenticateRespondentWorkflow.run(AUTH_TOKEN, TEST_ID_TOKEN)).thenReturn(expected);
 
-        Boolean actual = classUnderTest.authenticateRespondent(AUTH_TOKEN);
+        Boolean actual = classUnderTest.authenticateRespondent(AUTH_TOKEN, TEST_ID_TOKEN);
 
         assertEquals(expected, actual);
 
-        verify(authenticateRespondentWorkflow).run(AUTH_TOKEN);
+        verify(authenticateRespondentWorkflow).run(AUTH_TOKEN, TEST_ID_TOKEN);
     }
 
     @Test
@@ -490,7 +425,6 @@ public class CaseOrchestrationServiceImplTest {
 
         Map<String, Object> actual = classUnderTest.submit(requestPayload, AUTH_TOKEN);
 
-        assertThat(actual.get("returnedKey"), is("returnedValue"));
         assertThat(actual.get("returnedKey"), is("returnedValue"));
 
         verify(submitToCCDWorkflow).run(requestPayload, AUTH_TOKEN);

@@ -22,7 +22,7 @@ public interface CaseOrchestrationService {
     Map<String, Object> ccdCallbackBulkPrintHandler(CcdCallbackRequest ccdCallbackRequest, String authToken)
         throws WorkflowException;
 
-    Boolean authenticateRespondent(String authToken) throws WorkflowException;
+    Boolean authenticateRespondent(String authToken, String idToken) throws WorkflowException;
 
     Map<String, Object> submit(Map<String, Object> divorceSession, String authToken) throws WorkflowException;
 
@@ -39,14 +39,6 @@ public interface CaseOrchestrationService {
         throws WorkflowException;
 
     CcdCallbackResponse aosReceived(CcdCallbackRequest ccdCallbackRequest, String authToken) throws WorkflowException;
-
-    Map<String, Object> getDraft(String authToken) throws WorkflowException;
-
-    Map<String, Object> saveDraft(Map<String, Object> payLoad,
-                                  String authorizationToken,
-                                  String sendEmail) throws WorkflowException;
-
-    Map<String, Object> deleteDraft(String authorizationToken) throws WorkflowException;
 
     Map<String, Object> sendPetitionerSubmissionNotificationEmail(CcdCallbackRequest ccdCallbackRequest) throws CaseOrchestrationServiceException;
 

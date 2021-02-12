@@ -14,12 +14,14 @@ public class OrchestrationConstants {
     // Authentication
     public static final String ACCESS_CODE = "access_code";
     public static final String AUTH_TOKEN_JSON_KEY = "authToken";
+    public static final String ID_TOKEN_JSON_KEY = "idToken";
     public static final String GRANT_TYPE = "authorization_code";
     public static final String BASIC = "Basic ";
     public static final String CODE = "code";
     public static final String LOCATION_HEADER = "Location";
     public static final String SERVICE_AUTHORIZATION_HEADER = "ServiceAuthorization";
     public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String ID_TOKEN_HEADER = "IdToken";
 
     //Issue Petition
     public static final String GENERATE_AOS_INVITATION = "generateAosInvitation";
@@ -408,6 +410,6 @@ public class OrchestrationConstants {
     public static final String TEMPLATE_MONTHS = "months";
 
     // Bulk Scan
-    public static final String CASE_TYPE_ID = "DIVORCE";
+    public static final String CASE_TYPE_ID = "NO_FAULT_DIVORCE";
 
 }

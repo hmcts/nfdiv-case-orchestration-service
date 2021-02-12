@@ -78,6 +78,7 @@ public class TestConstants {
     public static final String TEST_TOKEN = "test.token";
     public static final String TEST_EVENT_ID = "test.event.id";
     public static final String AUTH_TOKEN = "test.auth.token";
+    public static final String TEST_ID_TOKEN = "test.id.token";
     public static final String BEARER_AUTH_TOKEN = "Bearer test.auth.token";
     public static final String CASEWORKER_AUTH_TOKEN = "caseworker.auth.token";
     public static final String AUTH_TOKEN_1 = "test.auth.token1";
