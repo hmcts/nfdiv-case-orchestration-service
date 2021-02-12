@@ -1,11 +1,16 @@
 package uk.gov.hmcts.reform.divorce.orchestration.service.impl;
 
+import feign.FeignException;
+import feign.Request;
+import feign.RequestTemplate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.hmcts.reform.divorce.orchestration.client.CaseMaintenanceClient;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackRequest;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.PatchCaseInCCDWorkflow;
@@ -19,15 +24,18 @@ import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_ID;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_COURT;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_EVENT_ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_PIN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_STATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_TOKEN;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.D_8_DIVORCE_UNIT;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.RESPONDENT_PIN;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -38,6 +46,9 @@ public class CaseServiceImplTest {
 
     @Mock
     private PatchCaseInCCDWorkflow updateDraftCaeInCCDWorkflow;
+
+    @Mock
+    private CaseMaintenanceClient caseMaintenanceClient;
 
     @InjectMocks
     private CaseServiceImpl caseService;
@@ -119,5 +130,41 @@ public class CaseServiceImplTest {
 
         verify(updateDraftCaeInCCDWorkflow).run(requestPayload, AUTH_TOKEN);
         verify(updateDraftCaeInCCDWorkflow, times(2)).errors();
+    }
+
+    @Test
+    public void whenGetCase_thenProceedAsExpected() {
+        final Map<String, Object> caseData = singletonMap(D_8_DIVORCE_UNIT, TEST_COURT);
+        final CaseDetails cmsResponse =
+            CaseDetails.builder()
+                .caseData(caseData)
+                .caseId(TEST_CASE_ID)
+                .state(TEST_STATE)
+                .build();
+
+        when(caseMaintenanceClient.getCaseFromCcd(AUTH_TOKEN)).thenReturn(cmsResponse);
+
+        CaseDataResponse actualResponse = caseService.getCase(AUTH_TOKEN);
+
+        assertThat(actualResponse.getData(), is(caseData));
+        assertThat(actualResponse.getCaseId(), is(TEST_CASE_ID));
+        assertThat(actualResponse.getState(), is(TEST_STATE));
+        assertThat(actualResponse.getCourt(), is(TEST_COURT));
+
+        verify(caseMaintenanceClient).getCaseFromCcd(AUTH_TOKEN);
+    }
+
+    @Test
+    public void givenNoCaseExists_whenGetCase_thenReturnThrowException() {
+        Request request = Request.create(Request.HttpMethod.GET, "url",
+            new HashMap<>(), null, new RequestTemplate());
+
+        when(caseMaintenanceClient.getCaseFromCcd(AUTH_TOKEN)).thenThrow(new FeignException.NotFound("", request, null));
+
+        FeignException feignException = assertThrows(FeignException.class, () -> caseService.getCase(AUTH_TOKEN));
+
+        assertThat(feignException.status(), is(404));
+
+        verify(caseMaintenanceClient).getCaseFromCcd(AUTH_TOKEN);
     }
 }
