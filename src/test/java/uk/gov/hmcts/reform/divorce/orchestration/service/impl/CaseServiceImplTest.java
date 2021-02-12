@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.divorce.orchestration.service.impl;
 
+import feign.FeignException;
+import feign.Request;
+import feign.RequestTemplate;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,7 +13,6 @@ import uk.gov.hmcts.reform.divorce.orchestration.client.CaseMaintenanceClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackRequest;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.PatchCaseInCCDWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDraftCaseToCCDWorkflow;
 
@@ -131,7 +133,7 @@ public class CaseServiceImplTest {
     }
 
     @Test
-    public void whenGetCase_thenProceedAsExpected() throws CaseNotFoundException {
+    public void whenGetCase_thenProceedAsExpected() {
         final Map<String, Object> caseData = singletonMap(D_8_DIVORCE_UNIT, TEST_COURT);
         final CaseDetails cmsResponse =
             CaseDetails.builder()
@@ -154,9 +156,14 @@ public class CaseServiceImplTest {
 
     @Test
     public void givenNoCaseExists_whenGetCase_thenReturnThrowException() {
-        when(caseMaintenanceClient.getCaseFromCcd(AUTH_TOKEN)).thenReturn(null);
+        Request request = Request.create(Request.HttpMethod.GET, "url",
+            new HashMap<>(), null, new RequestTemplate());
 
-        assertThrows(CaseNotFoundException.class, () -> caseService.getCase(AUTH_TOKEN));
+        when(caseMaintenanceClient.getCaseFromCcd(AUTH_TOKEN)).thenThrow(new FeignException.NotFound("", request, null));
+
+        FeignException feignException = assertThrows(FeignException.class, () -> caseService.getCase(AUTH_TOKEN));
+
+        assertThat(feignException.status(), is(404));
 
         verify(caseMaintenanceClient).getCaseFromCcd(AUTH_TOKEN);
     }

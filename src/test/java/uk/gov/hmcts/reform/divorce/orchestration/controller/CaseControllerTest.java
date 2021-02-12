@@ -1,5 +1,8 @@
 package uk.gov.hmcts.reform.divorce.orchestration.controller;
 
+import feign.FeignException;
+import feign.Request;
+import feign.RequestTemplate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -19,9 +22,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -117,10 +122,17 @@ public class CaseControllerTest {
         verify(caseService).getCase(AUTH_TOKEN);
     }
 
-    @Test(expected = CaseNotFoundException.class)
-    public void givenThrowsCaseNotFoundException_whenGetCase_thenReturnExpectedResponse() throws CaseNotFoundException {
-        when(caseService.getCase(AUTH_TOKEN)).thenThrow(new CaseNotFoundException("Case not found"));
+    @Test
+    public void givenThrowsFeignNotFoundException_whenGetCase_thenReturnExpectedResponse() {
+        Request request = Request.create(Request.HttpMethod.GET, "url",
+            new HashMap<>(), null, new RequestTemplate());
 
-        classUnderTest.retrieveCase(AUTH_TOKEN);
+        when(caseService.getCase(AUTH_TOKEN)).thenThrow(new FeignException.NotFound("", request, null));
+
+        FeignException feignException = assertThrows(FeignException.class, () -> classUnderTest.retrieveCase(AUTH_TOKEN));
+
+        assertThat(feignException.status(), is(404));
+
+        verify(caseService).getCase(AUTH_TOKEN);
     }
 }

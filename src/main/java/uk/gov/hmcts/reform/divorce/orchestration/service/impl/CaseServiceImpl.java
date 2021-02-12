@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CaseMaintenanceClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.PatchCaseInCCDWorkflow;
@@ -61,12 +60,8 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public CaseDataResponse getCase(String authorizationToken) throws CaseNotFoundException {
+    public CaseDataResponse getCase(String authorizationToken) {
         CaseDetails caseDetails = caseMaintenanceClient.getCaseFromCcd(authorizationToken);
-
-        if (caseDetails == null) {
-            throw new CaseNotFoundException("No case found");
-        }
 
         log.info("Successfully retrieved case with id {} and state {}", caseDetails.getCaseId(), caseDetails.getState());
 

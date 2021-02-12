@@ -74,7 +74,7 @@ public class GetCaseITest extends IdamTestSupport {
 
     @Test
     public void givenNoCaseExists_whenGetCase_thenReturnEmptyResponse() throws Exception {
-        stubGetCaseFromCMS(null);
+        stubGetCaseFromCMS(HttpStatus.NOT_FOUND, TEST_ERROR);
 
         webClient.perform(get(GET_CASE_CONTEXT_PATH)
             .header(AUTHORIZATION, AUTH_TOKEN)

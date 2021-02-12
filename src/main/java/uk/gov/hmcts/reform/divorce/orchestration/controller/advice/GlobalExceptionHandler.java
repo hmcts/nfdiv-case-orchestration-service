@@ -59,13 +59,6 @@ class GlobalExceptionHandler {
             );
     }
 
-    @ExceptionHandler(CaseNotFoundException.class)
-    ResponseEntity<Object> handleCaseNotFoundException(CaseNotFoundException exception) {
-        log.warn(exception.getMessage(), exception);
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
-    }
-
     private ResponseEntity<Object> handleTaskException(TaskException taskException) {
         ResponseEntity<Object> responseEntity;
 
