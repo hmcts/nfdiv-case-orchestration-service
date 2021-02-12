@@ -1,7 +1,9 @@
 package uk.gov.hmcts.reform.divorce.dataextraction;
 
 import com.dumbster.smtp.SimpleSmtpServer;
+import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -14,6 +16,7 @@ import java.io.IOException;
 
 import static java.util.Collections.emptyMap;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
@@ -27,6 +30,7 @@ public class FamilyManDataExtractionIT extends RetrieveCaseSupport {
 
     private static final int LOCAL_SMTP_SERVER_PORT = 32773;
     private static final String LOCAL_ENVIRONMENT_NAME = "local";
+    private static final String LOCAL_DOCKER_ENVIRONMENT_NAME = "local-docker";
 
     private static SimpleSmtpServer simpleSmtpServer;
 
@@ -90,6 +94,10 @@ public class FamilyManDataExtractionIT extends RetrieveCaseSupport {
         return LOCAL_ENVIRONMENT_NAME.equalsIgnoreCase(environment);
     }
 
+    private boolean isTestRunningLocallyWithDocker() {
+        return LOCAL_DOCKER_ENVIRONMENT_NAME.equalsIgnoreCase(environment);
+    }
+
     private static void setUpLocalEmailServer() throws IOException {
         if (simpleSmtpServer == null) {
             simpleSmtpServer = SimpleSmtpServer.start(LOCAL_SMTP_SERVER_PORT);
@@ -100,7 +108,14 @@ public class FamilyManDataExtractionIT extends RetrieveCaseSupport {
         if (isTestRunningLocally()) {
             assertThat(simpleSmtpServer.getReceivedEmails(), hasSize(greaterThan(0)));
             simpleSmtpServer.reset();
+        } else if (isTestRunningLocallyWithDocker()) {
+            ValidatableResponse validatableResponse = RestAssured.given()
+                .when()
+                .get("http://localhost:8025/api/v1/messages") // Mailhog HTTP port=8025
+                .then();
+
+            validatableResponse.assertThat().body("Content.Body", notNullValue());
+            validatableResponse.assertThat().body("Content.Headers.Subject", notNullValue());
         }
     }
-
 }
