@@ -1,11 +1,11 @@
-package uk.gov.hmcts.reform.divorce.orchestration.tasks.draftcase;
+package uk.gov.hmcts.reform.divorce.orchestration.tasks.ccdcase;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.divorce.orchestration.client.CaseMaintenanceClient;
+import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
 
@@ -22,7 +22,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 public class SubmitDraftCaseToCcdTest {
 
     @Mock
-    private CaseMaintenanceClient caseMaintenanceClient;
+    private CMSClient caseMaintenanceServiceClient;
 
     @InjectMocks
     private SubmitDraftCaseToCcd submitDraftCaseToCcd;
@@ -36,10 +36,10 @@ public class SubmitDraftCaseToCcdTest {
 
         Map<String, Object> resultData = Collections.singletonMap("Hello", "World");
 
-        when(caseMaintenanceClient.submitDraftCase(testData, AUTH_TOKEN)).thenReturn(resultData);
+        when(caseMaintenanceServiceClient.submitDraftCase(testData, AUTH_TOKEN)).thenReturn(resultData);
 
         assertEquals(resultData, submitDraftCaseToCcd.execute(context, testData));
 
-        verify(caseMaintenanceClient).submitDraftCase(testData, AUTH_TOKEN);
+        verify(caseMaintenanceServiceClient).submitDraftCase(testData, AUTH_TOKEN);
     }
 }

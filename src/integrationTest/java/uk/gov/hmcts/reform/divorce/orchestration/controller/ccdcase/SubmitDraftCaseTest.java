@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.orchestration.controller.draftcase;
+package uk.gov.hmcts.reform.divorce.orchestration.controller.ccdcase;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;

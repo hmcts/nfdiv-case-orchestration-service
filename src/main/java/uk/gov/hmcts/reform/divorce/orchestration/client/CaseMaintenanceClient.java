@@ -43,14 +43,6 @@ public interface CaseMaintenanceClient {
         @PathVariable("caseId") String caseId
     );
 
-    @ApiOperation("Submit Draft Case")
-    @PostMapping(value = "/case",
-        headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)
-    Map<String, Object> submitDraftCase(
-        @RequestBody Map<String, Object> draftCase,
-        @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken
-    );
-
     @ApiOperation("Submit Case")
     @PostMapping(value = "/casemaintenance/version/1/submit",
         headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE)

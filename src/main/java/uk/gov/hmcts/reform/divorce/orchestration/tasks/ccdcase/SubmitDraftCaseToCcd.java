@@ -1,8 +1,8 @@
-package uk.gov.hmcts.reform.divorce.orchestration.tasks.draftcase;
+package uk.gov.hmcts.reform.divorce.orchestration.tasks.ccdcase;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.divorce.orchestration.client.CaseMaintenanceClient;
+import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
 
@@ -13,16 +13,16 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 @Component
 public class SubmitDraftCaseToCcd implements Task<Map<String, Object>> {
 
-    private final CaseMaintenanceClient caseMaintenanceClient;
+    private final CMSClient caseMaintenanceServiceClient;
 
     @Autowired
-    public SubmitDraftCaseToCcd(CaseMaintenanceClient caseMaintenanceClient) {
-        this.caseMaintenanceClient = caseMaintenanceClient;
+    public SubmitDraftCaseToCcd(CMSClient caseMaintenanceServiceClient) {
+        this.caseMaintenanceServiceClient = caseMaintenanceServiceClient;
     }
 
     @Override
     public Map<String, Object> execute(TaskContext context, Map<String, Object> caseData) {
-        return caseMaintenanceClient.submitDraftCase(
+        return caseMaintenanceServiceClient.submitDraftCase(
             caseData,
             context.getTransientObject(AUTH_TOKEN_JSON_KEY).toString()
         );
