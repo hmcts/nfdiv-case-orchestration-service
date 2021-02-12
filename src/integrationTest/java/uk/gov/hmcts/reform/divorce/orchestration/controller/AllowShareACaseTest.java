@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.orchestration.functionaltest;
+package uk.gov.hmcts.reform.divorce.orchestration.controller;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
