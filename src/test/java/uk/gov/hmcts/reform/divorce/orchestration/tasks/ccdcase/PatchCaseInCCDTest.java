@@ -28,7 +28,7 @@ public class PatchCaseInCCDTest {
     private CMSClient caseMaintenanceServiceClient;
 
     @InjectMocks
-    private uk.gov.hmcts.reform.divorce.orchestration.tasks.ccdcase.PatchCaseInCCD patchCaseInCCD;
+    private PatchCaseInCCD patchCaseInCCD;
 
     @Test
     public void executeShouldCallCaseMaintenanceClientUpdateEndpoint() {
