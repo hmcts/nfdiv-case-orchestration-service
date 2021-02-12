@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.maintenance;
+package uk.gov.hmcts.reform.divorce.ccdcase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.response.Response;
@@ -30,7 +30,7 @@ public class GetCaseFromCcdTest extends CcdSubmissionSupport {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Value("${case.orchestration.maintenance.get-case.context-path}")
+    @Value("${case.orchestration.maintenance.case.context-path}")
     private String getCaseContextPath;
 
     @Test
