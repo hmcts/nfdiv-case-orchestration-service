@@ -3,13 +3,11 @@ package uk.gov.hmcts.reform.divorce.ccdcase;
 import io.restassured.response.Response;
 import org.apache.http.entity.ContentType;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import uk.gov.hmcts.reform.divorce.context.IntegrationTest;
 import uk.gov.hmcts.reform.divorce.model.idam.UserDetails;
-import uk.gov.hmcts.reform.divorce.support.CcdClientSupport;
 import uk.gov.hmcts.reform.divorce.util.ResourceLoader;
 import uk.gov.hmcts.reform.divorce.util.RestUtil;
 
@@ -23,15 +21,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpStatus.OK;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_ID_JSON_KEY;
 
-public class PatchCaseInCCD extends IntegrationTest {
+public class PatchCaseInCCDTest extends IntegrationTest {
 
     private static final String PAYLOAD_CONTEXT_PATH = "fixtures/maintenance/patch/";
     private static final String DRAFT_DIVORCE_SESSION_JSON_PATH = "initial-submit.json";
     private static final String PATCH_DIVORCE_SESSION_JSON_PATH = "patch.json";
     private static final String PATCH_DIVORCE_SESSION_JSON_PATH_NO_ID = "patch-no-id.json";
-
-    @Autowired
-    private CcdClientSupport ccdClientSupport;
 
     @Value("${case.orchestration.maintenance.case.context-path}")
     private String draftCaseContextPath;
@@ -46,9 +41,9 @@ public class PatchCaseInCCD extends IntegrationTest {
 
         final String patchWithIdJson =
             ResourceLoader.loadJson(PAYLOAD_CONTEXT_PATH + PATCH_DIVORCE_SESSION_JSON_PATH)
-            .replace("caseId", caseId);
+                .replace("caseId", caseId);
 
-        final Response patchResponse = patchCase(citizenUser,  patchWithIdJson);
+        final Response patchResponse = patchCase(citizenUser, patchWithIdJson);
 
         assertEquals(HttpStatus.OK.value(), patchResponse.getStatusCode());
     }
@@ -63,7 +58,7 @@ public class PatchCaseInCCD extends IntegrationTest {
         final String patchWithOutIdJson =
             ResourceLoader.loadJson(PAYLOAD_CONTEXT_PATH + PATCH_DIVORCE_SESSION_JSON_PATH_NO_ID);
 
-        final Response patchResponse = patchCase(citizenUser,  patchWithOutIdJson);
+        final Response patchResponse = patchCase(citizenUser, patchWithOutIdJson);
 
         assertEquals(400, patchResponse.getStatusCode());
     }

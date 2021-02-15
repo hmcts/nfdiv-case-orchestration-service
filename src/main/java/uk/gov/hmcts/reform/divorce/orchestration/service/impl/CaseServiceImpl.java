@@ -2,14 +2,12 @@ package uk.gov.hmcts.reform.divorce.orchestration.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.divorce.orchestration.client.CaseMaintenanceClient;
+import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
-import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.PatchCaseInCCDWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDraftCaseToCCDWorkflow;
 
 import java.util.Map;
 
@@ -21,51 +19,36 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 @RequiredArgsConstructor
 public class CaseServiceImpl implements CaseService {
 
-    private final SubmitDraftCaseToCCDWorkflow submitDraftCaseToCCDWorkflow;
-    private final PatchCaseInCCDWorkflow patchCaseInCCDWorkflow;
-
-    private final CaseMaintenanceClient caseMaintenanceClient;
+    @Autowired
+    private final CMSClient cmsClient;
 
     @Override
-    public Map<String, Object> submitDraftCase(
-        Map<String, Object> divorceSession,
-        String authToken
-    ) throws WorkflowException {
-        Map<String, Object> payload = submitDraftCaseToCCDWorkflow.run(divorceSession, authToken);
+    public Map<String, Object> submitDraftCase(final Map<String, Object> caseData, final String authToken) {
 
-        if (submitDraftCaseToCCDWorkflow.errors().isEmpty()) {
-            log.info("Case with CASE ID: {} submitted", payload.get(ID));
-            return payload;
-        } else {
-            log.info("Case with CASE ID: {} submit failed", payload.get(ID));
-            return submitDraftCaseToCCDWorkflow.errors();
-        }
+        final Map<String, Object> payload = cmsClient.submitDraftCase(caseData, authToken);
+
+        log.info("Case with CASE ID: {} submitted", payload.get(ID));
+
+        return payload;
     }
 
     @Override
-    public Map<String, Object> patchCase(
-        Map<String, Object> divorceSession,
-        String authToken
-    ) throws WorkflowException {
-        Map<String, Object> payload = patchCaseInCCDWorkflow.run(divorceSession, authToken);
+    public Map<String, Object> patchCase(final Map<String, Object> caseData, final String authToken) {
 
-        if (patchCaseInCCDWorkflow.errors().isEmpty()) {
-            log.info("Updated case with CASE ID: {}", payload.get(ID));
-            return payload;
-        } else {
-            log.info("Case with CASE ID: {} update failed", payload.get(ID));
-            return patchCaseInCCDWorkflow.errors();
-        }
+        final Map<String, Object> payload = cmsClient.patchCase(caseData, authToken);
 
+        log.info("Updated case with CASE ID: {}", payload.get(ID));
+
+        return payload;
     }
 
     @Override
-    public CaseDataResponse getCase(String authorizationToken) {
-        CaseDetails caseDetails = caseMaintenanceClient.getCaseFromCcd(authorizationToken);
+    public CaseDataResponse getCase(final String authorizationToken) {
+        final CaseDetails caseDetails = cmsClient.getCaseFromCcd(authorizationToken);
 
         log.info("Successfully retrieved case with id {} and state {}", caseDetails.getCaseId(), caseDetails.getState());
 
-        Map<String, Object> caseData = caseDetails.getCaseData();
+        final Map<String, Object> caseData = caseDetails.getCaseData();
 
         return CaseDataResponse.builder()
             .caseId(caseDetails.getCaseId())

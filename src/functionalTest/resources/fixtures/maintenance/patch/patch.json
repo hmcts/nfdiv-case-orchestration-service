@@ -1,6 +1,4 @@
 {
-  "eventData" : {
-    "divorceOrDissolution": "dissolution",
-    "id": "caseId"
-  }
+  "divorceOrDissolution": "dissolution",
+  "id": "caseId"
 }
