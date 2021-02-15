@@ -1,11 +1,9 @@
 package uk.gov.hmcts.reform.divorce.ccdcase;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.http.entity.ContentType;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,9 +24,6 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.courts.CourtConstants.SELECTED_COURT_KEY;
 
 public class GetCaseFromCcdTest extends CcdSubmissionSupport {
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @Value("${case.orchestration.maintenance.case.context-path}")
     private String getCaseContextPath;

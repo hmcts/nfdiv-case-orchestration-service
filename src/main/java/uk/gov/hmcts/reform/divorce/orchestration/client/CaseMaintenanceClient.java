@@ -101,11 +101,6 @@ public interface CaseMaintenanceClient {
     CaseDetails getCase(
         @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken);
 
-    @ApiOperation("Get Case from Ccd without any role or state filtering")
-    @GetMapping(value = "/case")
-    CaseDetails getCaseFromCcd(
-        @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken);
-
     @ApiOperation("Retrieve Petition by ID")
     @GetMapping(value = "/casemaintenance/version/1/case/{caseId}")
     CaseDetails retrievePetitionById(

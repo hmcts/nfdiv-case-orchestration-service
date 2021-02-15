@@ -21,7 +21,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNot.not;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_ID_JSON_KEY;
 
-public class PostCaseToCCD extends RetrieveCaseSupport {
+public class PostCaseToCCDTest extends RetrieveCaseSupport {
 
     private static final String PAYLOAD_CONTEXT_PATH = "fixtures/maintenance/submit/";
     private static final String DRAFT_DIVORCE_SESSION_JSON_PATH = "draft-divorce-session.json";
