@@ -271,6 +271,7 @@ dependencies {
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-quartz'
     implementation group: 'org.springframework.boot', name: 'spring-boot-starter-web'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: versions.springBoot
     implementation group: 'org.springframework.retry', name: 'spring-retry'
     implementation group: 'uk.gov.hmcts.reform', name: 'bsp-common-lib', version: versions.bspCommonLib
     implementation group: 'uk.gov.hmcts.reform', name: 'nfdiv-common-lib', version: versions.divCommonLib
@@ -392,6 +393,8 @@ bootRun {
             systemProperty 'DOCUMENT_GENERATOR_SERVICE_API_BASEURL', 'http://div-dgs-aat.service.core-compute-aat.internal'
             systemProperty 'FEES_AND_PAYMENTS_SERVICE_API_BASEURL', 'http://div-fps-aat.service.core-compute-aat.internal'
             systemProperty 'DOCUMENT_MANAGEMENT_STORE_URL', 'http://dm-store-aat.service.core-compute-aat.internal'
+            systemProperty 'ACA_SERVICE_API_BASEURL', 'http://aac-manage-case-assignment-aat.service.core-compute-aat.internal'
+            systemProperty 'CCD_DATA_STORE_API_BASEURL', 'http://ccd-data-store-api-aat.service.core-compute-aat.internal'
 
             systemProperty 'nfdiv.cos-service-key', getVaultSecret('cos-service-key')
             systemProperty 'nfdiv.idam-secret', getVaultSecret('idam-secret')

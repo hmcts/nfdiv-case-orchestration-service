@@ -16,6 +16,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowExce
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseOrchestrationService;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseOrchestrationServiceException;
 import uk.gov.hmcts.reform.divorce.orchestration.util.AuthUtil;
+import uk.gov.hmcts.reform.divorce.orchestration.workflows.AllowShareACaseWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.AmendPetitionForRefusalWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.AmendPetitionWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.AuthenticateRespondentWorkflow;
@@ -122,6 +123,7 @@ public class CaseOrchestrationServiceImpl implements CaseOrchestrationService {
     private final SetOrderSummaryWorkflow setOrderSummaryWorkflow;
     private final SolicitorSubmissionWorkflow solicitorSubmissionWorkflow;
     private final SolicitorCreateWorkflow solicitorCreateWorkflow;
+    private final AllowShareACaseWorkflow allowShareACaseWorkflow;
     private final SolicitorUpdateWorkflow solicitorUpdateWorkflow;
     private final SendPetitionerSubmissionNotificationWorkflow sendPetitionerSubmissionNotificationWorkflow;
     private final SendPetitionerEmailNotificationWorkflow sendPetitionerEmailNotificationWorkflow;
@@ -487,8 +489,18 @@ public class CaseOrchestrationServiceImpl implements CaseOrchestrationService {
 
     @Override
     public Map<String, Object> solicitorCreate(CcdCallbackRequest ccdCallbackRequest, String authorizationToken)
+        throws CaseOrchestrationServiceException {
+        try {
+            return solicitorCreateWorkflow.run(ccdCallbackRequest.getCaseDetails(), authorizationToken);
+        } catch (WorkflowException e) {
+            throw new CaseOrchestrationServiceException(e);
+        }
+    }
+
+    @Override
+    public Map<String, Object> allowShareACase(CcdCallbackRequest ccdCallbackRequest, String authorizationToken)
         throws WorkflowException {
-        return solicitorCreateWorkflow.run(ccdCallbackRequest.getCaseDetails(), authorizationToken);
+        return allowShareACaseWorkflow.run(ccdCallbackRequest.getCaseDetails(), authorizationToken);
     }
 
     @Override

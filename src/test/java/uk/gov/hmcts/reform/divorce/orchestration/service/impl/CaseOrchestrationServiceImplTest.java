@@ -15,6 +15,8 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConst
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackRequest;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.Organisation;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.OrganisationPolicy;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.payment.Fee;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.payment.PaymentUpdate;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
@@ -91,6 +93,7 @@ import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.junit.Assert.assertEquals;
@@ -121,9 +124,11 @@ import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_PIN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_PRONOUNCEMENT_JUDGE;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_RESPONDENT_FIRST_NAME;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_RESPONDENT_LAST_NAME;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_SOLICITOR_REFERENCE;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_STATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.controller.util.CallbackControllerTestUtils.assertCaseOrchestrationServiceExceptionIsSetProperly;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.CcdFields.PETITIONER_SOLICITOR_ORGANISATION_POLICY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.CcdStates.AWAITING_PAYMENT;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.BULK_LISTING_CASE_ID_FIELD;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.COSTS_ORDER_DOCUMENT_TYPE;
@@ -143,7 +148,9 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.RESPONDENT_PIN;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.RESP_FIRST_NAME_CCD_FIELD;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.RESP_LAST_NAME_CCD_FIELD;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SOLICITOR_REFERENCE_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.YES_VALUE;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseRoles.PETITIONER_SOLICITOR;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.courts.CourtConstants.ALLOCATED_COURT_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.document.template.DocumentType.CASE_LIST_FOR_PRONOUNCEMENT;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.document.template.DocumentType.COSTS_ORDER;
@@ -338,16 +345,7 @@ public class CaseOrchestrationServiceImplTest {
     @Before
     public void setUp() {
         requestPayload = singletonMap("requestPayloadKey", "requestPayloadValue");
-        ccdCallbackRequest = CcdCallbackRequest.builder()
-            .caseDetails(
-                CaseDetails.builder()
-                    .caseData(requestPayload)
-                    .caseId(TEST_CASE_ID)
-                    .state(TEST_STATE)
-                    .build())
-            .eventId(TEST_EVENT_ID)
-            .token(TEST_TOKEN)
-            .build();
+        ccdCallbackRequest = buildCcdCallbackRequest(requestPayload);
         expectedPayload = Collections.singletonMap(RESPONDENT_PIN, TEST_PIN);
     }
 
@@ -716,14 +714,49 @@ public class CaseOrchestrationServiceImplTest {
 
     @Test
     public void givenCaseData_whenSolicitorCreate_thenReturnPayload() throws Exception {
+        Map<String, Object> requestPayload = singletonMap(SOLICITOR_REFERENCE_JSON_KEY, TEST_SOLICITOR_REFERENCE);
+        ccdCallbackRequest = buildCcdCallbackRequest(requestPayload);
         CaseDetails caseDetails = ccdCallbackRequest.getCaseDetails();
 
-        when(solicitorCreateWorkflow.run(caseDetails, AUTH_TOKEN))
-            .thenReturn(requestPayload);
+        when(solicitorCreateWorkflow.run(caseDetails, AUTH_TOKEN)).thenReturn(requestPayload);
 
         Map<String, Object> actual = classUnderTest.solicitorCreate(ccdCallbackRequest, AUTH_TOKEN);
 
-        assertEquals(caseDetails.getCaseData(), actual);
+        assertThat(caseDetails.getCaseData(), is(actual));
+
+        verify(solicitorCreateWorkflow).run(caseDetails, AUTH_TOKEN);
+    }
+
+    @Test
+    public void givenCaseData_whenSolicitorCreate_thenReturnWithMappedOrgPolicyReference() throws Exception {
+        requestPayload = buildCaseDataWithOrganisationPolicy();
+        ccdCallbackRequest = buildCcdCallbackRequest(requestPayload);
+        CaseDetails caseDetails = ccdCallbackRequest.getCaseDetails();
+
+        when(solicitorCreateWorkflow.run(caseDetails, AUTH_TOKEN)).thenReturn(requestPayload);
+
+        Map<String, Object> actual = classUnderTest.solicitorCreate(ccdCallbackRequest, AUTH_TOKEN);
+        OrganisationPolicy updatedOrganisationPolicy = (OrganisationPolicy) actual.get(PETITIONER_SOLICITOR_ORGANISATION_POLICY);
+
+        assertThat(caseDetails.getCaseData(), is(actual));
+        assertThat(updatedOrganisationPolicy.getOrgPolicyReference(), is(TEST_SOLICITOR_REFERENCE));
+
+        verify(solicitorCreateWorkflow).run(caseDetails, AUTH_TOKEN);
+    }
+
+
+    @Test
+    public void givenCaseData_whenSolicitorCreate_thenReturnCaseDataWhenNoSolicitorReference() throws Exception {
+        ccdCallbackRequest = buildCcdCallbackRequest(requestPayload);
+        CaseDetails caseDetails = ccdCallbackRequest.getCaseDetails();
+
+        when(solicitorCreateWorkflow.run(caseDetails, AUTH_TOKEN)).thenReturn(requestPayload);
+
+        Map<String, Object> actual = classUnderTest.solicitorCreate(ccdCallbackRequest, AUTH_TOKEN);
+        OrganisationPolicy updatedOrganisationPolicy = (OrganisationPolicy) actual.get(PETITIONER_SOLICITOR_ORGANISATION_POLICY);
+
+        assertThat(caseDetails.getCaseData(), is(actual));
+        assertThat(updatedOrganisationPolicy, is(nullValue()));
 
         verify(solicitorCreateWorkflow).run(caseDetails, AUTH_TOKEN);
     }
@@ -1370,16 +1403,10 @@ public class CaseOrchestrationServiceImplTest {
     @Test
     public void shouldCallRightWorkflow_WhenRemoveBulkLink() throws WorkflowException {
         Map<String, Object> caseData = DUMMY_CASE_DATA;
-        CcdCallbackRequest request = CcdCallbackRequest.builder()
-            .caseDetails(CaseDetails
-                .builder()
-                .caseData(caseData)
-                .caseId(TEST_CASE_ID)
-                .build()).build();
+        CcdCallbackRequest request = buildCcdCallbackRequest(caseData);
 
         when(removeLinkWorkflow.run(request.getCaseDetails().getCaseData())).thenReturn(caseData);
         classUnderTest.removeBulkLink(request);
-
 
         Map<String, Object> response = classUnderTest.removeBulkLink(request);
         assertThat(response, is(caseData));
@@ -1409,16 +1436,7 @@ public class CaseOrchestrationServiceImplTest {
 
     @Test
     public void givenBulkCaseWithJudge_whenEditBulkCase_thenReturnGenerateDocumentCalled_WithTemplateId() throws Exception {
-        ccdCallbackRequest = CcdCallbackRequest.builder()
-            .caseDetails(
-                CaseDetails.builder()
-                    .caseData(ImmutableMap.of(PRONOUNCEMENT_JUDGE_CCD_FIELD, "Judge"))
-                    .caseId(TEST_CASE_ID)
-                    .state(TEST_STATE)
-                    .build())
-            .eventId(TEST_EVENT_ID)
-            .token(TEST_TOKEN)
-            .build();
+        ccdCallbackRequest = buildCcdCallbackRequest(ImmutableMap.of(PRONOUNCEMENT_JUDGE_CCD_FIELD, "Judge"));
 
         when(validateBulkCaseListingWorkflow.run(ccdCallbackRequest.getCaseDetails().getCaseData())).thenReturn(expectedPayload);
         when((documentGenerationWorkflow).run(ccdCallbackRequest.getCaseDetails(), AUTH_TOKEN, DOCUMENT_TYPE, TEMPLATE_ID, DOCUMENT_TYPE, FILE_NAME))
@@ -1434,16 +1452,7 @@ public class CaseOrchestrationServiceImplTest {
 
     @Test
     public void givenBulkCaseWithJudge_whenEditBulkCase_thenReturnGenerateDocumentCalled_WithDocumentType() throws Exception {
-        ccdCallbackRequest = CcdCallbackRequest.builder()
-            .caseDetails(
-                CaseDetails.builder()
-                    .caseData(ImmutableMap.of(PRONOUNCEMENT_JUDGE_CCD_FIELD, "Judge"))
-                    .caseId(TEST_CASE_ID)
-                    .state(TEST_STATE)
-                    .build())
-            .eventId(TEST_EVENT_ID)
-            .token(TEST_TOKEN)
-            .build();
+        ccdCallbackRequest = buildCcdCallbackRequest(ImmutableMap.of(PRONOUNCEMENT_JUDGE_CCD_FIELD, "Judge"));
 
         when(validateBulkCaseListingWorkflow.run(ccdCallbackRequest.getCaseDetails().getCaseData())).thenReturn(expectedPayload);
         when((documentGenerationWorkflow).run(ccdCallbackRequest.getCaseDetails(), AUTH_TOKEN, DOCUMENT_TYPE, CASE_LIST_FOR_PRONOUNCEMENT, FILE_NAME))
@@ -1478,12 +1487,7 @@ public class CaseOrchestrationServiceImplTest {
     @Test
     public void shouldCallRightWorkflow_WhenRemoveDnOutcomeCase() throws WorkflowException {
         Map<String, Object> caseData = DUMMY_CASE_DATA;
-        CcdCallbackRequest request = CcdCallbackRequest.builder()
-            .caseDetails(CaseDetails
-                .builder()
-                .caseData(caseData)
-                .caseId(TEST_CASE_ID)
-                .build()).build();
+        CcdCallbackRequest request = buildCcdCallbackRequest(caseData);
 
         when(removeDnOutcomeCaseFlagWorkflow.run(request)).thenReturn(caseData);
 
@@ -1511,16 +1515,7 @@ public class CaseOrchestrationServiceImplTest {
     public void shouldCallRightWorkflow_WhenCcdCallbackConfirmPersonalServiceCalled()
         throws WorkflowException {
         requestPayload = singletonMap(OrchestrationConstants.SEND_VIA_EMAIL_OR_POST, OrchestrationConstants.SEND_VIA_POST);
-        ccdCallbackRequest = CcdCallbackRequest.builder()
-            .caseDetails(
-                CaseDetails.builder()
-                    .caseData(requestPayload)
-                    .caseId(TEST_CASE_ID)
-                    .state(TEST_STATE)
-                    .build())
-            .eventId(TEST_EVENT_ID)
-            .token(TEST_TOKEN)
-            .build();
+        ccdCallbackRequest = buildCcdCallbackRequest(requestPayload);
 
         when(ccdCallbackBulkPrintWorkflow.run(any(), any())).thenReturn(requestPayload);
 
@@ -1534,16 +1529,7 @@ public class CaseOrchestrationServiceImplTest {
     public void shouldThrowException_IfExceptionIsThrown_WhenProcessingCcdCallbackConfirmPersonalService()
         throws WorkflowException {
         requestPayload = singletonMap(OrchestrationConstants.SEND_VIA_EMAIL_OR_POST, OrchestrationConstants.SEND_VIA_POST);
-        ccdCallbackRequest = CcdCallbackRequest.builder()
-            .caseDetails(
-                CaseDetails.builder()
-                    .caseData(requestPayload)
-                    .caseId(TEST_CASE_ID)
-                    .state(TEST_STATE)
-                    .build())
-            .eventId(TEST_EVENT_ID)
-            .token(TEST_TOKEN)
-            .build();
+        ccdCallbackRequest = buildCcdCallbackRequest(requestPayload);
 
         WorkflowException testFailureCause = new WorkflowException("Unable to generate bulk print...");
         when(ccdCallbackBulkPrintWorkflow.run(any(), any())).thenThrow(testFailureCause);
@@ -1555,16 +1541,7 @@ public class CaseOrchestrationServiceImplTest {
         throws WorkflowException {
 
         requestPayload = singletonMap(OrchestrationConstants.SEND_VIA_EMAIL_OR_POST, OrchestrationConstants.SEND_VIA_EMAIL_OR_POST);
-        ccdCallbackRequest = CcdCallbackRequest.builder()
-            .caseDetails(
-                CaseDetails.builder()
-                    .caseData(requestPayload)
-                    .caseId(TEST_CASE_ID)
-                    .state(TEST_STATE)
-                    .build())
-            .eventId(TEST_EVENT_ID)
-            .token(TEST_TOKEN)
-            .build();
+        ccdCallbackRequest = buildCcdCallbackRequest(requestPayload);
 
         Map<String, Object> returnedPayload = classUnderTest.ccdCallbackConfirmPersonalService(ccdCallbackRequest, AUTH_TOKEN);
 
@@ -1574,16 +1551,7 @@ public class CaseOrchestrationServiceImplTest {
 
     @Test
     public void shouldCallTheRefusalOrderClarificationNotifyWorkflow() throws WorkflowException {
-        ccdCallbackRequest = CcdCallbackRequest.builder()
-            .caseDetails(
-                CaseDetails.builder()
-                    .caseData(requestPayload)
-                    .caseId(TEST_CASE_ID)
-                    .state(TEST_STATE)
-                    .build())
-            .eventId(TEST_EVENT_ID)
-            .token(TEST_TOKEN)
-            .build();
+        ccdCallbackRequest = buildCcdCallbackRequest(requestPayload);
 
         when(notifyForRefusalOrderWorkflow.run(eq(ccdCallbackRequest.getCaseDetails()))).thenReturn(requestPayload);
 
@@ -1594,16 +1562,7 @@ public class CaseOrchestrationServiceImplTest {
 
     @Test
     public void shouldCallRemoveDNGrantedDocumentsWorkflow() throws WorkflowException {
-        ccdCallbackRequest = CcdCallbackRequest.builder()
-            .caseDetails(
-                CaseDetails.builder()
-                    .caseData(requestPayload)
-                    .caseId(TEST_CASE_ID)
-                    .state(TEST_STATE)
-                    .build())
-            .eventId(TEST_EVENT_ID)
-            .token(TEST_TOKEN)
-            .build();
+        ccdCallbackRequest = buildCcdCallbackRequest(requestPayload);
 
         when(removeDNDocumentsWorkflow.run(eq(requestPayload))).thenReturn(requestPayload);
 
@@ -1703,6 +1662,36 @@ public class CaseOrchestrationServiceImplTest {
 
         List<String> errors = workflowErrors.values().stream().map(String.class::cast).collect(Collectors.toList());
         assertThat(ccdCallbackResponse.getErrors(), is(errors));
+    }
+
+    private CcdCallbackRequest buildCcdCallbackRequest(Map<String, Object> requestPayload) {
+        return CcdCallbackRequest.builder()
+            .caseDetails(
+                CaseDetails.builder()
+                    .caseData(requestPayload)
+                    .caseId(TEST_CASE_ID)
+                    .state(TEST_STATE)
+                    .build())
+            .eventId(TEST_EVENT_ID)
+            .token(TEST_TOKEN)
+            .build();
+    }
+
+    private Map<String, Object> buildCaseDataWithOrganisationPolicy() {
+        OrganisationPolicy organisationPolicy = OrganisationPolicy.builder()
+            .organisation(
+                Organisation.builder()
+                    .organisationID("OrganisationID")
+                    .organisationName("OrganisationName")
+                    .build())
+            .orgPolicyReference(TEST_SOLICITOR_REFERENCE)
+            .orgPolicyCaseAssignedRole(PETITIONER_SOLICITOR)
+            .build();
+
+        Map<String, Object> caseData = new HashMap<>();
+        caseData.put(SOLICITOR_REFERENCE_JSON_KEY, TEST_SOLICITOR_REFERENCE);
+        caseData.put(PETITIONER_SOLICITOR_ORGANISATION_POLICY, organisationPolicy);
+        return caseData;
     }
 
     @After

@@ -2,6 +2,7 @@ package uk.gov.hmcts.reform.divorce.orchestration;
 
 import com.google.common.collect.ImmutableMap;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseRoles;
 import uk.gov.hmcts.reform.divorce.utils.DateUtils;
 
 import java.util.Map;
@@ -21,6 +22,7 @@ public class TestConstants {
     public static final String TEST_DECREE_ABSOLUTE_GRANTED_DATE = "2019-06-30T10:00:00.000";
     public static final String TEST_NOTIFICATION_LIMIT_DATE_TO_DOWNLOAD_CERTIFICATE = "2021-10-20";
     public static final String TEST_CUSTOMER_FACING_NOTIFICATION_LIMIT_DATE_TO_DOWNLOAD_CERTIFICATE = "30 June 2020";
+    public static final String TEST_URL = "http://example.com";
     public static final String TEST_USER_ID = "test.user.id";
     public static final String TEST_COURT = "serviceCentre";
     public static final String TEST_COURT_ID = "birmingham";
@@ -125,5 +127,9 @@ public class TestConstants {
     public static final Map<String, Object> TEST_INCOMING_PAYLOAD = singletonMap("incomingKey", "incomingValue");
     public static final CaseDetails TEST_INCOMING_CASE_DETAILS = CaseDetails.builder().caseData(TEST_INCOMING_PAYLOAD).build();
     public static final Map<String, Object> TEST_PAYLOAD_TO_RETURN = singletonMap("returnedKey", "returnedValue");
+
+    public static final String TEST_ORGANISATION_POLICY_NAME = "organisationName";
+    public static final String TEST_ORGANISATION_POLICY_ID = "organisationID";
+    public static final String TEST_PETITIONER_SOLICITOR_CASE_ROLE = CaseRoles.PETITIONER_SOLICITOR;
 
 }
