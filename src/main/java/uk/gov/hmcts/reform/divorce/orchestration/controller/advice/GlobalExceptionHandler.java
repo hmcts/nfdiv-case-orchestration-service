@@ -11,6 +11,7 @@ import uk.gov.hmcts.reform.bsp.common.model.shared.out.BspErrorResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.AuthenticationError;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.ValidationException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 
@@ -57,6 +58,20 @@ class GlobalExceptionHandler {
                     .errors(mergeLists(exception.getWarnings(), exception.getErrors()))
                     .build()
             );
+    }
+
+    @ExceptionHandler(CaseNotFoundException.class)
+    ResponseEntity<Object> handleCaseNotFoundException(InvalidDataException exception) {
+        log.warn(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @ExceptionHandler(DuplicateCaseException.class)
+    ResponseEntity<Object> handleDuplicateCaseException(InvalidDataException exception) {
+        log.warn(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.MULTIPLE_CHOICES).build();
     }
 
     private ResponseEntity<Object> handleTaskException(TaskException taskException) {

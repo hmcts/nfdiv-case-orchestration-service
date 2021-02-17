@@ -5,12 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 import uk.gov.hmcts.reform.divorce.orchestration.util.AuthUtil;
@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.D_8_DIVORCE_UNIT;
+import static org.springframework.util.CollectionUtils.isEmpty;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
 
 @Slf4j
@@ -35,22 +35,22 @@ public class CaseServiceImpl implements CaseService {
     private final CMSClient cmsClient;
 
     @Autowired
-    private CoreCaseDataApi coreCaseDataApi;
+    private final CoreCaseDataApi coreCaseDataApi;
 
     @Autowired
-    private AuthUtil authUtil;
+    private final AuthUtil authUtil;
+
+    @Autowired
+    private final AuthTokenGenerator authTokenGenerator;
+
+    @Autowired
+    private final IdamClient idamClient;
 
     @Value("${ccd.jurisdictionid}")
     private String jurisdictionId;
 
     @Value("${ccd.casetype}")
     private String caseType;
-
-    @Autowired
-    private AuthTokenGenerator authTokenGenerator;
-
-    @Autowired
-    private IdamClient idamClient;
 
     @Override
     public Map<String, Object> submitDraftCase(final Map<String, Object> caseData, final String authToken) {
@@ -73,38 +73,39 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public CaseDataResponse getCase(final String authorizationToken) {
-        User userDetails = getUser(authorizationToken);
+    public GetCaseResponse getCase(final String authorizationToken) throws CaseNotFoundException {
+        User user = getUser(authorizationToken);
 
-        List<CaseDetails> caseDetailsList = getCaseListForUser(userDetails);
+        List<CaseDetails> caseDetailsList = getCaseListForUser(user);
 
-        if (CollectionUtils.isEmpty(caseDetailsList)) {
-            return null;
+        if (isEmpty(caseDetailsList)) {
+            throw new CaseNotFoundException("No case found for user id " + user.getUserDetails().getId());
         }
 
         if (caseDetailsList.size() > 1) {
             throw new DuplicateCaseException(String.format("There are [%d] cases for the user [%s]",
-                caseDetailsList.size(), userDetails.getUserDetails().getId()));
+                caseDetailsList.size(), user.getUserDetails().getId()));
         }
 
         CaseDetails caseDetails = caseDetailsList.get(0);
 
-        log.info("Successfully retrieved case with id {} and state {}", caseDetails.getId(), caseDetails.getState());
+        log.info("Successfully retrieved case for user id {} with case id {} and state {}",
+            user.getUserDetails().getId(),
+            caseDetails.getId(),
+            caseDetails.getState()
+        );
 
-        final Map<String, Object> caseData = caseDetails.getData();
-
-        return CaseDataResponse.builder()
-            .caseId(String.valueOf(caseDetails.getId()))
+        return GetCaseResponse.builder()
+            .id(String.valueOf(caseDetails.getId()))
             .state(caseDetails.getState())
-            .court(String.valueOf(caseData.get(D_8_DIVORCE_UNIT)))
-            .data(caseData)
+            .data(caseDetails.getData())
             .build();
     }
 
-    private List<uk.gov.hmcts.reform.ccd.client.model.CaseDetails> getCaseListForUser(User user) {
+    private List<CaseDetails> getCaseListForUser(User user) {
         return Optional.ofNullable(
             coreCaseDataApi.searchForCitizen(
-                authUtil.getBearerToken(user.getAuthToken()),
+                user.getAuthToken(),
                 authTokenGenerator.generate(),
                 user.getUserDetails().getId(),
                 jurisdictionId,

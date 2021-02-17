@@ -132,4 +132,7 @@ public class TestConstants {
     public static final String TEST_ORGANISATION_POLICY_ID = "organisationID";
     public static final String TEST_PETITIONER_SOLICITOR_CASE_ROLE = CaseRoles.PETITIONER_SOLICITOR;
 
+    public static final String TEST_JURISDICTION_ID = "someJurisdictionId";
+    public static final String TEST_CASE_TYPE = "someCaseType";
+
 }
