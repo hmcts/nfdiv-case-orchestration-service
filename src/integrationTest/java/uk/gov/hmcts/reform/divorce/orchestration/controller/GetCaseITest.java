@@ -62,7 +62,7 @@ public class GetCaseITest extends IdamTestSupport {
     private CoreCaseDataApi coreCaseDataApi;
 
     @MockBean
-    AuthTokenGenerator serviceTokenGenerator;
+    private AuthTokenGenerator serviceTokenGenerator;
 
     @Value("${ccd.jurisdictionid}")
     private String jurisdictionId;

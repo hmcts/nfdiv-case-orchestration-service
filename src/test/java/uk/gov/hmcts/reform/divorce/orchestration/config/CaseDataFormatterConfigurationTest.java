@@ -4,10 +4,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.divorce.mapper.config.DataFormatterConfiguration;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -22,9 +20,6 @@ public class CaseDataFormatterConfigurationTest {
 
     @Autowired
     private DataFormatterConfiguration dataFormatterConfiguration;
-
-    @MockBean
-    private CoreCaseDataApi coreCaseDataApi;
 
     @Test
     public void shouldHaveServiceValuesReturningFromConfigurationMethods() {

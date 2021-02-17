@@ -4,10 +4,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.bsp.common.model.document.CtscContactDetails;
-import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -18,9 +16,6 @@ public class CtscContactDetailsDataProviderServiceTest {
 
     @Autowired
     private CtscContactDetailsDataProviderService ctscContactDetailsDataProviderService;
-
-    @MockBean
-    private CoreCaseDataApi coreCaseDataApi;
 
     @Test
     public void getCtscContactDetailsReturnsPopulatedModel() {
