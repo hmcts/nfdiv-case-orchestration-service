@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.bsp.common.error.InvalidDataException;
 import uk.gov.hmcts.reform.bsp.common.model.shared.out.BspErrorResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.AuthenticationError;
@@ -68,7 +69,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateCaseException.class)
-    ResponseEntity<Object> handleDuplicateCaseException(InvalidDataException exception) {
+    ResponseEntity<Object> handleDuplicateCaseException(DuplicateCaseException exception) {
         log.warn(exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.MULTIPLE_CHOICES).build();
@@ -92,6 +93,13 @@ class GlobalExceptionHandler {
         }
 
         return responseEntity;
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    ResponseEntity<Object> handleServiceAuthErrorException(HttpClientErrorException exception) {
+        log.warn(exception.getMessage(), exception);
+
+        return ResponseEntity.status(exception.getStatusCode()).build();
     }
 
     private ResponseEntity<Object> handleFeignException(FeignException exception) {

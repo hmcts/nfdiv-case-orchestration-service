@@ -4,7 +4,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.courts.Court;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.courts.DnCourt;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.CourtDetailsNotFound;
@@ -27,6 +29,9 @@ public class CourtLookupServiceTest {
 
     @Autowired
     private CourtLookupService courtLookupService;
+
+    @MockBean
+    private CoreCaseDataApi coreCaseDataApi;
 
     @Test
     public void testCourtAddressWithPOBoxIsFormattedCorrectly() throws CourtDetailsNotFound {

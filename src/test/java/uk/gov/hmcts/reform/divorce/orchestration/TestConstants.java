@@ -135,4 +135,5 @@ public class TestConstants {
     public static final String TEST_JURISDICTION_ID = "someJurisdictionId";
     public static final String TEST_CASE_TYPE = "someCaseType";
 
+    public static final String CITIZEN_ROLE = "citizen";
 }

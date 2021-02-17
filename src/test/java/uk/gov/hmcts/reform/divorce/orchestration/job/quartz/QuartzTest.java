@@ -14,8 +14,10 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.is;
@@ -37,6 +39,9 @@ public abstract class QuartzTest {
 
     @Autowired
     private Scheduler scheduler;
+
+    @MockBean
+    private CoreCaseDataApi coreCaseDataApi;
 
     @Before
     public void setUp() {
