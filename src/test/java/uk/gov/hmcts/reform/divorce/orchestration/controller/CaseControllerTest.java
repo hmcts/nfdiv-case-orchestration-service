@@ -10,11 +10,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import uk.gov.hmcts.reform.divorce.model.response.ValidationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
+import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
 import java.util.Collections;
@@ -63,14 +63,11 @@ public class CaseControllerTest {
     }
 
     @Test
-    public void givenErrors_whenSubmittingDraft_thenReturnBadRequest() throws Exception {
+    public void whenSubmitDraft_givenDuplicateCase_thenReturnCaseResponse() throws Exception {
         final Map<String, Object> caseData = Collections.emptyMap();
-        final Map<String, Object> invalidResponse = Collections.singletonMap(
-            VALIDATION_ERROR_KEY,
-            ValidationResponse.builder().build()
-        );
-
-        when(caseService.submitDraftCase(caseData, AUTH_TOKEN)).thenReturn(invalidResponse);
+        final Map<String, Object> serviceReturnData = new HashMap<>();
+        serviceReturnData.put(ID, TEST_CASE_ID);
+        when(caseService.submitDraftCase(caseData, AUTH_TOKEN)).thenThrow(new TaskException("Existing case found"));
 
         final ResponseEntity<CaseCreationResponse> response = classUnderTest.submitCase(AUTH_TOKEN, caseData);
 
@@ -91,21 +88,6 @@ public class CaseControllerTest {
         assertThat(responseBody, notNullValue());
         assertThat(responseBody.getCaseId(), equalTo(TEST_CASE_ID));
         assertThat(responseBody.getStatus(), equalTo(SUCCESS_STATUS));
-    }
-
-    @Test
-    public void givenErrors_whenUpdatingCase_thenReturnBadRequest() throws Exception {
-        final Map<String, Object> caseData = Collections.emptyMap();
-        final Map<String, Object> invalidResponse = Collections.singletonMap(
-            VALIDATION_ERROR_KEY,
-            ValidationResponse.builder().build()
-        );
-
-        when(caseService.patchCase(caseData, AUTH_TOKEN)).thenReturn(invalidResponse);
-
-        final ResponseEntity<CaseResponse> response = classUnderTest.updateCase(AUTH_TOKEN, caseData);
-
-        assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
     }
 
     @Test

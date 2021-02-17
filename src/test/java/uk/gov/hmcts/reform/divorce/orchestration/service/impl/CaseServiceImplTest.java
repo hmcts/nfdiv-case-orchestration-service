@@ -11,6 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
+import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +64,19 @@ public class CaseServiceImplTest {
 
         assertEquals(requestPayload, actual);
         verify(cmsClient).patchCase(requestPayload, AUTH_TOKEN);
+    }
+
+    @Test
+    public void givenExistingCase_whenSubmitCase_thenReturnException() {
+        final Map<String, Object> requestPayload = singletonMap("requestPayloadKey", "requestPayloadValue");
+
+        when(cmsClient.submitDraftCase(requestPayload, AUTH_TOKEN)).thenThrow(new TaskException("Existing case found"));
+
+        final TaskException taskException = assertThrows(TaskException.class, () -> caseService.submitDraftCase(requestPayload, AUTH_TOKEN));
+
+        assertThat(taskException.getMessage(), is("Existing case found"));
+
+        verify(cmsClient).submitDraftCase(requestPayload, AUTH_TOKEN);
     }
 
     @Test
