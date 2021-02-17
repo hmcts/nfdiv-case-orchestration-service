@@ -1,8 +1,10 @@
 package uk.gov.hmcts.reform.divorce.orchestration.service.impl;
 
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
@@ -25,17 +27,24 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public Map<String, Object> submitDraftCase(final Map<String, Object> caseData, final String authToken) {
-        final CaseDetails caseDetails = cmsClient.getCaseFromCcd(authToken);
 
-        if(caseDetails != null) {
-            log.trace("Existing case with CASE ID: {} found", caseDetails.getCaseId());
-            throw new TaskException("Existing case found");
-        } else {
-            final Map<String, Object> payload = cmsClient.submitDraftCase(caseData, authToken);
-            log.info("Case with CASE ID: {} submitted", payload.get(ID));
-            return payload;
+        try {
+            final CaseDetails caseDetails = cmsClient.getCaseFromCcd(authToken);
+            if(caseDetails != null) {
+                log.trace("Existing case with CASE ID: {} found", caseDetails.getCaseId());
+                throw new TaskException("Existing case found");
+            } else {
+                final Map<String, Object> payload = cmsClient.submitDraftCase(caseData, authToken);
+                log.info("Case with CASE ID: {} submitted", payload.get(ID));
+                return payload;
+            }
+        } catch (FeignException e) {
+            if (HttpStatus.NOT_FOUND.value() != e.status()) {
+                log.error("Unexpected error while checking for duplicate case", e);
+                throw e;
+            }
         }
-
+        return caseData;
     }
 
     @Override
