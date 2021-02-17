@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
+import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
 import java.util.Map;
@@ -24,12 +25,17 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public Map<String, Object> submitDraftCase(final Map<String, Object> caseData, final String authToken) {
+        final CaseDetails caseDetails = cmsClient.getCaseFromCcd(authToken);
 
-        final Map<String, Object> payload = cmsClient.submitDraftCase(caseData, authToken);
+        if(caseDetails != null) {
+            log.trace("Existing case with CASE ID: {} found", caseDetails.getCaseId());
+            throw new TaskException("Existing case found");
+        } else {
+            final Map<String, Object> payload = cmsClient.submitDraftCase(caseData, authToken);
+            log.info("Case with CASE ID: {} submitted", payload.get(ID));
+            return payload;
+        }
 
-        log.info("Case with CASE ID: {} submitted", payload.get(ID));
-
-        return payload;
     }
 
     @Override

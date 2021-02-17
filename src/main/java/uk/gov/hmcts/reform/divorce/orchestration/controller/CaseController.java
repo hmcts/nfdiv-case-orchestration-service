@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
+import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
 import java.util.Map;
@@ -27,7 +28,6 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTHORIZATION_HEADER;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SUCCESS_STATUS;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.VALIDATION_ERROR_KEY;
 
 @Slf4j
 @RestController
@@ -44,19 +44,19 @@ public class CaseController {
         @ApiResponse(code = 400, message = "Bad Request")})
     public ResponseEntity<CaseCreationResponse> submitCase(
         @RequestHeader(value = AUTHORIZATION_HEADER) String authorizationToken,
-        @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws WorkflowException {
+        @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) {
 
-        Map<String, Object> serviceResponse = caseService.submitDraftCase(payload, authorizationToken);
+        try {
+            Map<String, Object> serviceResponse = caseService.submitDraftCase(payload, authorizationToken);
 
-        if (serviceResponse.containsKey(VALIDATION_ERROR_KEY)) {
-            log.error("Bad request. Found this validation error: {}", serviceResponse.get(VALIDATION_ERROR_KEY));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
+            caseCreationResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
+            caseCreationResponse.setStatus(SUCCESS_STATUS);
+            return ResponseEntity.ok(caseCreationResponse);
+        } catch (TaskException taskException) {
+            log.error(taskException.getMessage(), taskException);
+            return ResponseEntity.badRequest().build();
         }
-
-        CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
-        caseCreationResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
-        caseCreationResponse.setStatus(SUCCESS_STATUS);
-        return ResponseEntity.ok(caseCreationResponse);
 
     }
 
@@ -71,11 +71,6 @@ public class CaseController {
         @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws WorkflowException {
 
         Map<String, Object> serviceResponse = caseService.patchCase(payload, authorizationToken);
-
-        if (serviceResponse.containsKey(VALIDATION_ERROR_KEY)) {
-            log.error("Bad request. Found this validation error: {}", serviceResponse.get(VALIDATION_ERROR_KEY));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
 
         CaseResponse caseResponse = new CaseResponse();
         caseResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
