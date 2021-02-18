@@ -66,6 +66,7 @@ public class HealthCheckITest extends MockedFunctionalTest {
         mockEndpointAndResponse(paymentServiceServer, true);
         mockEndpointAndResponse(sendLetterService, true);
         mockEndpointAndResponse(serviceAuthProviderServer, true);
+        mockEndpointAndResponse(caseRoleServer, true, "/status/health");
 
         waitForMockChange();
 
@@ -310,7 +311,11 @@ public class HealthCheckITest extends MockedFunctionalTest {
     }
 
     private void mockEndpointAndResponse(WireMockClassRule mockServer, boolean serviceUp) {
-        mockServer.stubFor(get(urlEqualTo("/health"))
+        mockEndpointAndResponse(mockServer, serviceUp, "/health");
+    }
+
+    private void mockEndpointAndResponse(WireMockClassRule mockServer, boolean serviceUp, String healthUrl) {
+        mockServer.stubFor(get(urlEqualTo(healthUrl))
             .willReturn(aResponse()
                 .withStatus(serviceUp ? HttpStatus.OK.value() : HttpStatus.SERVICE_UNAVAILABLE.value())
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)

@@ -259,6 +259,7 @@ public abstract class MockedFunctionalTest {
         sendLetterService.resetAll();
         serviceAuthProviderServer.resetAll();
         documentStore.resetAll();
+        caseRoleServer.resetAll();
     }
 
 }
