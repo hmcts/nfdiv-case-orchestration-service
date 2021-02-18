@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static java.util.stream.Collectors.toList;
 import static org.springframework.util.CollectionUtils.isEmpty;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AMEND_PETITION_STATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
 
 @Slf4j
@@ -78,6 +80,18 @@ public class CaseServiceImpl implements CaseService {
 
         List<CaseDetails> caseDetailsList = getCaseListForUser(user);
 
+        log.info("Case list size {} after retrieving case for user id {}",
+            caseDetailsList.size(),
+            user.getUserDetails().getId()
+        );
+
+        caseDetailsList = filterOutAmendedCases(caseDetailsList);
+
+        log.info("Case list size {} after filtering amended cases for user id {}",
+            caseDetailsList.size(),
+            user.getUserDetails().getId()
+        );
+
         if (isEmpty(caseDetailsList)) {
             throw new CaseNotFoundException("No case found for user id " + user.getUserDetails().getId());
         }
@@ -121,5 +135,14 @@ public class CaseServiceImpl implements CaseService {
         log.info("Successfully retrieved user id from Idam {}", userDetails.getId());
 
         return new User(bearerToken, userDetails);
+    }
+
+    private List<CaseDetails> filterOutAmendedCases(List<CaseDetails> caseDetailsList) {
+        caseDetailsList = Optional.ofNullable(caseDetailsList)
+            .orElse(Collections.emptyList())
+            .stream()
+            .filter(caseDetails -> !AMEND_PETITION_STATE.equals(caseDetails.getState()))
+            .collect(toList());
+        return caseDetailsList;
     }
 }

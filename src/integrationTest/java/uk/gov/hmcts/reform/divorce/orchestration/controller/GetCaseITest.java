@@ -39,6 +39,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_SERVI
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_STATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_USER_ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.USER_TOKEN;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AMEND_PETITION_STATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.D_8_DIVORCE_UNIT;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.D_8_PETITIONER_EMAIL;
 import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil.convertObjectToJsonString;
@@ -133,8 +134,8 @@ public class GetCaseITest extends IdamTestSupport {
 
         stubUserDetailsEndpoint(HttpStatus.OK, USER_TOKEN, message);
 
-        final uk.gov.hmcts.reform.ccd.client.model.CaseDetails caseDetails1 = createCaseDetails();
-        final uk.gov.hmcts.reform.ccd.client.model.CaseDetails caseDetails2 = createCaseDetails();
+        final uk.gov.hmcts.reform.ccd.client.model.CaseDetails caseDetails1 = createCaseDetails(TEST_STATE);
+        final uk.gov.hmcts.reform.ccd.client.model.CaseDetails caseDetails2 = createCaseDetails(TEST_STATE);
 
         when(serviceTokenGenerator.generate()).thenReturn(TEST_SERVICE_TOKEN);
         when(coreCaseDataApi
@@ -153,12 +154,35 @@ public class GetCaseITest extends IdamTestSupport {
 
         stubUserDetailsEndpoint(HttpStatus.OK, USER_TOKEN, message);
 
-        final uk.gov.hmcts.reform.ccd.client.model.CaseDetails caseDetails = createCaseDetails();
+        final uk.gov.hmcts.reform.ccd.client.model.CaseDetails caseDetails = createCaseDetails(TEST_STATE);
 
         when(serviceTokenGenerator.generate()).thenReturn(TEST_SERVICE_TOKEN);
         when(coreCaseDataApi
             .searchForCitizen(USER_TOKEN, TEST_SERVICE_TOKEN, TEST_USER_ID, jurisdictionId, caseType, Collections.emptyMap()))
             .thenReturn(Collections.singletonList(caseDetails));
+
+        webClient.perform(MockMvcRequestBuilders.get(GET_CASE_CONTEXT_PATH)
+            .header(HttpHeaders.AUTHORIZATION, USER_TOKEN)
+            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content()
+                .json(ObjectMapperTestUtil
+                    .convertObjectToJsonString(expectedResponse())));
+    }
+
+    @Test
+    public void givenAmendedAndCompletedCaseExists_whenGetCase_thenReturnCompletedCase() throws Exception {
+        final String message = getCitizenUserDetails();
+
+        stubUserDetailsEndpoint(HttpStatus.OK, USER_TOKEN, message);
+
+        final uk.gov.hmcts.reform.ccd.client.model.CaseDetails caseDetails1 = createCaseDetails(TEST_STATE);
+        final uk.gov.hmcts.reform.ccd.client.model.CaseDetails caseDetails2 = createCaseDetails(AMEND_PETITION_STATE);
+
+        when(serviceTokenGenerator.generate()).thenReturn(TEST_SERVICE_TOKEN);
+        when(coreCaseDataApi
+            .searchForCitizen(USER_TOKEN, TEST_SERVICE_TOKEN, TEST_USER_ID, jurisdictionId, caseType, Collections.emptyMap()))
+            .thenReturn(List.of(caseDetails1, caseDetails2));
 
         webClient.perform(MockMvcRequestBuilders.get(GET_CASE_CONTEXT_PATH)
             .header(HttpHeaders.AUTHORIZATION, USER_TOKEN)
@@ -178,11 +202,11 @@ public class GetCaseITest extends IdamTestSupport {
         return getCaseResponse;
     }
 
-    public uk.gov.hmcts.reform.ccd.client.model.CaseDetails createCaseDetails() {
+    public uk.gov.hmcts.reform.ccd.client.model.CaseDetails createCaseDetails(String state) {
         return uk.gov.hmcts.reform.ccd.client.model.CaseDetails
             .builder()
             .id(1L)
-            .state(TEST_STATE)
+            .state(state)
             .data(ImmutableMap.of(D_8_PETITIONER_EMAIL, TEST_EMAIL))
             .build();
     }

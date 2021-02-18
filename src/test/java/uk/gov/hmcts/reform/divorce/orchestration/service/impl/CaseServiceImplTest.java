@@ -41,6 +41,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_JURIS
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_SERVICE_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_STATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_USER_EMAIL;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AMEND_PETITION_STATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.D_8_PETITIONER_EMAIL;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -168,6 +169,55 @@ public class CaseServiceImplTest {
         final DuplicateCaseException duplicateCaseException = assertThrows(DuplicateCaseException.class, () -> caseService.getCase(AUTH_TOKEN));
 
         assertThat(duplicateCaseException.getMessage(), equalTo("There are [2] cases for the user [someUserId]"));
+
+        verify(authUtil).getBearerToken(AUTH_TOKEN);
+        verify(idamClient).getUserDetails(BEARER_AUTH_TOKEN);
+        verify(authTokenGenerator).generate();
+        verify(coreCaseDataApi)
+            .searchForCitizen(BEARER_AUTH_TOKEN, TEST_SERVICE_TOKEN, USER_ID, TEST_JURISDICTION_ID, TEST_CASE_TYPE, emptyMap());
+    }
+
+    @Test
+    public void givenOnlyAmendCaseExists_whenGetCase_thenReturn404() throws CaseNotFoundException {
+        CaseDetails caseDetails = createCaseDetails(1L, AMEND_PETITION_STATE);
+
+        when(authUtil.getBearerToken(AUTH_TOKEN)).thenReturn(BEARER_AUTH_TOKEN);
+        when(idamClient.getUserDetails(BEARER_AUTH_TOKEN)).thenReturn(USER_DETAILS);
+        when(authTokenGenerator.generate()).thenReturn(TEST_SERVICE_TOKEN);
+        when(coreCaseDataApi
+            .searchForCitizen(BEARER_AUTH_TOKEN, TEST_SERVICE_TOKEN, USER_ID, TEST_JURISDICTION_ID, TEST_CASE_TYPE, emptyMap())
+        ).thenReturn(List.of(caseDetails));
+
+        final CaseNotFoundException caseNotFoundException = assertThrows(CaseNotFoundException.class, () -> caseService.getCase(AUTH_TOKEN));
+
+        assertThat(caseNotFoundException.getMessage(), equalTo("No case found for user id " + USER_ID));
+
+        verify(authUtil).getBearerToken(AUTH_TOKEN);
+        verify(idamClient).getUserDetails(BEARER_AUTH_TOKEN);
+        verify(authTokenGenerator).generate();
+        verify(coreCaseDataApi)
+            .searchForCitizen(BEARER_AUTH_TOKEN, TEST_SERVICE_TOKEN, USER_ID, TEST_JURISDICTION_ID, TEST_CASE_TYPE, emptyMap());
+    }
+
+    @Test
+    public void givenAmendedAndSubmittedCasesExists_whenGetCase_thenReturnSubmittedStateCase() throws CaseNotFoundException {
+        CaseDetails caseDetails1 = createCaseDetails(CASE_ID_1, TEST_STATE);
+        CaseDetails caseDetails2 = createCaseDetails(CASE_ID_1, AMEND_PETITION_STATE);
+
+        final Map<String, Object> caseData = singletonMap(D_8_PETITIONER_EMAIL, TEST_USER_EMAIL);
+
+        when(authUtil.getBearerToken(AUTH_TOKEN)).thenReturn(BEARER_AUTH_TOKEN);
+        when(idamClient.getUserDetails(BEARER_AUTH_TOKEN)).thenReturn(USER_DETAILS);
+        when(authTokenGenerator.generate()).thenReturn(TEST_SERVICE_TOKEN);
+        when(coreCaseDataApi
+            .searchForCitizen(BEARER_AUTH_TOKEN, TEST_SERVICE_TOKEN, USER_ID, TEST_JURISDICTION_ID, TEST_CASE_TYPE, emptyMap())
+        ).thenReturn(List.of(caseDetails1, caseDetails2));
+
+        final GetCaseResponse getCaseResponse = caseService.getCase(AUTH_TOKEN);
+
+        assertThat(getCaseResponse.getData(), is(caseData));
+        assertThat(getCaseResponse.getId(), is("1"));
+        assertThat(getCaseResponse.getState(), is(TEST_STATE));
 
         verify(authUtil).getBearerToken(AUTH_TOKEN);
         verify(idamClient).getUserDetails(BEARER_AUTH_TOKEN);
