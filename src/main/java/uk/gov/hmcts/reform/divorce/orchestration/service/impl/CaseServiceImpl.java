@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
@@ -26,25 +27,16 @@ public class CaseServiceImpl implements CaseService {
     private final CMSClient cmsClient;
 
     @Override
-    public Map<String, Object> submitDraftCase(final Map<String, Object> caseData, final String authToken) {
-
-        try {
+    public Map<String, Object> submitDraftCase(final Map<String, Object> caseData, final String authToken) throws CaseAlreadyExistsException {
             final CaseDetails caseDetails = cmsClient.getCaseFromCcd(authToken);
             if(caseDetails != null) {
                 log.trace("Existing case with CASE ID: {} found", caseDetails.getCaseId());
-                throw new TaskException("Existing case found");
+                throw new CaseAlreadyExistsException("Existing case found");
             } else {
                 final Map<String, Object> payload = cmsClient.submitDraftCase(caseData, authToken);
                 log.info("Case with CASE ID: {} submitted", payload.get(ID));
                 return payload;
             }
-        } catch (FeignException e) {
-            if (HttpStatus.NOT_FOUND.value() != e.status()) {
-                log.error("Unexpected error while checking for duplicate case", e);
-                throw e;
-            }
-        }
-        return caseData;
     }
 
     @Override

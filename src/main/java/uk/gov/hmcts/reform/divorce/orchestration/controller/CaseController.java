@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
-import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
 import java.util.Map;
@@ -53,8 +52,8 @@ public class CaseController {
             caseCreationResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
             caseCreationResponse.setStatus(SUCCESS_STATUS);
             return ResponseEntity.ok(caseCreationResponse);
-        } catch (TaskException taskException) {
-            log.error(taskException.getMessage(), taskException);
+        } catch (CaseAlreadyExistsException caseAlreadyExistsException) {
+            log.error(caseAlreadyExistsException.getMessage(), caseAlreadyExistsException);
             return ResponseEntity.badRequest().build();
         }
 

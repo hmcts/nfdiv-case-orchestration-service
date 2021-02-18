@@ -13,8 +13,8 @@ import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
-import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
 import java.util.Collections;
@@ -35,7 +35,6 @@ import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SUCCESS_STATUS;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.VALIDATION_ERROR_KEY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CaseControllerTest {
@@ -63,11 +62,11 @@ public class CaseControllerTest {
     }
 
     @Test
-    public void whenSubmitDraft_givenDuplicateCase_thenReturnCaseResponse() throws Exception {
+    public void whenSubmitDraft_givenDuplicateCase_thenReturnCaseResponse() throws CaseAlreadyExistsException {
         final Map<String, Object> caseData = Collections.emptyMap();
         final Map<String, Object> serviceReturnData = new HashMap<>();
         serviceReturnData.put(ID, TEST_CASE_ID);
-        when(caseService.submitDraftCase(caseData, AUTH_TOKEN)).thenThrow(new TaskException("Existing case found"));
+        when(caseService.submitDraftCase(caseData, AUTH_TOKEN)).thenThrow(new CaseAlreadyExistsException("Existing case found"));
 
         final ResponseEntity<CaseCreationResponse> response = classUnderTest.submitCase(AUTH_TOKEN, caseData);
 

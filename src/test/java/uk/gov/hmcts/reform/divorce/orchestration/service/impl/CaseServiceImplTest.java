@@ -11,7 +11,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
-import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseAlreadyExistsException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,8 +38,16 @@ public class CaseServiceImplTest {
     @InjectMocks
     private CaseServiceImpl caseService;
 
+    final Map<String, Object> caseData = singletonMap(D_8_DIVORCE_UNIT, TEST_COURT);
+    final CaseDetails cmsResponse =
+        CaseDetails.builder()
+            .caseData(caseData)
+            .caseId(TEST_CASE_ID)
+            .state(TEST_STATE)
+            .build();
+
     @Test
-    public void givenDraftCaseDataValid_whenSubmit_thenReturnPayload() throws Exception {
+    public void givenDraftCaseDataValid_whenSubmit_thenReturnPayload() throws CaseAlreadyExistsException {
 
         final Map<String, Object> requestPayload = singletonMap("requestPayloadKey", "requestPayloadValue");
         final Map<String, Object> expectedPayload = new HashMap<>();
@@ -54,7 +62,7 @@ public class CaseServiceImplTest {
     }
 
     @Test
-    public void givenCaseUpdateValid_whenSubmit_thenReturnPayload() throws Exception {
+    public void givenCaseUpdateValid_whenSubmit_thenReturnPayload() {
 
         final Map<String, Object> requestPayload = singletonMap("requestPayloadKey", "requestPayloadValue");
 
@@ -70,25 +78,15 @@ public class CaseServiceImplTest {
     public void givenExistingCase_whenSubmitCase_thenReturnException() {
         final Map<String, Object> requestPayload = singletonMap("requestPayloadKey", "requestPayloadValue");
 
-        when(cmsClient.submitDraftCase(requestPayload, AUTH_TOKEN)).thenThrow(new TaskException("Existing case found"));
+        when(cmsClient.getCaseFromCcd(AUTH_TOKEN)).thenReturn(cmsResponse);
 
-        final TaskException taskException = assertThrows(TaskException.class, () -> caseService.submitDraftCase(requestPayload, AUTH_TOKEN));
+        final CaseAlreadyExistsException caseAlreadyExistsException = assertThrows(CaseAlreadyExistsException.class, () -> caseService.submitDraftCase(requestPayload, AUTH_TOKEN));
 
-        assertThat(taskException.getMessage(), is("Existing case found"));
-
-        verify(cmsClient).submitDraftCase(requestPayload, AUTH_TOKEN);
+        assertThat(caseAlreadyExistsException.getMessage(), is("Existing case found"));
     }
 
     @Test
     public void whenGetCase_thenProceedAsExpected() {
-        final Map<String, Object> caseData = singletonMap(D_8_DIVORCE_UNIT, TEST_COURT);
-        final CaseDetails cmsResponse =
-            CaseDetails.builder()
-                .caseData(caseData)
-                .caseId(TEST_CASE_ID)
-                .state(TEST_STATE)
-                .build();
-
         when(cmsClient.getCaseFromCcd(AUTH_TOKEN)).thenReturn(cmsResponse);
 
         final CaseDataResponse actualResponse = caseService.getCase(AUTH_TOKEN);

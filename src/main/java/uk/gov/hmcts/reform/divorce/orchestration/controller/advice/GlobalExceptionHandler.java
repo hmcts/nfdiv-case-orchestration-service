@@ -22,6 +22,13 @@ import java.util.Optional;
 @Slf4j
 class GlobalExceptionHandler {
 
+    @ExceptionHandler(CaseNotFoundException.class)
+    ResponseEntity<Object> handleCaseAlreadyExistsException(InvalidDataException exception) {
+        log.warn(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
     @ExceptionHandler(FeignException.class)
     ResponseEntity<Object> handleBadRequestException(FeignException exception) {
         log.warn(exception.getMessage(), exception);
