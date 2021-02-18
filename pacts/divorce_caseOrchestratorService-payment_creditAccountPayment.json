@@ -1,0 +1,604 @@
+{
+  "provider": {
+    "name": "payment_creditAccountPayment"
+  },
+  "consumer": {
+    "name": "divorce_caseOrchestratorService"
+  },
+  "interactions": [
+    {
+      "description": "a request to  credit that account with a payment",
+      "request": {
+        "method": "POST",
+        "path": "/credit-account-payments",
+        "headers": {
+          "Authorization": "Bearer UserAuthToken",
+          "ServiceAuthorization": "ServiceToken"
+        },
+        "body": {
+          "ccd_case_number": "test.case.id",
+          "account_number": "test.solicitor.account",
+          "amount": "1500.0",
+          "case_reference": null,
+          "fees": [
+            {
+              "reference": "test.solicitor.reference",
+              "volume": null,
+              "ccd_case_number": "test.case.id",
+              "memo_line": null,
+              "natural_account_code": null,
+              "code": "FEE000",
+              "calculated_amount": "5.5",
+              "version": "3"
+            }
+          ],
+          "service": "DIVORCE",
+          "customer_reference": "test.solicitor.reference",
+          "site_id": "AA01",
+          "description": "Test Fee",
+          "currency": "GBP",
+          "organisation_name": "test.solicitor.firm"
+        }
+      },
+      "response": {
+        "status": 403,
+        "headers": {
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        "body": {
+          "reference": "BJMSDFDS80808",
+          "status_histories": [
+            {
+              "error_message": "Your account is deleted",
+              "date_updated": "2020-10-06T18:54:48.785+0000",
+              "date_created": "2020-10-06T18:54:48.785+0000",
+              "error_code": "CA-E0004",
+              "status": "failed"
+            }
+          ],
+          "date_created": "2020-10-06T18:54:48.785+0000",
+          "payment_group_reference": "2020-1602010488596",
+          "status": "Failed"
+        },
+        "matchingRules": {
+          "body": {
+            "$.date_created": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.reference": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.payment_group_reference": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories": {
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories[*].date_updated": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories[*].date_created": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories[*].error_message": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json(;\\s?charset=[\\w\\-]+)?"
+                }
+              ],
+              "combine": "AND"
+            }
+          }
+        }
+      },
+      "providerStates": [
+        {
+          "name": "A deleted account requests a payment",
+          "params": {
+            "accountName": "CAERPHILLY COUNTY BOROUGH COUNCIL",
+            "accountNumber": "test.solicitor.account",
+            "availableBalance": "1000.00"
+          }
+        }
+      ]
+    },
+    {
+      "description": "a request to  credit that account with a payment",
+      "request": {
+        "method": "POST",
+        "path": "/credit-account-payments",
+        "headers": {
+          "Authorization": "Bearer UserAuthToken",
+          "ServiceAuthorization": "ServiceToken"
+        },
+        "body": {
+          "ccd_case_number": "test.case.id",
+          "account_number": "test.solicitor.account",
+          "amount": "1500.0",
+          "case_reference": null,
+          "fees": [
+            {
+              "reference": "test.solicitor.reference",
+              "volume": null,
+              "ccd_case_number": "test.case.id",
+              "memo_line": null,
+              "natural_account_code": null,
+              "code": "FEE000",
+              "calculated_amount": "5.5",
+              "version": "3"
+            }
+          ],
+          "service": "DIVORCE",
+          "customer_reference": "test.solicitor.reference",
+          "site_id": "AA01",
+          "description": "Test Fee",
+          "currency": "GBP",
+          "organisation_name": "test.solicitor.firm"
+        }
+      },
+      "response": {
+        "status": 403,
+        "headers": {
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        "body": {
+          "reference": "BJMSDFDS80808",
+          "status_histories": [
+            {
+              "error_message": "Payment request failed . PBA account CAERPHILLY COUNTY BOROUGH COUNCIL have insufficient funds available",
+              "date_updated": "2020-10-06T18:54:48.785+0000",
+              "date_created": "2020-10-06T18:54:48.785+0000",
+              "error_code": "CA-E0001",
+              "status": "failed"
+            }
+          ],
+          "date_created": "2020-10-06T18:54:48.785+0000",
+          "payment_group_reference": "2020-1602010488596",
+          "status": "Failed"
+        },
+        "matchingRules": {
+          "body": {
+            "$.date_created": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.reference": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.payment_group_reference": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories": {
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories[*].date_updated": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories[*].date_created": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories[*].error_message": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json(;\\s?charset=[\\w\\-]+)?"
+                }
+              ],
+              "combine": "AND"
+            }
+          }
+        }
+      },
+      "providerStates": [
+        {
+          "name": "An active account has insufficient funds for a payment",
+          "params": {
+            "accountName": "CAERPHILLY COUNTY BOROUGH COUNCIL",
+            "accountNumber": "test.solicitor.account",
+            "availableBalance": "1000.00"
+          }
+        }
+      ]
+    },
+    {
+      "description": "a request to  credit that account with a payment",
+      "request": {
+        "method": "POST",
+        "path": "/credit-account-payments",
+        "headers": {
+          "Authorization": "Bearer UserAuthToken",
+          "ServiceAuthorization": "ServiceToken"
+        },
+        "body": {
+          "ccd_case_number": "test.case.id",
+          "account_number": "test.solicitor.account",
+          "amount": "500.0",
+          "case_reference": null,
+          "fees": [
+            {
+              "reference": "test.solicitor.reference",
+              "volume": null,
+              "ccd_case_number": "test.case.id",
+              "memo_line": null,
+              "natural_account_code": null,
+              "code": "FEE000",
+              "calculated_amount": "5.5",
+              "version": "3"
+            }
+          ],
+          "service": "DIVORCE",
+          "customer_reference": "test.solicitor.reference",
+          "site_id": "AA01",
+          "description": "Test Fee",
+          "currency": "GBP",
+          "organisation_name": "test.solicitor.firm"
+        }
+      },
+      "response": {
+        "status": 201,
+        "headers": {
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        "body": {
+          "reference": "BJMSDFDS80808",
+          "status_histories": [
+            {
+              "date_updated": "2020-10-06T18:54:48.785+0000",
+              "date_created": "2020-10-06T18:54:48.785+0000",
+              "status": "success"
+            }
+          ],
+          "date_created": "2020-10-06T18:54:48.785+0000",
+          "payment_group_reference": "2020-1602010488596",
+          "status": "Success"
+        },
+        "matchingRules": {
+          "body": {
+            "$.date_created": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.reference": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.payment_group_reference": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories": {
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories[*].date_updated": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories[*].date_created": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json(;\\s?charset=[\\w\\-]+)?"
+                }
+              ],
+              "combine": "AND"
+            }
+          }
+        }
+      },
+      "providerStates": [
+        {
+          "name": "An active account has sufficient funds for a payment",
+          "params": {
+            "accountName": "CAERPHILLY COUNTY BOROUGH COUNCIL",
+            "accountNumber": "test.solicitor.account",
+            "availableBalance": "1000.00"
+          }
+        }
+      ]
+    },
+    {
+      "description": "a request to  credit that account with a payment",
+      "request": {
+        "method": "POST",
+        "path": "/credit-account-payments",
+        "headers": {
+          "Authorization": "Bearer UserAuthToken",
+          "ServiceAuthorization": "ServiceToken"
+        },
+        "body": {
+          "ccd_case_number": "test.case.id",
+          "account_number": "test.solicitor.account",
+          "amount": "1500.0",
+          "case_reference": null,
+          "fees": [
+            {
+              "reference": "test.solicitor.reference",
+              "volume": null,
+              "ccd_case_number": "test.case.id",
+              "memo_line": null,
+              "natural_account_code": null,
+              "code": "FEE000",
+              "calculated_amount": "5.5",
+              "version": "3"
+            }
+          ],
+          "service": "DIVORCE",
+          "customer_reference": "test.solicitor.reference",
+          "site_id": "AA01",
+          "description": "Test Fee",
+          "currency": "GBP",
+          "organisation_name": "test.solicitor.firm"
+        }
+      },
+      "response": {
+        "status": 403,
+        "headers": {
+          "Content-Type": "application/json; charset=UTF-8"
+        },
+        "body": {
+          "reference": "BJMSDFDS80808",
+          "status_histories": [
+            {
+              "error_message": "Your account is on hold",
+              "date_updated": "2020-10-06T18:54:48.785+0000",
+              "date_created": "2020-10-06T18:54:48.785+0000",
+              "error_code": "CA-E0003",
+              "status": "failed"
+            }
+          ],
+          "date_created": "2020-10-06T18:54:48.785+0000",
+          "payment_group_reference": "2020-1602010488596",
+          "status": "Failed"
+        },
+        "matchingRules": {
+          "body": {
+            "$.date_created": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.reference": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.payment_group_reference": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories": {
+              "matchers": [
+                {
+                  "match": "type",
+                  "min": 1
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories[*].date_updated": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories[*].date_created": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "^(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.\\d{3}\\+\\d{4})$"
+                }
+              ],
+              "combine": "AND"
+            },
+            "$.status_histories[*].error_message": {
+              "matchers": [
+                {
+                  "match": "type"
+                }
+              ],
+              "combine": "AND"
+            }
+          },
+          "header": {
+            "Content-Type": {
+              "matchers": [
+                {
+                  "match": "regex",
+                  "regex": "application/json(;\\s?charset=[\\w\\-]+)?"
+                }
+              ],
+              "combine": "AND"
+            }
+          }
+        }
+      },
+      "providerStates": [
+        {
+          "name": "An on hold account requests a payment",
+          "params": {
+            "accountName": "CAERPHILLY COUNTY BOROUGH COUNCIL",
+            "accountNumber": "test.solicitor.account",
+            "availableBalance": "1000.00"
+          }
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "3.0.0"
+    },
+    "pact-jvm": {
+      "version": "4.1.11"
+    }
+  }
+}
