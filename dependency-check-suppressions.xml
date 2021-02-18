@@ -55,10 +55,11 @@
     </suppress>
     <suppress>
         <notes><![CDATA[
-   file name: netty-codec-4.1.46.Final.jar
+   file name: netty-codec-4.1.58.Final.jar, netty-buffer-4.1.58.Final.jar, netty-handler-4.1.58.Final.jar,
+              netty-resolver-4.1.58.Final.jar, netty-transport-4.1.58.Final.jar
    ]]></notes>
         <packageUrl regex="true">.*</packageUrl>
-        <cve>CVE-2019-10797</cve>
+        <cve>CVE-2021-21290</cve>
     </suppress>
     <suppress>
         <notes><![CDATA[

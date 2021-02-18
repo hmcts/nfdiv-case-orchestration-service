@@ -14,10 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseAlreadyExistsException;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
@@ -81,13 +82,13 @@ public class CaseController {
     @ApiOperation(value = "Provides case details to Frontend Applications")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Case details fetched successfully",
-            response = CaseDataResponse.class),
+            response = GetCaseResponse.class),
         @ApiResponse(code = 300, message = "Multiple Cases found"),
         @ApiResponse(code = 404, message = "No Case found"),
         @ApiResponse(code = 400, message = "Bad Request")})
-    public ResponseEntity<CaseDataResponse> retrieveCase(
+    public ResponseEntity<GetCaseResponse> retrieveCase(
         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authorizationToken
-    ) {
+    ) throws CaseNotFoundException {
         return ResponseEntity.ok(caseService.getCase(authorizationToken));
     }
 }

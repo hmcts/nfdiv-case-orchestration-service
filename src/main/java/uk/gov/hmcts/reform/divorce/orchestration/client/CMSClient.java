@@ -3,12 +3,10 @@ package uk.gov.hmcts.reform.divorce.orchestration.client;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpHeaders;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 
 import java.util.Map;
 
@@ -33,9 +31,4 @@ public interface CMSClient {
         @RequestBody Map<String, Object> requestBody,
         @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken
     );
-
-    @ApiOperation("Get Case from Ccd without any role or state filtering")
-    @GetMapping(value = "/case")
-    CaseDetails getCaseFromCcd(
-        @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationToken);
 }

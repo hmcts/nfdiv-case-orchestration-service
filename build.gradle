@@ -312,6 +312,8 @@ dependencies {
     }
 
 
+    implementation(group: 'uk.gov.hmcts.reform', name: 'core-case-data-store-client', version: versions.ccdStoreClient)
+
     runtimeOnly('org.springframework.boot:spring-boot-devtools')
 
     testImplementation group: 'org.awaitility', name: 'awaitility', version: versions.awaitility
