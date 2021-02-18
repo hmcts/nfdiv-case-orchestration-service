@@ -6,11 +6,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.bsp.common.error.InvalidDataException;
 import uk.gov.hmcts.reform.bsp.common.model.shared.out.BspErrorResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.AuthenticationError;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.ValidationException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 
@@ -59,6 +61,20 @@ class GlobalExceptionHandler {
             );
     }
 
+    @ExceptionHandler(CaseNotFoundException.class)
+    ResponseEntity<Object> handleCaseNotFoundException(InvalidDataException exception) {
+        log.warn(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @ExceptionHandler(DuplicateCaseException.class)
+    ResponseEntity<Object> handleDuplicateCaseException(DuplicateCaseException exception) {
+        log.warn(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.MULTIPLE_CHOICES).build();
+    }
+
     private ResponseEntity<Object> handleTaskException(TaskException taskException) {
         ResponseEntity<Object> responseEntity;
 
@@ -77,6 +93,13 @@ class GlobalExceptionHandler {
         }
 
         return responseEntity;
+    }
+
+    @ExceptionHandler(HttpClientErrorException.class)
+    ResponseEntity<Object> handleServiceAuthErrorException(HttpClientErrorException exception) {
+        log.warn(exception.getMessage(), exception);
+
+        return ResponseEntity.status(exception.getStatusCode()).build();
     }
 
     private ResponseEntity<Object> handleFeignException(FeignException exception) {

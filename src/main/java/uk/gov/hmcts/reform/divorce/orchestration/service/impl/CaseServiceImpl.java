@@ -3,15 +3,29 @@ package uk.gov.hmcts.reform.divorce.orchestration.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
+import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.CaseDataResponse;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
+import uk.gov.hmcts.reform.divorce.orchestration.util.AuthUtil;
+import uk.gov.hmcts.reform.idam.client.IdamClient;
+import uk.gov.hmcts.reform.idam.client.models.User;
+import uk.gov.hmcts.reform.idam.client.models.UserDetails;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.D_8_DIVORCE_UNIT;
+import static java.util.stream.Collectors.toList;
+import static org.springframework.util.CollectionUtils.isEmpty;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AMEND_PETITION_STATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
 
 @Slf4j
@@ -21,6 +35,24 @@ public class CaseServiceImpl implements CaseService {
 
     @Autowired
     private final CMSClient cmsClient;
+
+    @Autowired
+    private final CoreCaseDataApi coreCaseDataApi;
+
+    @Autowired
+    private final AuthUtil authUtil;
+
+    @Autowired
+    private final AuthTokenGenerator authTokenGenerator;
+
+    @Autowired
+    private final IdamClient idamClient;
+
+    @Value("${ccd.jurisdictionid}")
+    private String jurisdictionId;
+
+    @Value("${ccd.casetype}")
+    private String caseType;
 
     @Override
     public Map<String, Object> submitDraftCase(final Map<String, Object> caseData, final String authToken) {
@@ -43,18 +75,74 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public CaseDataResponse getCase(final String authorizationToken) {
-        final CaseDetails caseDetails = cmsClient.getCaseFromCcd(authorizationToken);
+    public GetCaseResponse getCase(final String authorizationToken) throws CaseNotFoundException {
+        User user = getUser(authorizationToken);
 
-        log.info("Successfully retrieved case with id {} and state {}", caseDetails.getCaseId(), caseDetails.getState());
+        List<CaseDetails> caseDetailsList = getCaseListForUser(user);
 
-        final Map<String, Object> caseData = caseDetails.getCaseData();
+        log.info("Case list size {} after retrieving case for user id {}",
+            caseDetailsList.size(),
+            user.getUserDetails().getId()
+        );
 
-        return CaseDataResponse.builder()
-            .caseId(caseDetails.getCaseId())
+        caseDetailsList = filterOutAmendedCases(caseDetailsList);
+
+        log.info("Case list size {} after filtering amended cases for user id {}",
+            caseDetailsList.size(),
+            user.getUserDetails().getId()
+        );
+
+        if (isEmpty(caseDetailsList)) {
+            throw new CaseNotFoundException("No case found for user id " + user.getUserDetails().getId());
+        }
+
+        if (caseDetailsList.size() > 1) {
+            throw new DuplicateCaseException(String.format("There are [%d] cases for the user [%s]",
+                caseDetailsList.size(), user.getUserDetails().getId()));
+        }
+
+        CaseDetails caseDetails = caseDetailsList.get(0);
+
+        log.info("Successfully retrieved case for user id {} with case id {} and state {}",
+            user.getUserDetails().getId(),
+            caseDetails.getId(),
+            caseDetails.getState()
+        );
+
+        return GetCaseResponse.builder()
+            .id(String.valueOf(caseDetails.getId()))
             .state(caseDetails.getState())
-            .court(String.valueOf(caseData.get(D_8_DIVORCE_UNIT)))
-            .data(caseData)
+            .data(caseDetails.getData())
             .build();
+    }
+
+    private List<CaseDetails> getCaseListForUser(User user) {
+        return Optional.ofNullable(
+            coreCaseDataApi.searchForCitizen(
+                user.getAuthToken(),
+                authTokenGenerator.generate(),
+                user.getUserDetails().getId(),
+                jurisdictionId,
+                caseType,
+                Collections.emptyMap())
+        ).orElse(Collections.emptyList());
+    }
+
+    private User getUser(String authorisation) {
+        final String bearerToken = authUtil.getBearerToken(authorisation);
+        final UserDetails userDetails = idamClient.getUserDetails(bearerToken);
+
+        log.info("Successfully retrieved user id from Idam {}", userDetails.getId());
+
+        return new User(bearerToken, userDetails);
+    }
+
+    private List<CaseDetails> filterOutAmendedCases(List<CaseDetails> caseDetailsList) {
+        caseDetailsList = Optional.ofNullable(caseDetailsList)
+            .orElse(Collections.emptyList())
+            .stream()
+            .filter(caseDetails -> !AMEND_PETITION_STATE.equals(caseDetails.getState()))
+            .collect(toList());
+        return caseDetailsList;
     }
 }

@@ -16,12 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_COURT;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.CcdStates.AWAITING_PAYMENT;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_ID_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.D_8_PETITIONER_EMAIL;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.STATE_CCD_FIELD;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.courts.CourtConstants.SELECTED_COURT_KEY;
 
 public class GetCaseFromCcdTest extends CcdSubmissionSupport {
 
@@ -29,7 +27,7 @@ public class GetCaseFromCcdTest extends CcdSubmissionSupport {
     private String getCaseContextPath;
 
     @Test
-    public void givenCaseExists_whenRetrieveCase_thenReturnResponse() throws Exception {
+    public void givenCaseExists_whenRetrieveCase_thenReturnResponse() {
         UserDetails userDetails = createCitizenUser();
 
         CaseDetails caseDetails = submitCase("submit-complete-case.json", userDetails,
@@ -38,8 +36,7 @@ public class GetCaseFromCcdTest extends CcdSubmissionSupport {
         Response cosResponse = getCase(userDetails.getAuthToken());
 
         assertEquals(HttpStatus.OK.value(), cosResponse.getStatusCode());
-        assertEquals(String.valueOf(caseDetails.getId()), cosResponse.path(CASE_ID_JSON_KEY));
-        assertEquals(TEST_COURT, cosResponse.path(SELECTED_COURT_KEY));
+        assertEquals(String.valueOf(caseDetails.getId()), cosResponse.path(ID));
         assertEquals(AWAITING_PAYMENT, cosResponse.path(STATE_CCD_FIELD));
     }
 

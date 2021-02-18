@@ -412,4 +412,6 @@ public class OrchestrationConstants {
     // Bulk Scan
     public static final String CASE_TYPE_ID = "NO_FAULT_DIVORCE";
 
+    public static final String AMEND_PETITION_STATE = "AmendPetition";
+
 }
