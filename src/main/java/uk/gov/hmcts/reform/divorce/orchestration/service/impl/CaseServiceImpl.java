@@ -13,6 +13,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
+import uk.gov.hmcts.reform.divorce.orchestration.service.ccd.CasePatchService;
 import uk.gov.hmcts.reform.divorce.orchestration.util.AuthUtil;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
 import uk.gov.hmcts.reform.idam.client.models.User;
@@ -48,6 +49,9 @@ public class CaseServiceImpl implements CaseService {
     @Autowired
     private final IdamClient idamClient;
 
+    @Autowired
+    private final CasePatchService casePatchService;
+
     @Value("${ccd.jurisdictionid}")
     private String jurisdictionId;
 
@@ -65,13 +69,8 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public Map<String, Object> patchCase(final Map<String, Object> caseData, final String authToken) {
-
-        final Map<String, Object> payload = cmsClient.patchCase(caseData, authToken);
-
-        log.info("Updated case with CASE ID: {}", payload.get(ID));
-
-        return payload;
+    public void patchCase(final String caseId, final Map<String, Object> caseData, final String authorizationToken) {
+        casePatchService.patchCase(caseId, caseData, getUser(authorizationToken), authTokenGenerator.generate());
     }
 
     @Override

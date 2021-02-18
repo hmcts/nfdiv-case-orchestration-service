@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.RemoveUserRolesReq
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static uk.gov.hmcts.reform.divorce.orchestration.service.bulk.print.DocumentContentFetcherService.Headers.SERVICE_AUTHORIZATION;
 
-@FeignClient(name = "case-role-client", url = "${ccd.data-store.api.url}")
+@FeignClient(name = "case-role-client", url = "${core_case_data.api.url}")
 public interface CaseRoleClient {
 
     @DeleteMapping(

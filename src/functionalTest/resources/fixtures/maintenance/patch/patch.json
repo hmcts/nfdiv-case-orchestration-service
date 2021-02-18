@@ -1,4 +1,6 @@
 {
-  "divorceOrDissolution": "dissolution",
-  "id": "caseId"
+  "id": "caseId",
+  "data": {
+    "divorceOrDissolution": "dissolution"
+  }
 }
