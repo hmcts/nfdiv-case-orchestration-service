@@ -122,7 +122,7 @@ public class GetCaseITest extends IdamTestSupport {
             .thenReturn(null);
 
         webClient.perform(get(GET_CASE_CONTEXT_PATH)
-            .header(AUTHORIZATION, AUTH_TOKEN)
+            .header(AUTHORIZATION, USER_TOKEN)
             .accept(APPLICATION_JSON))
             .andExpect(status().isNotFound());
     }
