@@ -47,12 +47,8 @@ public class AmendPetitionTest extends CcdSubmissionSupport {
     private static final String PREVIOUS_REASONS_KEY = "previousReasonsForDivorce";
 
     private static final String PAYLOAD_CONTEXT_PATH = "fixtures/amend-petition/";
-    private static final String TEST_AOS_STARTED_EVENT_ID = "testAosStarted";
     private static final String AOS_RECEIVED_NO_ADMIT_EVENT_ID = "aosReceivedNoAdConStarted";
     private static final String AMEND_PETITION_STATE = "AmendPetition";
-    private static final String REASON_FOR_DIVORCE_BEHAVIOUR_DETAILS = "reasonForDivorceBehaviourDetails";
-    private static final String CLAIMS_COSTS = "claimsCosts";
-    private static final String CONFIRM_PRAYER = "confirmPrayer";
 
     @Autowired
     private CcdClientSupport ccdClientSupport;

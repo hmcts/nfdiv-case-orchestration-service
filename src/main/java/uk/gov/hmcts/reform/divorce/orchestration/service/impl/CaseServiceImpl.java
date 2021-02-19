@@ -143,12 +143,11 @@ public class CaseServiceImpl implements CaseService {
     }
 
     private List<CaseDetails> filterOutAmendedCases(List<CaseDetails> caseDetailsList) {
-        caseDetailsList = Optional.ofNullable(caseDetailsList)
+        return Optional.ofNullable(caseDetailsList)
             .orElse(Collections.emptyList())
             .stream()
             .filter(caseDetails -> !AMEND_PETITION_STATE.equals(caseDetails.getState()))
             .collect(toList());
-        return caseDetailsList;
     }
 
     private List<CaseDetails> findExistingCase(User user) {
