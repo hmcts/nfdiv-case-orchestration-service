@@ -44,8 +44,14 @@ public abstract class CcdSubmissionSupport extends IntegrationTest {
     protected static final String RESPONDENT_DEFAULT_EMAIL = "respondent@notifications.service.gov.uk";
     private static final String SUBMIT_DN_PAYLOAD_CONTEXT_PATH = "fixtures/maintenance/submit-dn/";
 
-    private static final String TEST_AOS_STARTED_EVENT_ID = "testAosStarted";
+    protected static final String TEST_AOS_STARTED_EVENT_ID = "testAosStarted";
     protected static final String NO_STATE_CHANGE_EVENT_ID = "paymentReferenceGenerated";
+
+    protected static final String AOS_RECEIVED_NO_ADMIT_EVENT_ID = "aosReceivedNoAdConStarted";
+    protected static final String REASON_FOR_DIVORCE_BEHAVIOUR_DETAILS = "reasonForDivorceBehaviourDetails";
+    protected static final String CLAIMS_COSTS = "claimsCosts";
+    protected static final String CONFIRM_PRAYER = "confirmPrayer";
+
 
     @Autowired
     protected CcdClientSupport ccdClientSupport;
@@ -136,14 +142,14 @@ public abstract class CcdSubmissionSupport extends IntegrationTest {
         } catch (FeignException e) {
             String errorMessage = e.content() == null ? e.getMessage() : e.contentUTF8();
             log.error("Failed calling to CCD {}", errorMessage);
-            throw  e;
+            throw e;
         }
     }
 
     protected CaseDetails updateCaseForCitizen(String caseId, String fileName, String eventId,
                                                UserDetails userDetails, Pair<String, String>... additionalCaseData) {
         final Map caseData = fileName == null
-                ? new HashMap() : loadJsonToObject(PAYLOAD_CONTEXT_PATH + fileName, Map.class);
+            ? new HashMap() : loadJsonToObject(PAYLOAD_CONTEXT_PATH + fileName, Map.class);
 
         Arrays.stream(additionalCaseData).forEach(
             caseField -> caseData.put(caseField.getKey(), caseField.getValue())
@@ -155,9 +161,9 @@ public abstract class CcdSubmissionSupport extends IntegrationTest {
         final Map<String, Object> headers = populateHeaders(userToken);
 
         return RestUtil.postToRestService(
-                serverUrl + submitRespondentAosContextPath + "/" + caseId,
-                headers,
-                requestBody
+            serverUrl + submitRespondentAosContextPath + "/" + caseId,
+            headers,
+            requestBody
         );
     }
 
@@ -168,9 +174,9 @@ public abstract class CcdSubmissionSupport extends IntegrationTest {
             bodyWithUser = bodyWithUser.replaceAll(CO_RESPONDENT_DEFAULT_EMAIL, userDetails.getEmailAddress());
         }
         return RestUtil.postToRestService(
-                serverUrl + submitCoRespondentAosContextPath,
-                headers,
-                bodyWithUser
+            serverUrl + submitCoRespondentAosContextPath,
+            headers,
+            bodyWithUser
         );
     }
 
@@ -200,7 +206,7 @@ public abstract class CcdSubmissionSupport extends IntegrationTest {
         updateCaseForCitizen(String.valueOf(caseDetails.getId()), null, AWAITING_DN_AOS_EVENT_ID, userDetails);
 
         Response cosResponse = submitDnCase(userDetails.getAuthToken(), caseDetails.getId(),
-                "dn-submit.json");
+            "dn-submit.json");
         assertEquals(OK.value(), cosResponse.getStatusCode());
 
         assertEquals(caseDetails.getId(), cosResponse.path("id"));
@@ -218,9 +224,9 @@ public abstract class CcdSubmissionSupport extends IntegrationTest {
         }
 
         return RestUtil.postToRestService(
-                serverUrl + submitDnContextPath + "/" + caseId,
-                headers,
-                filePath == null ? null : loadJson(SUBMIT_DN_PAYLOAD_CONTEXT_PATH + filePath)
+            serverUrl + submitDnContextPath + "/" + caseId,
+            headers,
+            filePath == null ? null : loadJson(SUBMIT_DN_PAYLOAD_CONTEXT_PATH + filePath)
         );
     }
 
@@ -234,25 +240,25 @@ public abstract class CcdSubmissionSupport extends IntegrationTest {
         final List<Map<String, Object>> documentsCollection = getDocumentsGenerated(caseDetails);
 
         Map<String, Object> miniPetition = documentsCollection.stream()
-                .filter(m -> m.get("DocumentType").equals(documentType))
-                .findAny()
-                .orElseThrow(() -> new AssertionError(
-                        String.format("Document with type %s not found in %s", documentType, documentsCollection)
-                ));
+            .filter(m -> m.get("DocumentType").equals(documentType))
+            .findAny()
+            .orElseThrow(() -> new AssertionError(
+                String.format("Document with type %s not found in %s", documentType, documentsCollection)
+            ));
 
         assertDocumentWasGenerated(miniPetition, documentType, String.format(fileNameFormat, caseDetails.getId()));
     }
 
     public void assertDocumentWasGenerated(final Map<String, Object> documentData, final String expectedDocumentType,
-                                            final String expectedFilename) {
+                                           final String expectedFilename) {
         assertThat(documentData.get("DocumentType"), is(expectedDocumentType));
 
         final Map<String, String> documentLinkObject = getDocumentLinkObject(documentData);
 
         assertThat(documentLinkObject, allOf(
-                hasEntry(equalTo("document_binary_url"), is(notNullValue())),
-                hasEntry(equalTo("document_url"), is(notNullValue())),
-                hasEntry(equalTo("document_filename"), is(expectedFilename))
+            hasEntry(equalTo("document_binary_url"), is(notNullValue())),
+            hasEntry(equalTo("document_url"), is(notNullValue())),
+            hasEntry(equalTo("document_filename"), is(expectedFilename))
         ));
 
         checkEvidenceManagement(documentLinkObject);
@@ -265,11 +271,11 @@ public abstract class CcdSubmissionSupport extends IntegrationTest {
         final String document_binary_url = documentLinkObject.get("document_binary_url");
         final Response response = readDataFromEvidenceManagement(document_binary_url, divDocAuthToken, caseworkerAuthToken);
 
-        assertThat("Unable to find " + document_binary_url + " in evidence management" , response.statusCode(), is(OK.value()));
+        assertThat("Unable to find " + document_binary_url + " in evidence management", response.statusCode(), is(OK.value()));
     }
 
     @SuppressWarnings("unchecked")
     private Map<String, String> getDocumentLinkObject(Map<String, Object> documentGenerated) {
-        return (Map<String, String>)documentGenerated.get("DocumentLink");
+        return (Map<String, String>) documentGenerated.get("DocumentLink");
     }
 }
