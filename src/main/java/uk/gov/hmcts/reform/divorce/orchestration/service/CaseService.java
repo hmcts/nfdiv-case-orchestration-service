@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface CaseService {
 
-    Map<String, Object> submitDraftCase(Map<String, Object> divorceSession, String authToken);
+    Map<String, Object> postCase(Map<String, Object> divorceSession, String authToken);
 
     void patchCase(final String caseId, Map<String, Object> divorceEventSession, String authToken);
 

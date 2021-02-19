@@ -14,6 +14,7 @@ import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.ccd.CasePatchService;
 import uk.gov.hmcts.reform.divorce.orchestration.util.AuthUtil;
@@ -22,7 +23,6 @@ import uk.gov.hmcts.reform.idam.client.models.User;
 import uk.gov.hmcts.reform.idam.client.models.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -87,18 +87,40 @@ public class CaseServiceImplTest {
     }
 
     @Test
-    public void givenDraftCaseDataValid_whenSubmit_thenReturnPayload() throws Exception {
-
+    public void givenNoExistingCaseAndCaseDataValid_whenSubmit_thenReturnPayload() throws CaseAlreadyExistsException {
         final Map<String, Object> requestPayload = singletonMap("requestPayloadKey", "requestPayloadValue");
-        final Map<String, Object> expectedPayload = new HashMap<>();
-        expectedPayload.put("returnedKey", "returnedValue");
 
-        when(cmsClient.submitDraftCase(requestPayload, AUTH_TOKEN)).thenReturn(expectedPayload);
+        when(authUtil.getBearerToken(AUTH_TOKEN)).thenReturn(BEARER_AUTH_TOKEN);
+        when(idamClient.getUserDetails(BEARER_AUTH_TOKEN)).thenReturn(USER_DETAILS);
+        when(authTokenGenerator.generate()).thenReturn(TEST_SERVICE_TOKEN);
+        when(coreCaseDataApi
+            .searchForCitizen(BEARER_AUTH_TOKEN, TEST_SERVICE_TOKEN, USER_ID, TEST_JURISDICTION_ID, TEST_CASE_TYPE, emptyMap())
+        ).thenReturn(emptyList());
 
-        final Map<String, Object> actual = caseService.submitDraftCase(requestPayload, AUTH_TOKEN);
+        when(cmsClient.submitDraftCase(requestPayload, AUTH_TOKEN)).thenReturn(requestPayload);
 
-        assertThat(actual.get("returnedKey"), is("returnedValue"));
+        final Map<String, Object> actual = caseService.postCase(requestPayload, AUTH_TOKEN);
+
+        assertThat(actual.get("requestPayloadKey"), is("requestPayloadValue"));
         verify(cmsClient).submitDraftCase(requestPayload, AUTH_TOKEN);
+    }
+
+    @Test
+    public void givenExistingCase_whenSubmitCase_thenReturnException() throws CaseNotFoundException {
+        final Map<String, Object> requestPayload = singletonMap("requestPayloadKey", "requestPayloadValue");
+        CaseDetails caseDetails = createCaseDetails(CASE_ID_1, TEST_STATE);
+
+        when(authUtil.getBearerToken(AUTH_TOKEN)).thenReturn(BEARER_AUTH_TOKEN);
+        when(idamClient.getUserDetails(BEARER_AUTH_TOKEN)).thenReturn(USER_DETAILS);
+        when(authTokenGenerator.generate()).thenReturn(TEST_SERVICE_TOKEN);
+        when(coreCaseDataApi
+            .searchForCitizen(BEARER_AUTH_TOKEN, TEST_SERVICE_TOKEN, USER_ID, TEST_JURISDICTION_ID, TEST_CASE_TYPE, emptyMap())
+        ).thenReturn(List.of(caseDetails));
+
+        final CaseAlreadyExistsException caseAlreadyExistsException = assertThrows(CaseAlreadyExistsException.class,
+            () -> caseService.postCase(requestPayload, AUTH_TOKEN));
+
+        assertThat(caseAlreadyExistsException.getMessage(), is("Existing case found"));
     }
 
     @Test

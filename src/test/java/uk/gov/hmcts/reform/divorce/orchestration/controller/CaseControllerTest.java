@@ -8,10 +8,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
-import uk.gov.hmcts.reform.divorce.model.response.ValidationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
@@ -34,7 +34,6 @@ import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SUCCESS_STATUS;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.VALIDATION_ERROR_KEY;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CaseControllerTest {
@@ -46,11 +45,11 @@ public class CaseControllerTest {
     private CaseController caseController;
 
     @Test
-    public void whenSubmitDraft_thenReturnCaseResponse() throws Exception {
+    public void whenSubmitCase_thenReturnCaseResponse() throws Exception {
         final Map<String, Object> caseData = Collections.emptyMap();
         final Map<String, Object> serviceReturnData = new HashMap<>();
         serviceReturnData.put(ID, TEST_CASE_ID);
-        when(caseService.submitDraftCase(caseData, AUTH_TOKEN)).thenReturn(serviceReturnData);
+        when(caseService.postCase(caseData, AUTH_TOKEN)).thenReturn(serviceReturnData);
 
         final ResponseEntity<CaseCreationResponse> response = caseController.submitCase(AUTH_TOKEN, caseData);
 
@@ -62,18 +61,17 @@ public class CaseControllerTest {
     }
 
     @Test
-    public void givenErrors_whenSubmittingDraft_thenReturnBadRequest() throws Exception {
+    public void whenSubmitCase_givenDuplicateCase_thenReturnCaseAlreadyExistsException() throws CaseAlreadyExistsException {
         final Map<String, Object> caseData = Collections.emptyMap();
-        final Map<String, Object> invalidResponse = Collections.singletonMap(
-            VALIDATION_ERROR_KEY,
-            ValidationResponse.builder().build()
-        );
+        final Map<String, Object> serviceReturnData = new HashMap<>();
+        serviceReturnData.put(ID, TEST_CASE_ID);
+        when(caseService.postCase(caseData, AUTH_TOKEN)).thenThrow(new CaseAlreadyExistsException("Existing case found"));
 
-        when(caseService.submitDraftCase(caseData, AUTH_TOKEN)).thenReturn(invalidResponse);
+        CaseAlreadyExistsException caseAlreadyExistsException = assertThrows(CaseAlreadyExistsException.class,
+            () -> caseController.submitCase(AUTH_TOKEN, caseData));
 
-        final ResponseEntity<CaseCreationResponse> response = caseController.submitCase(AUTH_TOKEN, caseData);
-
-        assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
+        assertThat(caseAlreadyExistsException.getMessage(), equalTo("Existing case found"));
+        verify(caseService).postCase(caseData, AUTH_TOKEN);
     }
 
     @Test
