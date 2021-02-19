@@ -44,7 +44,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTes
 
 public class SubmitCCDCaseTest extends IdamTestSupport {
 
-    private static final String GET_CASE_CONTEXT_PATH = "/case";
+    private static final String SUBMIT_CASE_CONEXT_PATH = "/case";
 
     private DivorceSession testDivorceSessionData;
     private DivorceSession testDivorceSessionDataDraft;
@@ -78,7 +78,7 @@ public class SubmitCCDCaseTest extends IdamTestSupport {
 
     @Test
     public void givenNoAuthToken_whenPostCase_thenReturnBadRequest() throws Exception {
-        webClient.perform(post(GET_CASE_CONTEXT_PATH)
+        webClient.perform(post(SUBMIT_CASE_CONEXT_PATH)
             .content(convertObjectToJsonString(testDivorceSessionData))
             .contentType(APPLICATION_JSON)
             .accept(APPLICATION_JSON))
@@ -87,7 +87,7 @@ public class SubmitCCDCaseTest extends IdamTestSupport {
 
     @Test
     public void givenNoPayload_whenPostCase_thenReturnBadRequest() throws Exception {
-        webClient.perform(post(GET_CASE_CONTEXT_PATH)
+        webClient.perform(post(SUBMIT_CASE_CONEXT_PATH)
             .header(AUTHORIZATION, AUTH_TOKEN)
             .contentType(APPLICATION_JSON)
             .accept(APPLICATION_JSON))
@@ -96,19 +96,16 @@ public class SubmitCCDCaseTest extends IdamTestSupport {
 
     @Test
     public void givenNoCaseExistsInCcd_whenPostCase_thenSubmitCase() throws Exception {
-        final Map<String, Object> requestPayload = singletonMap("requestPayloadKey", "requestPayloadValue");
-
         final String message = getCitizenUserDetails();
 
         stubUserDetailsEndpoint(HttpStatus.OK, USER_TOKEN, message);
 
         when(serviceTokenGenerator.generate()).thenReturn(TEST_SERVICE_TOKEN);
-
         when(coreCaseDataApi
             .searchForCitizen(USER_TOKEN, TEST_SERVICE_TOKEN, TEST_USER_ID, jurisdictionId, caseType, Collections.emptyMap()))
             .thenReturn(emptyList());
 
-        final MvcResult result = webClient.perform(post(GET_CASE_CONTEXT_PATH)
+        webClient.perform(post(SUBMIT_CASE_CONEXT_PATH)
             .header(AUTHORIZATION, USER_TOKEN)
             .content(convertObjectToJsonString(testDivorceSessionDataDraft))
             .contentType(APPLICATION_JSON)
@@ -132,7 +129,7 @@ public class SubmitCCDCaseTest extends IdamTestSupport {
             .searchForCitizen(USER_TOKEN, TEST_SERVICE_TOKEN, TEST_USER_ID, jurisdictionId, caseType, Collections.emptyMap()))
             .thenReturn(Collections.singletonList(caseDetails));
 
-        webClient.perform(post(GET_CASE_CONTEXT_PATH)
+        webClient.perform(post(SUBMIT_CASE_CONEXT_PATH)
             .header(AUTHORIZATION, AUTH_TOKEN)
             .contentType(APPLICATION_JSON)
             .accept(APPLICATION_JSON))

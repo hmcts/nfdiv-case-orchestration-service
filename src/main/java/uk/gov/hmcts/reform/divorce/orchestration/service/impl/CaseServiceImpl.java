@@ -151,7 +151,7 @@ public class CaseServiceImpl implements CaseService {
         return caseDetailsList;
     }
 
-    private List<CaseDetails> findExistingCase(final User user) {
+    private List<CaseDetails> findExistingCase(User user) {
         List<CaseDetails> caseDetailsList = getCaseListForUser(user);
         return filterOutAmendedCases(caseDetailsList);
     }

@@ -45,7 +45,7 @@ public class CaseControllerTest {
     private CaseController caseController;
 
     @Test
-    public void whenSubmitDraft_thenReturnCaseResponse() throws Exception {
+    public void whenSubmitCase_thenReturnCaseResponse() throws Exception {
         final Map<String, Object> caseData = Collections.emptyMap();
         final Map<String, Object> serviceReturnData = new HashMap<>();
         serviceReturnData.put(ID, TEST_CASE_ID);
@@ -61,7 +61,7 @@ public class CaseControllerTest {
     }
 
     @Test
-    public void whenSubmitDraft_givenDuplicateCase_thenReturnCaseAlreadyExistsException() throws CaseAlreadyExistsException {
+    public void whenSubmitCase_givenDuplicateCase_thenReturnCaseAlreadyExistsException() throws CaseAlreadyExistsException {
         final Map<String, Object> caseData = Collections.emptyMap();
         final Map<String, Object> serviceReturnData = new HashMap<>();
         serviceReturnData.put(ID, TEST_CASE_ID);
@@ -71,7 +71,6 @@ public class CaseControllerTest {
             () -> caseController.submitCase(AUTH_TOKEN, caseData));
 
         assertThat(caseAlreadyExistsException.getMessage(), equalTo("Existing case found"));
-
         verify(caseService).postCase(caseData, AUTH_TOKEN);
     }
 
