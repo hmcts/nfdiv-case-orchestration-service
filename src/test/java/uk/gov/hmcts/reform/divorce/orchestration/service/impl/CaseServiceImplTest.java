@@ -15,8 +15,10 @@ import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
+import uk.gov.hmcts.reform.divorce.orchestration.service.ccd.CasePatchService;
 import uk.gov.hmcts.reform.divorce.orchestration.util.AuthUtil;
 import uk.gov.hmcts.reform.idam.client.IdamClient;
+import uk.gov.hmcts.reform.idam.client.models.User;
 import uk.gov.hmcts.reform.idam.client.models.UserDetails;
 
 import java.time.LocalDateTime;
@@ -30,8 +32,9 @@ import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
@@ -71,6 +74,9 @@ public class CaseServiceImplTest {
     @Mock
     private CoreCaseDataApi coreCaseDataApi;
 
+    @Mock
+    private CasePatchService casePatchService;
+
     @InjectMocks
     private CaseServiceImpl caseService;
 
@@ -96,16 +102,24 @@ public class CaseServiceImplTest {
     }
 
     @Test
-    public void givenCaseUpdateValid_whenSubmit_thenReturnPayload() throws Exception {
+    public void shouldPatchCaseUsingCasePatcherService() throws Exception {
 
         final Map<String, Object> requestPayload = singletonMap("requestPayloadKey", "requestPayloadValue");
+        final String caseId = "123456";
+        final String userId = "1";
+        final UserDetails userDetails = UserDetails.builder().id(userId).build();
 
-        when(cmsClient.patchCase(requestPayload, AUTH_TOKEN)).thenReturn(requestPayload);
+        when(authUtil.getBearerToken(AUTH_TOKEN)).thenReturn(BEARER_AUTH_TOKEN);
+        when(authTokenGenerator.generate()).thenReturn(TEST_SERVICE_TOKEN);
+        when(idamClient.getUserDetails(BEARER_AUTH_TOKEN)).thenReturn(userDetails);
 
-        final Map<String, Object> actual = caseService.patchCase(requestPayload, AUTH_TOKEN);
+        caseService.patchCase(caseId, requestPayload, AUTH_TOKEN);
 
-        assertEquals(requestPayload, actual);
-        verify(cmsClient).patchCase(requestPayload, AUTH_TOKEN);
+        verify(casePatchService).patchCase(
+            eq(caseId),
+            eq(requestPayload),
+            any(User.class),
+            eq(TEST_SERVICE_TOKEN));
     }
 
     @Test
