@@ -69,7 +69,7 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CaseNotFoundException.class)
-    ResponseEntity<Object> handleCaseNotFoundException(InvalidDataException exception) {
+    ResponseEntity<Object> handleCaseNotFoundException(CaseNotFoundException exception) {
         log.warn(exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
