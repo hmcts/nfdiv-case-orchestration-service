@@ -13,7 +13,7 @@ import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseAlreadyExistsException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.util.AuthUtil;

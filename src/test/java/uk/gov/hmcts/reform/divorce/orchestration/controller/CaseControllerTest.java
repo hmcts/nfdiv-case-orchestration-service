@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseResponse;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseAlreadyExistsException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
@@ -26,7 +26,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_ID;
@@ -65,9 +64,11 @@ public class CaseControllerTest {
         serviceReturnData.put(ID, TEST_CASE_ID);
         when(caseService.submitDraftCase(caseData, AUTH_TOKEN)).thenThrow(new CaseAlreadyExistsException("Existing case found"));
 
-        final ResponseEntity<CaseCreationResponse> response = classUnderTest.submitCase(AUTH_TOKEN, caseData);
+        CaseAlreadyExistsException caseAlreadyExistsException = assertThrows(CaseAlreadyExistsException.class, () -> classUnderTest.submitCase(AUTH_TOKEN, caseData));
 
-        assertThat(response.getStatusCode(), equalTo(BAD_REQUEST));
+        assertThat(caseAlreadyExistsException.getMessage(), equalTo("Existing case found"));
+
+        verify(caseService).submitDraftCase(caseData, AUTH_TOKEN);
     }
 
     @Test

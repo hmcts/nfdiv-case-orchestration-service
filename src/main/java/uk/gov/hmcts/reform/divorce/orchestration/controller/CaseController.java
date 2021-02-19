@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseResponse;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseAlreadyExistsException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
@@ -44,20 +44,13 @@ public class CaseController {
         @ApiResponse(code = 400, message = "Bad Request")})
     public ResponseEntity<CaseCreationResponse> submitCase(
         @RequestHeader(value = AUTHORIZATION_HEADER) String authorizationToken,
-        @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) {
-
-        try {
+        @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws CaseAlreadyExistsException {
             Map<String, Object> serviceResponse = caseService.submitDraftCase(payload, authorizationToken);
 
             CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
             caseCreationResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
             caseCreationResponse.setStatus(SUCCESS_STATUS);
             return ResponseEntity.ok(caseCreationResponse);
-        } catch (CaseAlreadyExistsException caseAlreadyExistsException) {
-            log.error(caseAlreadyExistsException.getMessage(), caseAlreadyExistsException);
-            return ResponseEntity.badRequest().build();
-        }
-
     }
 
     @PatchMapping(path = "/case", consumes = APPLICATION_JSON, produces = APPLICATION_JSON)

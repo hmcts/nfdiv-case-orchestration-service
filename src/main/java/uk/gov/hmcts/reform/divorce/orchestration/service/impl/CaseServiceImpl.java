@@ -10,7 +10,7 @@ import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseAlreadyExistsException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
@@ -57,14 +57,16 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public Map<String, Object> submitDraftCase(final Map<String, Object> caseData, final String authToken) throws CaseAlreadyExistsException {
-        try {
-            final GetCaseResponse getCaseResponse = getCase(authToken);
-            log.trace("Existing case with CASE ID: {} found", getCaseResponse.getId());
-            throw new CaseAlreadyExistsException("Existing case found");
-        } catch (CaseNotFoundException caseNotFoundException) {
+
+        User user = getUser(authToken);
+
+        if(isEmpty(findExistingCase(user))) {
             final Map<String, Object> payload = cmsClient.submitDraftCase(caseData, authToken);
-            log.info("Case with CASE ID: {} submitted", payload.get(ID));
+            log.info("Case with case id: {} submitted", payload.get(ID));
             return payload;
+        } else {
+            log.trace("Existing case found for user id: {}", user.getUserDetails().getId());
+            throw new CaseAlreadyExistsException("Existing case found");
         }
     }
 
@@ -149,4 +151,10 @@ public class CaseServiceImpl implements CaseService {
             .collect(toList());
         return caseDetailsList;
     }
+
+    private List<CaseDetails> findExistingCase(final User user) {
+        List<CaseDetails> caseDetailsList = getCaseListForUser(user);
+        return filterOutAmendedCases(caseDetailsList);
+    }
+
 }

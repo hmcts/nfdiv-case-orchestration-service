@@ -10,7 +10,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.hmcts.reform.bsp.common.error.InvalidDataException;
 import uk.gov.hmcts.reform.bsp.common.model.shared.out.BspErrorResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.AuthenticationError;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.ValidationException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
@@ -67,13 +66,6 @@ class GlobalExceptionHandler {
         log.warn(exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-
-    @ExceptionHandler(CaseAlreadyExistsException.class)
-    ResponseEntity<Object> handleCaseAlreadyExistsException(CaseAlreadyExistsException exception) {
-        log.warn(exception.getMessage(), exception);
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @ExceptionHandler(DuplicateCaseException.class)
