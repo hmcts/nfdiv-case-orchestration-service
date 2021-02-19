@@ -73,7 +73,7 @@ class GlobalExceptionHandler {
     ResponseEntity<Object> handleCaseAlreadyExistsException(CaseAlreadyExistsException exception) {
         log.warn(exception.getMessage(), exception);
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @ExceptionHandler(DuplicateCaseException.class)
