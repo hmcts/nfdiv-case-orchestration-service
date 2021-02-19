@@ -10,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
-import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
@@ -67,7 +67,8 @@ public class CaseControllerTest {
         serviceReturnData.put(ID, TEST_CASE_ID);
         when(caseService.postCase(caseData, AUTH_TOKEN)).thenThrow(new CaseAlreadyExistsException("Existing case found"));
 
-        CaseAlreadyExistsException caseAlreadyExistsException = assertThrows(CaseAlreadyExistsException.class, () -> caseController.submitCase(AUTH_TOKEN, caseData));
+        CaseAlreadyExistsException caseAlreadyExistsException = assertThrows(CaseAlreadyExistsException.class,
+            () -> caseController.submitCase(AUTH_TOKEN, caseData));
 
         assertThat(caseAlreadyExistsException.getMessage(), equalTo("Existing case found"));
 

@@ -17,8 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
-import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
 import java.util.Map;
@@ -46,12 +46,12 @@ public class CaseController {
     public ResponseEntity<CaseCreationResponse> submitCase(
         @RequestHeader(value = AUTHORIZATION_HEADER) String authorizationToken,
         @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws CaseAlreadyExistsException {
-            Map<String, Object> serviceResponse = caseService.postCase(payload, authorizationToken);
+        Map<String, Object> serviceResponse = caseService.postCase(payload, authorizationToken);
 
-            CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
-            caseCreationResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
-            caseCreationResponse.setStatus(SUCCESS_STATUS);
-            return ResponseEntity.ok(caseCreationResponse);
+        CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
+        caseCreationResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
+        caseCreationResponse.setStatus(SUCCESS_STATUS);
+        return ResponseEntity.ok(caseCreationResponse);
     }
 
     @SuppressWarnings("unchecked")

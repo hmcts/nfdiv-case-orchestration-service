@@ -10,8 +10,8 @@ import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
 import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
-import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 import uk.gov.hmcts.reform.divorce.orchestration.service.ccd.CasePatchService;
@@ -64,7 +64,7 @@ public class CaseServiceImpl implements CaseService {
 
         User user = getUser(authToken);
 
-        if(isEmpty(findExistingCase(user))) {
+        if (isEmpty(findExistingCase(user))) {
             final Map<String, Object> payload = cmsClient.submitDraftCase(caseData, authToken);
             log.info("Case with case id: {} submitted", payload.get(ID));
             return payload;
