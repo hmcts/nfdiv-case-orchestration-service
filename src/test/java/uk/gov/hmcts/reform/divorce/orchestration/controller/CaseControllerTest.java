@@ -7,11 +7,11 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.reform.divorce.model.response.ValidationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
-import uk.gov.hmcts.reform.divorce.orchestration.exception.BadRequestException;
 import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
@@ -100,8 +100,9 @@ public class CaseControllerTest {
         try {
             caseController.updateCase(AUTH_TOKEN, payload);
             fail();
-        } catch (final BadRequestException e) {
-            assertThat(e.getMessage(), is("Missing field 'id' in json payload."));
+        } catch (final ResponseStatusException e) {
+            assertThat(e.getStatus(), is(BAD_REQUEST));
+            assertThat(e.getMessage(), is("400 BAD_REQUEST \"Missing field 'id' in json payload.\""));
         }
     }
 
@@ -115,8 +116,9 @@ public class CaseControllerTest {
         try {
             caseController.updateCase(AUTH_TOKEN, payload);
             fail();
-        } catch (final BadRequestException e) {
-            assertThat(e.getMessage(), is("Missing field 'data' in json payload."));
+        } catch (final ResponseStatusException e) {
+            assertThat(e.getStatus(), is(BAD_REQUEST));
+            assertThat(e.getMessage(), is("400 BAD_REQUEST \"Missing field 'data' in json payload.\""));
         }
     }
 

@@ -7,7 +7,6 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -15,16 +14,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.GetCaseResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseCreationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
-import uk.gov.hmcts.reform.divorce.orchestration.exception.BadRequestException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseService;
 
 import java.util.Map;
 import java.util.Optional;
 
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTHORIZATION_HEADER;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SUCCESS_STATUS;
@@ -51,7 +51,7 @@ public class CaseController {
 
         if (serviceResponse.containsKey(VALIDATION_ERROR_KEY)) {
             log.error("Bad request. Found this validation error: {}", serviceResponse.get(VALIDATION_ERROR_KEY));
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.status(BAD_REQUEST).build();
         }
 
         CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
@@ -72,9 +72,9 @@ public class CaseController {
         @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) {
 
         final Object id = Optional.ofNullable(payload.get("id"))
-            .orElseThrow(() -> new BadRequestException("Missing field 'id' in json payload."));
+            .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Missing field 'id' in json payload."));
         final Map<String, Object> data = Optional.ofNullable((Map<String, Object>) payload.get("data"))
-            .orElseThrow(() -> new BadRequestException("Missing field 'data' in json payload."));
+            .orElseThrow(() -> new ResponseStatusException(BAD_REQUEST, "Missing field 'data' in json payload."));
 
         caseService.patchCase(id.toString(), data, authorizationToken);
     }

@@ -41,6 +41,8 @@ public class CasePatchService {
         final String authToken = user.getAuthToken();
         final String userId = user.getUserDetails().getId();
 
+        log.debug("Attempting to start patch case event for User:{}, Case:{}", userId, caseId);
+
         final StartEventResponse startEventResponse = coreCaseDataApi.startEventForCitizen(
             authToken,
             serviceAuthToken,
@@ -51,10 +53,14 @@ public class CasePatchService {
             patchEventId
         );
 
+        log.info("Patch case event started for User:{}, Case:{}", userId, caseId);
+
         final CaseDataContent caseDataContent = buildCaseDataContentWith(
             caseData,
             startEventResponse
         );
+
+        log.debug("Attempting to submit patch case event for User:{}, Case:{}", userId, caseId);
 
         coreCaseDataApi.submitEventForCitizen(
             authToken,
@@ -66,6 +72,8 @@ public class CasePatchService {
             true,
             caseDataContent
         );
+
+        log.info("Patch case event submitted for User:{}, Case:{}", userId, caseId);
     }
 
     private CaseDataContent buildCaseDataContentWith(final Map<String, Object> caseData,

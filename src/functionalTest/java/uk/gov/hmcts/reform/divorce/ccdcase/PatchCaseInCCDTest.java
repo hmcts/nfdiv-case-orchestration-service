@@ -11,9 +11,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.withoutJsonPath;
 import static org.apache.http.entity.ContentType.APPLICATION_JSON;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.core.Is.is;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -27,7 +31,7 @@ public class PatchCaseInCCDTest extends IntegrationTest {
 
     private static final String PAYLOAD_CONTEXT_PATH = "fixtures/maintenance/patch/";
 
-    @Value("${case.orchestration.maintenance.case.context-path}")
+    @Value("${case.orchestration.ccd.case.context-path}")
     private String casePath;
 
     @Test
@@ -44,25 +48,32 @@ public class PatchCaseInCCDTest extends IntegrationTest {
 
         final Response beforePatchResponse = getCase(citizenUser.getAuthToken());
         assertThat(beforePatchResponse.getStatusCode(), is(OK.value()));
-        assertThat(beforePatchResponse.getBody().path("state"), is("Draft"));
-        assertThat(beforePatchResponse.getBody().path("data.D8ScreenHasMarriageBroken"), is("YES"));
-        assertThat(beforePatchResponse.getBody().path("data.D8PetitionerFirstName"), nullValue());
-        assertThat(beforePatchResponse.getBody().path("data.D8PetitionerLastName"), nullValue());
-        assertThat(beforePatchResponse.getBody().path("data.D8DerivedPetitionerCurrentFullName"), nullValue());
-        assertThat(beforePatchResponse.getBody().path("data.D8FinancialOrderFor"), contains("petitioner", "children"));
+
+        assertThat(beforePatchResponse.getBody().asString(),
+            isJson(allOf(
+                withJsonPath("state", is("Draft")),
+                withJsonPath("data.D8ScreenHasMarriageBroken", is("YES")),
+                withoutJsonPath("data.D8PetitionerFirstName"),
+                withoutJsonPath("data.D8PetitionerLastName"),
+                withoutJsonPath("data.D8DerivedPetitionerCurrentFullName"),
+                withJsonPath("data.D8FinancialOrderFor", contains("petitioner", "children"))
+            )));
 
         final Response patchResponse = patchCase(citizenUser, patchWithIdJson);
         assertThat(patchResponse.getStatusCode(), is(OK.value()));
 
         final Response afterPatchResponse = getCase(citizenUser.getAuthToken());
         assertThat(afterPatchResponse.getStatusCode(), is(OK.value()));
-        assertThat(afterPatchResponse.getBody().path("id"), is(caseId));
-        assertThat(afterPatchResponse.getBody().path("state"), is("Draft"));
-        assertThat(afterPatchResponse.getBody().path("data.D8ScreenHasMarriageBroken"), is("YES"));
-        assertThat(afterPatchResponse.getBody().path("data.D8PetitionerFirstName"), is("John"));
-        assertThat(afterPatchResponse.getBody().path("data.D8PetitionerLastName"), is("Jones"));
-        assertThat(afterPatchResponse.getBody().path("data.D8DerivedPetitionerCurrentFullName"), is("John Jones"));
-        assertThat(afterPatchResponse.getBody().path("data.D8FinancialOrderFor"), contains("petitioner"));
+
+        assertThat(afterPatchResponse.getBody().asString(),
+            isJson(allOf(
+                withJsonPath("state", is("Draft")),
+                withJsonPath("data.D8ScreenHasMarriageBroken", is("YES")),
+                withJsonPath("data.D8PetitionerFirstName", is("John")),
+                withJsonPath("data.D8PetitionerLastName", is("Jones")),
+                withJsonPath("data.D8DerivedPetitionerCurrentFullName", is("John Jones")),
+                withJsonPath("data.D8FinancialOrderFor", contains("petitioner"))
+            )));
     }
 
     @Test
@@ -73,7 +84,7 @@ public class PatchCaseInCCDTest extends IntegrationTest {
         final Response patchResponse = patchCase(createCitizenUser(), patchWithOutIdJson);
 
         assertThat(patchResponse.getStatusCode(), is(BAD_REQUEST.value()));
-        assertThat(patchResponse.getBody().asString(), is("Missing field 'id' in json payload."));
+        assertThat(patchResponse.getBody().asString(), containsString("Missing field 'id' in json payload."));
     }
 
     @Test
@@ -84,7 +95,18 @@ public class PatchCaseInCCDTest extends IntegrationTest {
         final Response patchResponse = patchCase(createCitizenUser(), patchWithOutIdJson);
 
         assertThat(patchResponse.getStatusCode(), is(BAD_REQUEST.value()));
-        assertThat(patchResponse.getBody().asString(), is("Missing field 'data' in json payload."));
+        assertThat(patchResponse.getBody().asString(), containsString("Missing field 'data' in json payload."));
+    }
+
+    @Test
+    public void shouldRespondWithBadRequestIfIncorrectFieldPresent() throws Exception {
+
+        final String patchWithOutIdJson = loadJson(PAYLOAD_CONTEXT_PATH + "patch-bad-data.json");
+
+        final Response patchResponse = patchCase(createCitizenUser(), patchWithOutIdJson);
+
+        assertThat(patchResponse.getStatusCode(), is(BAD_REQUEST.value()));
+        assertThat(patchResponse.getBody().asString(), containsString("Case reference is not valid"));
     }
 
     private Response patchCase(UserDetails userDetails, String patchWithIdJson) throws Exception {
