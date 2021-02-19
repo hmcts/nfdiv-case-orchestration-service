@@ -79,7 +79,6 @@ public class CaseServiceImpl implements CaseService {
 
         List<CaseDetails> caseDetailsList = getCaseListForUser(user);
 
-        log.info("case id {} ", caseDetailsList.get(0).getId());
         log.info("Case list size {} after retrieving case for user id {}",
             caseDetailsList.size(),
             user.getUserDetails().getId()
