@@ -2,12 +2,11 @@ package uk.gov.hmcts.reform.divorce.orchestration.controller.advice;
 
 import feign.FeignException;
 import org.junit.Test;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.AuthenticationError;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.ValidationException;
-import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.BaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 
@@ -17,39 +16,48 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.MULTIPLE_CHOICES;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ERROR;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ERROR_CONTENT;
 
 public class GlobalExceptionHandlerTest {
-    private static  final int STATUS_CODE = HttpStatus.BAD_REQUEST.value();
 
-    private final GlobalExceptionHandler classUnderTest = new GlobalExceptionHandler();
+    private final GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
 
     @Test
-    public void whenHandleCaseAlreadyExistsException_thenReturnBadRequest() {
-        final CaseAlreadyExistsException caseAlreadyExistsException = new CaseAlreadyExistsException("Case already exists");
+    public void whenHandleFeignException_thenReturnUnderLyingError() {
+        final FeignException feignException = getFeignException();
 
-        ResponseEntity<Object> actual = classUnderTest.handleCaseAlreadyExistsException(caseAlreadyExistsException);
+        ResponseEntity<Object> actual = globalExceptionHandler.handleFeignException(feignException);
 
-        assertEquals(STATUS_CODE, actual.getStatusCodeValue());
+        assertEquals(BAD_REQUEST, actual.getStatusCode());
+        assertEquals(TEST_ERROR + " - " + TEST_ERROR_CONTENT, actual.getBody());
     }
 
     @Test
-    public void whenHandleBadRequestException_thenReturnUnderLyingError() {
-        final FeignException feignException = getFeignException();
+    @SuppressWarnings("unchecked")
+    public void shouldHandleBaseException() {
 
-        ResponseEntity<Object> actual = classUnderTest.handleBadRequestException(feignException);
+        final BaseException baseException = mock(BaseException.class);
+        final ResponseEntity<Object> responseEntity = mock(ResponseEntity.class);
 
-        assertEquals(STATUS_CODE, actual.getStatusCodeValue());
-        assertEquals(TEST_ERROR + " - " + TEST_ERROR_CONTENT, actual.getBody());
+        when(baseException.getMessage()).thenReturn("Exception message");
+        when(baseException.getResponse()).thenReturn(responseEntity);
+
+        final ResponseEntity<Object> actualResponse = globalExceptionHandler.handleBaseException(baseException);
+
+        assertThat(actualResponse, is(responseEntity));
     }
 
     @Test
     public void givenNoCause_whenHandleWorkFlowException_thenReturnInternalServerError() {
         final WorkflowException workflowException = new WorkflowException(TEST_ERROR);
 
-        ResponseEntity<Object> actual = classUnderTest.handleWorkFlowException(workflowException);
+        ResponseEntity<Object> actual = globalExceptionHandler.handleWorkFlowException(workflowException);
 
         assertEquals(INTERNAL_SERVER_ERROR, actual.getStatusCode());
         assertEquals(TEST_ERROR, actual.getBody());
@@ -61,9 +69,9 @@ public class GlobalExceptionHandlerTest {
 
         final WorkflowException workflowException = new WorkflowException(TEST_ERROR, feignException);
 
-        ResponseEntity<Object> actual = classUnderTest.handleWorkFlowException(workflowException);
+        ResponseEntity<Object> actual = globalExceptionHandler.handleWorkFlowException(workflowException);
 
-        assertEquals(STATUS_CODE, actual.getStatusCodeValue());
+        assertEquals(BAD_REQUEST, actual.getStatusCode());
         assertEquals(TEST_ERROR + " - " + TEST_ERROR_CONTENT, actual.getBody());
     }
 
@@ -73,9 +81,9 @@ public class GlobalExceptionHandlerTest {
 
         final WorkflowException workflowException = new WorkflowException("", feignException);
 
-        ResponseEntity<Object> actual = classUnderTest.handleWorkFlowException(workflowException);
+        ResponseEntity<Object> actual = globalExceptionHandler.handleWorkFlowException(workflowException);
 
-        assertEquals(HttpStatus.MULTIPLE_CHOICES.value(), actual.getStatusCodeValue());
+        assertEquals(MULTIPLE_CHOICES, actual.getStatusCode());
         assertNull(actual.getBody());
     }
 
@@ -85,7 +93,7 @@ public class GlobalExceptionHandlerTest {
 
         final WorkflowException workflowException = new WorkflowException(TEST_ERROR, taskException);
 
-        ResponseEntity<Object> actual = classUnderTest.handleWorkFlowException(workflowException);
+        ResponseEntity<Object> actual = globalExceptionHandler.handleWorkFlowException(workflowException);
 
         assertEquals(INTERNAL_SERVER_ERROR, actual.getStatusCode());
         assertEquals(TEST_ERROR, actual.getBody());
@@ -99,9 +107,9 @@ public class GlobalExceptionHandlerTest {
 
         final WorkflowException workflowException = new WorkflowException(TEST_ERROR, taskException);
 
-        ResponseEntity<Object> actual = classUnderTest.handleWorkFlowException(workflowException);
+        ResponseEntity<Object> actual = globalExceptionHandler.handleWorkFlowException(workflowException);
 
-        assertEquals(STATUS_CODE, actual.getStatusCodeValue());
+        assertEquals(BAD_REQUEST, actual.getStatusCode());
         assertEquals(TEST_ERROR + " - " + TEST_ERROR_CONTENT, actual.getBody());
     }
 
@@ -113,9 +121,9 @@ public class GlobalExceptionHandlerTest {
 
         final WorkflowException workflowException = new WorkflowException(TEST_ERROR, taskException);
 
-        ResponseEntity<Object> actual = classUnderTest.handleWorkFlowException(workflowException);
+        ResponseEntity<Object> actual = globalExceptionHandler.handleWorkFlowException(workflowException);
 
-        assertEquals(INTERNAL_SERVER_ERROR.value(), actual.getStatusCodeValue());
+        assertEquals(INTERNAL_SERVER_ERROR, actual.getStatusCode());
         assertEquals(TEST_ERROR, actual.getBody());
     }
 
@@ -127,9 +135,9 @@ public class GlobalExceptionHandlerTest {
 
         final WorkflowException workflowException = new WorkflowException(TEST_ERROR, taskException);
 
-        ResponseEntity<Object> actual = classUnderTest.handleWorkFlowException(workflowException);
+        ResponseEntity<Object> actual = globalExceptionHandler.handleWorkFlowException(workflowException);
 
-        assertEquals(HttpStatus.UNAUTHORIZED.value(), actual.getStatusCodeValue());
+        assertEquals(UNAUTHORIZED, actual.getStatusCode());
         assertEquals(TEST_ERROR, actual.getBody());
     }
 
@@ -141,9 +149,9 @@ public class GlobalExceptionHandlerTest {
 
         final WorkflowException workflowException = new WorkflowException(TEST_ERROR, taskException);
 
-        ResponseEntity<Object> actual = classUnderTest.handleWorkFlowException(workflowException);
+        ResponseEntity<Object> actual = globalExceptionHandler.handleWorkFlowException(workflowException);
 
-        assertEquals(HttpStatus.NOT_FOUND.value(), actual.getStatusCodeValue());
+        assertEquals(NOT_FOUND, actual.getStatusCode());
         assertEquals(TEST_ERROR, actual.getBody());
     }
 
@@ -155,9 +163,9 @@ public class GlobalExceptionHandlerTest {
 
         final WorkflowException workflowException = new WorkflowException(TEST_ERROR, taskException);
 
-        ResponseEntity<Object> actual = classUnderTest.handleWorkFlowException(workflowException);
+        ResponseEntity<Object> actual = globalExceptionHandler.handleWorkFlowException(workflowException);
 
-        assertThat(actual.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+        assertThat(actual.getStatusCode(), is(BAD_REQUEST));
         assertThat(actual.getBody(), is(TEST_ERROR));
     }
 
@@ -165,7 +173,7 @@ public class GlobalExceptionHandlerTest {
     private FeignException getFeignException() {
         final FeignException feignException = mock(FeignException.class);
 
-        when(feignException.status()).thenReturn(GlobalExceptionHandlerTest.STATUS_CODE);
+        when(feignException.status()).thenReturn(BAD_REQUEST.value());
         when(feignException.getMessage()).thenReturn(TEST_ERROR);
         when(feignException.contentUTF8()).thenReturn(TEST_ERROR_CONTENT);
         return feignException;
@@ -174,7 +182,7 @@ public class GlobalExceptionHandlerTest {
     private FeignException getMultiFeignException() {
         final FeignException feignException = mock(FeignException.class);
 
-        when(feignException.status()).thenReturn(HttpStatus.MULTIPLE_CHOICES.value());
+        when(feignException.status()).thenReturn(MULTIPLE_CHOICES.value());
         when(feignException.getMessage()).thenReturn("");
         return feignException;
     }

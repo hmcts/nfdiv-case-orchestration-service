@@ -139,7 +139,7 @@ public class ServiceContextConfiguration {
 
     @Bean
     public CaseRoleClient getCaseRoleClient(
-        @Value("${ccd.data-store.api.url}") final String caseRoleClientUrl) {
+        @Value("${core_case_data.api.url}") final String caseRoleClientUrl) {
         return Feign.builder()
             .requestInterceptor(requestInterceptor())
             .encoder(new JacksonEncoder())

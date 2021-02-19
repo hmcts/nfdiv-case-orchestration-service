@@ -12,8 +12,7 @@ import uk.gov.hmcts.reform.bsp.common.model.shared.out.BspErrorResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.AuthenticationError;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.ValidationException;
-import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
-import uk.gov.hmcts.reform.divorce.orchestration.exception.DuplicateCaseException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.BaseException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 
@@ -26,10 +25,17 @@ import java.util.Optional;
 class GlobalExceptionHandler {
 
     @ExceptionHandler(FeignException.class)
-    ResponseEntity<Object> handleBadRequestException(FeignException exception) {
+    ResponseEntity<Object> handleFeignException(FeignException exception) {
         log.warn(exception.getMessage(), exception);
 
-        return handleFeignException(exception);
+        return processFeignException(exception);
+    }
+
+    @ExceptionHandler(BaseException.class)
+    ResponseEntity<Object> handleBaseException(final BaseException exception) {
+        log.warn(exception.getMessage(), exception);
+
+        return exception.getResponse();
     }
 
     @ExceptionHandler(WorkflowException.class)
@@ -38,7 +44,7 @@ class GlobalExceptionHandler {
 
         if (exception.getCause() != null) {
             if (exception.getCause() instanceof FeignException) {
-                return handleFeignException((FeignException) exception.getCause());
+                return processFeignException((FeignException) exception.getCause());
             }
 
             if (exception.getCause() instanceof TaskException && exception.getCause().getCause() != null) {
@@ -63,24 +69,10 @@ class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(CaseNotFoundException.class)
-    ResponseEntity<Object> handleCaseNotFoundException(InvalidDataException exception) {
+    ResponseEntity<Object> handleCaseNotFoundException(CaseNotFoundException exception) {
         log.warn(exception.getMessage(), exception);
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    }
-
-    @ExceptionHandler(DuplicateCaseException.class)
-    ResponseEntity<Object> handleDuplicateCaseException(DuplicateCaseException exception) {
-        log.warn(exception.getMessage(), exception);
-
-        return ResponseEntity.status(HttpStatus.MULTIPLE_CHOICES).build();
-    }
-
-    @ExceptionHandler(CaseAlreadyExistsException.class)
-    ResponseEntity<Object> handleCaseAlreadyExistsException(CaseAlreadyExistsException exception) {
-        log.warn(exception.getMessage(), exception);
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     private ResponseEntity<Object> handleTaskException(TaskException taskException) {
@@ -89,7 +81,7 @@ class GlobalExceptionHandler {
         String exceptionMessage = taskException.getMessage();
 
         if (taskException.getCause() instanceof FeignException) {
-            responseEntity = handleFeignException((FeignException) taskException.getCause());
+            responseEntity = processFeignException((FeignException) taskException.getCause());
         } else if (taskException.getCause() instanceof AuthenticationError) {
             responseEntity = ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exceptionMessage);
         } else if (taskException.getCause() instanceof CaseNotFoundException) {
@@ -110,7 +102,7 @@ class GlobalExceptionHandler {
         return ResponseEntity.status(exception.getStatusCode()).build();
     }
 
-    private ResponseEntity<Object> handleFeignException(FeignException exception) {
+    private ResponseEntity<Object> processFeignException(FeignException exception) {
         int status = exception.status();
         if (status == HttpStatus.MULTIPLE_CHOICES.value()) {
             return ResponseEntity.status(exception.status()).body(null);

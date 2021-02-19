@@ -1,0 +1,12 @@
+{
+  "id": "caseId",
+  "data": {
+    "UnknownField": "unknown",
+    "D8PetitionerFirstName": "John",
+    "D8PetitionerLastName": "Jones",
+    "D8DerivedPetitionerCurrentFullName": "John Jones",
+    "D8FinancialOrderFor": [
+      "petitioner"
+    ]
+  }
+}
