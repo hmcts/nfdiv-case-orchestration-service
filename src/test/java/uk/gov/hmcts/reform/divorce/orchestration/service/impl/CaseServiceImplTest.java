@@ -93,7 +93,7 @@ public class CaseServiceImplTest {
 
         when(cmsClient.submitDraftCase(requestPayload, AUTH_TOKEN)).thenReturn(requestPayload);
 
-        final Map<String, Object> actual = caseService.submitDraftCase(requestPayload, AUTH_TOKEN);
+        final Map<String, Object> actual = caseService.postCase(requestPayload, AUTH_TOKEN);
 
         assertThat(actual.get("requestPayloadKey"), is("requestPayloadValue"));
         verify(cmsClient).submitDraftCase(requestPayload, AUTH_TOKEN);
@@ -112,7 +112,7 @@ public class CaseServiceImplTest {
         ).thenReturn(List.of(caseDetails));
 
         final CaseAlreadyExistsException caseAlreadyExistsException = assertThrows(CaseAlreadyExistsException.class,
-            () -> caseService.submitDraftCase(requestPayload, AUTH_TOKEN));
+            () -> caseService.postCase(requestPayload, AUTH_TOKEN));
 
         assertThat(caseAlreadyExistsException.getMessage(), is("Existing case found"));
     }

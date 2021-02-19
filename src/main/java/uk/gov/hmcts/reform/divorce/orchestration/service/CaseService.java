@@ -9,7 +9,7 @@ import java.util.Map;
 
 public interface CaseService {
 
-    Map<String, Object> submitDraftCase(Map<String, Object> divorceSession, String authToken) throws CaseAlreadyExistsException;
+    Map<String, Object> postCase(Map<String, Object> divorceSession, String authToken);
 
     Map<String, Object> patchCase(Map<String, Object> divorceEventSession, String authToken) throws WorkflowException;
 

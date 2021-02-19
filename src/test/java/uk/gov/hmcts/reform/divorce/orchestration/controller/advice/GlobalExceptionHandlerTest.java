@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.AuthenticationError;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotFoundException;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.ValidationException;
+import uk.gov.hmcts.reform.divorce.orchestration.exception.CaseAlreadyExistsException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 
@@ -24,6 +25,15 @@ public class GlobalExceptionHandlerTest {
     private static  final int STATUS_CODE = HttpStatus.BAD_REQUEST.value();
 
     private final GlobalExceptionHandler classUnderTest = new GlobalExceptionHandler();
+
+    @Test
+    public void whenHandleCaseAlreadyExistsException_thenReturnBadRequest() {
+        final CaseAlreadyExistsException caseAlreadyExistsException = new CaseAlreadyExistsException("Case already exists");
+
+        ResponseEntity<Object> actual = classUnderTest.handleCaseAlreadyExistsException(caseAlreadyExistsException);
+
+        assertEquals(STATUS_CODE, actual.getStatusCodeValue());
+    }
 
     @Test
     public void whenHandleBadRequestException_thenReturnUnderLyingError() {

@@ -56,7 +56,7 @@ public class CaseServiceImpl implements CaseService {
     private String caseType;
 
     @Override
-    public Map<String, Object> submitDraftCase(final Map<String, Object> caseData, final String authToken) throws CaseAlreadyExistsException {
+    public Map<String, Object> postCase(final Map<String, Object> caseData, final String authToken) throws CaseAlreadyExistsException {
 
         User user = getUser(authToken);
 

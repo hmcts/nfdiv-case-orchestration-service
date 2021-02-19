@@ -45,7 +45,7 @@ public class CaseController {
     public ResponseEntity<CaseCreationResponse> submitCase(
         @RequestHeader(value = AUTHORIZATION_HEADER) String authorizationToken,
         @RequestBody @ApiParam("Divorce Session") Map<String, Object> payload) throws CaseAlreadyExistsException {
-            Map<String, Object> serviceResponse = caseService.submitDraftCase(payload, authorizationToken);
+            Map<String, Object> serviceResponse = caseService.postCase(payload, authorizationToken);
 
             CaseCreationResponse caseCreationResponse = new CaseCreationResponse();
             caseCreationResponse.setCaseId(String.valueOf(serviceResponse.get(ID)));
