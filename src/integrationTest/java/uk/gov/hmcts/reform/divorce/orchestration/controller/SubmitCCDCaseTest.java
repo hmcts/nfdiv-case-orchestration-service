@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.ccd.client.CoreCaseDataApi;
+import uk.gov.hmcts.reform.ccd.client.model.CaseDetails;
 import uk.gov.hmcts.reform.divorce.model.UserDetails;
 import uk.gov.hmcts.reform.divorce.model.usersession.DivorceSession;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CMSClient;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonMap;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -104,9 +106,7 @@ public class SubmitCCDCaseTest extends IdamTestSupport {
 
         when(coreCaseDataApi
             .searchForCitizen(USER_TOKEN, TEST_SERVICE_TOKEN, TEST_USER_ID, jurisdictionId, caseType, Collections.emptyMap()))
-            .thenReturn(null);
-
-        when(cmsClient.submitDraftCase(requestPayload, AUTH_TOKEN)).thenReturn(requestPayload);
+            .thenReturn(emptyList());
 
         final MvcResult result = webClient.perform(post(GET_CASE_CONTEXT_PATH)
             .header(AUTHORIZATION, USER_TOKEN)
@@ -125,7 +125,7 @@ public class SubmitCCDCaseTest extends IdamTestSupport {
 
         stubUserDetailsEndpoint(HttpStatus.OK, USER_TOKEN, message);
 
-        final uk.gov.hmcts.reform.ccd.client.model.CaseDetails caseDetails = createCaseDetails(TEST_STATE);
+        final CaseDetails caseDetails = createCaseDetails(TEST_STATE);
 
         when(serviceTokenGenerator.generate()).thenReturn(TEST_SERVICE_TOKEN);
         when(coreCaseDataApi
@@ -140,7 +140,7 @@ public class SubmitCCDCaseTest extends IdamTestSupport {
     }
 
     public uk.gov.hmcts.reform.ccd.client.model.CaseDetails createCaseDetails(String state) {
-        return uk.gov.hmcts.reform.ccd.client.model.CaseDetails
+        return CaseDetails
             .builder()
             .id(1L)
             .state(state)
